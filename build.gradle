@@ -1,0 +1,101 @@
+buildscript {
+    repositories {
+        mavenCentral()
+
+        maven {
+            url "http://repo.spring.io/milestone/"
+        }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootPluginVersion")
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+    }
+}
+
+plugins {
+    id "com.github.hierynomus.license" version "0.12.1"
+}
+
+allprojects {
+    group = "io.eventuate.local.java"
+}
+
+projects {
+
+    license {
+        header rootProject.file('src/license/HEADER')
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven'
+    apply plugin: 'com.jfrog.bintray'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    bintray {
+        user = System.getenv('BINTRAY_USER')
+        key = System.getenv('BINTRAY_KEY')
+        configurations = ['archives']
+        pkg {
+            repo = "eventuate-maven-$bintrayRepoType"
+            name = 'eventuate-local'
+            licenses = ['Apache-2.0']
+            vcsUrl = 'https://github.com/eventuate-local/eventuate-local'
+        }
+    }
+
+    repositories {
+        maven {
+            url "http://repo.spring.io/milestone/"
+        }
+        mavenCentral()
+        jcenter()
+        eventuateMavenRepoUrl.split(',').each { repoUrl -> maven { url repoUrl } }
+    }
+
+    dependencies {
+        testCompile "junit:junit:4.12"
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                repository(url: deployUrl)
+                pom.project {
+                    licenses {
+                        license {
+                            name 'The Apache Software License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            distribution 'repo'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+task aggregatedTestReport(type: TestReport) {
+  destinationDir = file("$buildDir/reports/allTests")
+  // Include the results from the 'test' task in all subprojects
+  reportOn subprojects*.test
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = "4.4"
+}
+
+gradle.projectsEvaluated {
+    task aggregateJavaDocs(type: Javadoc) {
+        description = 'Aggregates Javadoc API documentation of all subprojects.'
+        group = JavaBasePlugin.DOCUMENTATION_GROUP
+        dependsOn subprojects.findAll { subproject -> subproject.plugins.hasPlugin(PublicModulePlugin) }.javadoc
+
+        source subprojects.findAll { subproject -> subproject.plugins.hasPlugin(PublicModulePlugin) }.javadoc.source
+        destinationDir file("$buildDir/docs/javadoc")
+        classpath = files(subprojects.findAll { subproject -> subproject.plugins.hasPlugin(PublicModulePlugin) }.javadoc.classpath)
+    }
+}

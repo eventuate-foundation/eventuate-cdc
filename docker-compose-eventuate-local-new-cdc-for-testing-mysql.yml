@@ -1,0 +1,7 @@
+
+oldcdcservice:
+  image: test-eventuateio-local-cdc-sql-service
+
+mysql:
+  image: test-eventuateio-local-mysql
+
