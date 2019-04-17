@@ -1,5 +1,5 @@
 zookeeper:
-  build: ./zookeeper
+  image: test-eventuate-zookeeper
   ports:
     - 2181:2181
     - 2888:2888

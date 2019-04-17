@@ -17,7 +17,7 @@ plugins {
 }
 
 allprojects {
-    group = "io.eventuate.local.java"
+    group = "io.eventuate.cdc"
 }
 
 projects {

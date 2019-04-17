@@ -1,3 +1,4 @@
 #! /bin/bash -e
 
-docker build -t test-eventuateio-local-mssql .
+docker build -t test-eventuate-mssql .
+

@@ -23,4 +23,5 @@ COPY docker-entrypoint-initdb.d /docker-entrypoint-initdb.d
 
 # Initialize schema
 COPY 1.initialize-database.sql /docker-entrypoint-initdb.d
-COPY 2.create-replication-slot.sql /docker-entrypoint-initdb.d
+COPY 2.initialize-database.sql /docker-entrypoint-initdb.d
+COPY 3.initialize-database.sql /docker-entrypoint-initdb.d
