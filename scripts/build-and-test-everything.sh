@@ -4,14 +4,9 @@ set -o pipefail
 
 SCRIPTS="
 ./scripts/build-and-test-mysql.sh
-./scripts/build-and-test-all-new-cdc-mysql.sh
-./scripts/build-and-test-mysql-migration.sh
+./scripts/build-and-test-mssql-polling.sh
 ./scripts/build-and-test-mariadb.sh
 ./scripts/build-and-test-postgres-wal.sh
-./scripts/build-and-test-all-new-cdc-postgres-wal.sh
-./scripts/build-and-test-all-new-cdc-mariadb.sh
-./scripts/build-and-test-all-new-cdc-postgres-polling.sh
-./scripts/build-and-test-all-new-cdc-unified.sh
 "
 
 date > build-and-test-everything.log

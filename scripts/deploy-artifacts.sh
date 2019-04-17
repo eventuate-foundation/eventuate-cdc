@@ -4,7 +4,7 @@ DOCKER_COMPOSE_PREFIX=$(echo ${PWD##*/} | sed -e 's/-//g')_
 
 DOCKER_REPO=eventuateio
 REMOTE_PREFIX=eventuateio-local
-IMAGES="cdc-service mysql postgres zookeeper kafka"
+IMAGES="mysql postgres zookeeper kafka"
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
@@ -39,8 +39,8 @@ fi
 # Dockerfiles look for snapshot version of JAR!
 
 $PREFIX ./gradlew assemble
-docker-compose -f docker-compose-mysql.yml -f docker-compose-new-cdc-mysql.yml build cdcservice mysql zookeeper kafka
-docker-compose -f docker-compose-postgres-wal.yml -f docker-compose-new-cdc-postgres-wal.yml build postgres
+docker-compose -f docker-compose-mysql.yml build mysql zookeeper kafka
+docker-compose -f docker-compose-postgres-wal.yml build postgres
 
 $PREFIX ./gradlew -P version=${VERSION} \
   testClasses

@@ -1,5 +1,5 @@
 zookeeper:
-  build: ./zookeeper
+  image: test-eventuate-zookeeper
   ports:
     - 2181:2181
     - 2888:2888
@@ -7,7 +7,7 @@ zookeeper:
 
 
 kafka:
-  build: ./kafka
+  image: test-eventuate-kafka
   ports:
     - 9092:9092
   links:

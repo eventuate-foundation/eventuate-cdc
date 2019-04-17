@@ -1,1 +1,1 @@
-docker build -t test-postgres-wal .
+docker build -t test-eventuate-postgres .

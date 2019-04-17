@@ -1,0 +1,15 @@
+dependencies {
+    compile project(":eventuate-local-java-cdc-connector-mysql-binlog")
+    compile project(":eventuate-local-java-cdc-connector-polling")
+    compile project(":eventuate-local-java-cdc-connector-postgres-wal")
+    compile "io.eventuate.common:eventuate-common-coordination-leadership-zookeeper:$eventuateCommonVersion"
+
+    compile 'com.zaxxer:HikariCP:3.2.0'
+
+    testCompile "junit:junit:4.11"
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+}
+
+test {
+    forkEvery 1
+}

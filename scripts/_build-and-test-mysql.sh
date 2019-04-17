@@ -22,6 +22,6 @@ docker-compose -f docker-compose-${database}.yml up -d
 
 ./scripts/wait-for-mysql.sh
 
-./gradlew $* -x :new-cdc:eventuate-local-java-cdc-connector-postgres-wal:test
+./gradlew $* -x :eventuate-local-java-cdc-connector-postgres-wal:test
 
 docker-compose -f docker-compose-${database}.yml down -v --remove-orphans

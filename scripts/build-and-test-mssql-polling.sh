@@ -19,6 +19,6 @@ docker-compose -f docker-compose-mssql-polling.yml  up --build -d
 
 ./scripts/wait-for-mssql.sh
 
-./gradlew $* :new-cdc:eventuate-local-java-cdc-connector-polling:cleanTest :new-cdc:eventuate-local-java-cdc-connector-polling:test -Dtest.single=PollingCdcProcessorTest
+./gradlew $* :eventuate-local-java-cdc-connector-polling:cleanTest :eventuate-local-java-cdc-connector-polling:test -Dtest.single=PollingCdcProcessorTest
 
 docker-compose -f docker-compose-mssql-polling.yml down -v --remove-orphans

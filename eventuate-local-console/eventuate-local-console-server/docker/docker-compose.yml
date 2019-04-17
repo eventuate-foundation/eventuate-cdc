@@ -1,9 +1,0 @@
-eventuatelocalconsole:
-  image: eventuate-local-console-test
-  ports:
-    - 3001:8080
-  environment:
-    - EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING
-    - SPRING_DATASOURCE_USERNAME
-    - SPRING_DATASOURCE_PASSWORD
-    - SPRING_DATASOURCE_URL
