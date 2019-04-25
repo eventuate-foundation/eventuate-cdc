@@ -37,7 +37,6 @@ public abstract class CdcKafkaPublisherTest extends AbstractCdcTest {
 
   @Before
   public void init() {
-    super.init();
     cdcDataPublisher = createCdcKafkaPublisher();
     cdcDataPublisher.start();
   }

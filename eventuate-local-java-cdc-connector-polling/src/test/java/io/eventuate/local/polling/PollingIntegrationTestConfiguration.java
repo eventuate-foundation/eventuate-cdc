@@ -2,12 +2,13 @@ package io.eventuate.local.polling;
 
 import io.eventuate.common.PublishedEvent;
 import io.eventuate.common.kafka.EventuateKafkaConfigurationProperties;
+import io.eventuate.common.kafka.EventuateKafkaPropertiesConfiguration;
 import io.eventuate.common.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.common.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.common.kafka.producer.EventuateKafkaProducerConfigurationProperties;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.coordination.leadership.zookeeper.ZkLeaderSelector;
-import io.eventuate.javaclient.driver.EventuateDriverConfiguration;
+import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import io.eventuate.local.common.*;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
 import io.eventuate.sql.dialect.SqlDialectConfiguration;
@@ -30,9 +31,15 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableAutoConfiguration
-@Import({EventuateDriverConfiguration.class, SqlDialectConfiguration.class})
-@EnableConfigurationProperties(EventuateKafkaProducerConfigurationProperties.class)
+@Import({EventuateKafkaPropertiesConfiguration.class, SqlDialectConfiguration.class})
+@EnableConfigurationProperties({EventuateKafkaProducerConfigurationProperties.class,
+        EventuateKafkaConsumerConfigurationProperties.class})
 public class PollingIntegrationTestConfiguration {
+
+  @Bean
+  public EventuateSchema eventuateSchema(@Value("${eventuate.database.schema:#{null}}") String eventuateDatabaseSchema) {
+    return new EventuateSchema(eventuateDatabaseSchema);
+  }
 
   @Bean
   public SourceTableNameSupplier sourceTableNameSupplier(EventuateConfigurationProperties eventuateConfigurationProperties) {

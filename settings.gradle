@@ -10,5 +10,10 @@ include 'eventuate-local-java-cdc-connector-polling'
 include 'eventuate-local-java-cdc-connector-test-util'
 include 'eventuate-local-java-cdc-connector-db-log-test-common'
 include 'eventuate-tram-cdc-connector'
+include 'eventuate-tram-cdc-mysql-connector-autoconfigure'
+include 'eventuate-tram-cdc-mysql-service'
+
+include 'eventuate-local-java-cdc-connector-e2e-tests'
+include 'eventuate-tram-cdc-connector-e2e-tests'
 
 rootProject.name = 'eventuate-cdc'

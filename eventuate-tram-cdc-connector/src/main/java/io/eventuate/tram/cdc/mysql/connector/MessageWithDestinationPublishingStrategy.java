@@ -1,8 +1,8 @@
 package io.eventuate.tram.cdc.mysql.connector;
 
+import io.eventuate.common.Message;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.local.common.PublishingStrategy;
-import io.eventuate.tram.messaging.common.Message;
 
 import java.util.Optional;
 

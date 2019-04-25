@@ -21,7 +21,8 @@ import org.springframework.context.annotation.Import;
 
         CdcDefaultPipelinePropertiesConfiguration.class,
         CdcPipelineFactoryConfiguration.class,
-        DefaultCdcTramPipelineFactoryConfiguration.class,
+        DefaultEventuateLocalCdcPipelineFactoryConfiguration.class,
+        DefaultTramCdcPipelineFactoryConfiguration.class,
         CdcTramPipelineFactoryConfiguration.class,
 
         MySqlBinlogCdcPipelineReaderConfiguration.class,

@@ -1,0 +1,10 @@
+dependencies {
+    compile project (":eventuate-local-java-cdc-connector-common")
+    testCompile "io.eventuate.client.java:eventuate-client-java-tests-common:$eventuateClientVersion"
+    testCompile "junit:junit:4.11"
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+}
+
+test {
+    forkEvery 1
+}

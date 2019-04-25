@@ -10,7 +10,10 @@ import io.eventuate.local.unified.cdc.pipeline.common.health.CdcDataPublisherHea
 import io.eventuate.tram.cdc.mysql.connector.CdcProcessingStatusController;
 import io.eventuate.tram.cdc.mysql.connector.MessageWithDestination;
 import io.eventuate.tram.cdc.mysql.connector.MessageWithDestinationPublishingStrategy;
+import io.eventuate.tram.cdc.mysql.connector.configuration.condition.EventuateLocalCondition;
+import io.eventuate.tram.cdc.mysql.connector.configuration.condition.EventuateTramCondition;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
@@ -32,10 +35,22 @@ public class CommonMessageTableChangesToDestinationsConfiguration {
   }
 
   @Bean
-  public DefaultSourceTableNameResolver defaultSourceTableNameResolver() {
+  @Conditional(EventuateTramCondition.class)
+  public DefaultSourceTableNameResolver eventuateTramDefaultSourceTableNameResolver() {
     return pipelineType -> {
       if ("eventuate-tram".equals(pipelineType) || "default".equals(pipelineType)) return "message";
       if ("eventuate-local".equals(pipelineType)) return "events";
+
+      throw new RuntimeException(String.format("Unknown pipeline type '%s'", pipelineType));
+    };
+  }
+
+  @Bean
+  @Conditional(EventuateLocalCondition.class)
+  public DefaultSourceTableNameResolver eventuateLocalDefaultSourceTableNameResolver() {
+    return pipelineType -> {
+      if ("eventuate-tram".equals(pipelineType)) return "message";
+      if ("eventuate-local".equals(pipelineType) || "default".equals(pipelineType)) return "events";
 
       throw new RuntimeException(String.format("Unknown pipeline type '%s'", pipelineType));
     };

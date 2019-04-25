@@ -2,13 +2,9 @@ package io.eventuate.local.mysql.binlog;
 
 import io.eventuate.Int128;
 import io.eventuate.common.PublishedEvent;
-import io.eventuate.common.jdbckafkastore.EventuateLocalJdbcAccess;
-import io.eventuate.example.banking.domain.Account;
 import io.eventuate.example.banking.domain.AccountCreatedEvent;
 import io.eventuate.javaclient.commonimpl.EntityIdVersionAndEventIds;
-import io.eventuate.javaclient.commonimpl.EventTypeAndData;
 import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
-import io.eventuate.javaclient.spring.jdbc.SaveUpdateResult;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.common.EventuateConfigurationProperties;
@@ -23,8 +19,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
@@ -88,7 +82,7 @@ public abstract class AbstractMySqlBinlogCdcIntegrationTest extends AbstractCdcT
 
     createOtherSchema(otherSchemaName);
 
-    SaveUpdateResult otherSaveResult = insertEventIntoOtherSchema(otherSchemaName);
+    EntityIdVersionAndEventIds otherSaveResult = insertEventIntoOtherSchema(otherSchemaName);
 
     try {
       BlockingQueue<PublishedEvent> publishedEvents = new LinkedBlockingDeque<>();
@@ -113,7 +107,7 @@ public abstract class AbstractMySqlBinlogCdcIntegrationTest extends AbstractCdcT
           System.out.println("Got: " + event);
           if (event.getId().equals(eventId.asString()) && eventData.equals(event.getEventData())) {
               foundEvent = true;
-          } else if (event.getId().equals(otherSaveResult.getEntityIdVersionAndEventIds().getEventIds().get(0).asString())) {
+          } else if (event.getId().equals(otherSaveResult.getEventIds().get(0).asString())) {
               fail("Found event inserted into other schema");
           }
         }
@@ -126,11 +120,8 @@ public abstract class AbstractMySqlBinlogCdcIntegrationTest extends AbstractCdcT
     }
   }
 
-  private SaveUpdateResult insertEventIntoOtherSchema(String otherSchemaName) {
-    EventuateLocalJdbcAccess eventuateLocalJdbcAccess = new EventuateLocalJdbcAccess(jdbcTemplate,
-            new EventuateSchema(otherSchemaName));
-
-    return eventuateLocalJdbcAccess.save(Account.class.getName(), Collections.singletonList(new EventTypeAndData("Other-" + AccountCreatedEvent.class.getTypeName(), generateAccountCreatedEvent(), Optional.empty())), Optional.empty());
+  private EntityIdVersionAndEventIds insertEventIntoOtherSchema(String otherSchemaName) {
+    return saveEvent(generateAccountCreatedEvent(), "Other-" + AccountCreatedEvent.class.getTypeName(), new EventuateSchema(otherSchemaName));
   }
 
   private void createOtherSchema(String otherSchemaName) {

@@ -2,7 +2,7 @@ package io.eventuate.tram.cdc.mysql.connector;
 
 import io.eventuate.common.BinLogEvent;
 import io.eventuate.common.BinlogFileOffset;
-import io.eventuate.tram.messaging.common.MessageImpl;
+import io.eventuate.common.MessageImpl;
 
 import java.util.Optional;
 

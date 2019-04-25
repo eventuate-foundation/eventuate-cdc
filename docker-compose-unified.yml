@@ -5,6 +5,7 @@ zookeeper:
     - 2888:2888
     - 3888:3888
 
+
 kafka:
   image: test-eventuate-kafka
   ports:
@@ -16,10 +17,27 @@ kafka:
     - KAFKA_HEAP_OPTS=-Xmx320m -Xms320m
     - ZOOKEEPER_SERVERS=zookeeper:2181
 
-postgres:
-  build: ./postgres
+mysqlbinlogpipeline:
+  image: test-eventuate-mysql
+  ports:
+    - 3306:3306
+  environment:
+    - MYSQL_ROOT_PASSWORD=rootpassword
+    - MYSQL_USER=mysqluser
+    - MYSQL_PASSWORD=mysqlpw
+
+postgrespollingpipeline:
+  image: test-eventuate-postgres
   ports:
     - 5432:5432
+  environment:
+    POSTGRES_USER: eventuate
+    POSTGRES_PASSWORD: eventuate
+
+postgreswalpipeline:
+  image: test-eventuate-postgres
+  ports:
+    - 5433:5432
   environment:
     POSTGRES_USER: eventuate
     POSTGRES_PASSWORD: eventuate

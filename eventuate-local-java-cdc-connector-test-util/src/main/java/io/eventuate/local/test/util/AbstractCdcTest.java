@@ -1,42 +1,34 @@
 package io.eventuate.local.test.util;
 
-import io.eventuate.EntityIdAndType;
 import io.eventuate.Int128;
 import io.eventuate.common.PublishedEvent;
-import io.eventuate.common.jdbckafkastore.EventuateLocalAggregateCrud;
 import io.eventuate.example.banking.domain.Account;
 import io.eventuate.example.banking.domain.AccountCreatedEvent;
 import io.eventuate.example.banking.domain.AccountDebitedEvent;
-import io.eventuate.javaclient.commonimpl.EntityIdVersionAndEventIds;
-import io.eventuate.javaclient.commonimpl.EventTypeAndData;
-import io.eventuate.javaclient.commonimpl.JSonMapper;
-import io.eventuate.javaclient.spring.jdbc.EventuateJdbcAccess;
+import io.eventuate.javaclient.commonimpl.*;
+import io.eventuate.javaclient.spring.jdbc.*;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class AbstractCdcTest extends AbstractConnectorTest{
+  @Autowired
+  protected JdbcTemplate jdbcTemplate;
 
   @Autowired
-  protected EventuateJdbcAccess eventuateJdbcAccess;
+  private EventuateSchema eventuateSchema;
 
-  protected EventuateLocalAggregateCrud localAggregateCrud;
-
-  @Before
-  public void init() {
-    localAggregateCrud = new EventuateLocalAggregateCrud(eventuateJdbcAccess);
-  }
+  private IdGenerator idGenerator = new IdGeneratorImpl();
 
   public String generateAccountCreatedEvent() {
     return JSonMapper.toJson(new AccountCreatedEvent(new BigDecimal(System.currentTimeMillis())));
@@ -51,18 +43,41 @@ public class AbstractCdcTest extends AbstractConnectorTest{
   }
 
   public EntityIdVersionAndEventIds saveEvent(String eventData) {
-    List<EventTypeAndData> events = Collections.singletonList(new EventTypeAndData(AccountCreatedEvent.class.getTypeName(), eventData, Optional.empty()));
+    return saveEvent(eventData, Account.class.getTypeName(), eventuateSchema);
+  }
 
-    return localAggregateCrud.save(Account.class.getTypeName(), events, Optional.empty());
+  public EntityIdVersionAndEventIds saveEvent(String eventData, String eventType, EventuateSchema eventuateSchema) {
+    Int128 eventId = idGenerator.genId();
+    String entityId = idGenerator.genId().asString();
+
+    jdbcTemplate.update(String.format("INSERT INTO %s (event_id, event_type, event_data, entity_type, entity_id, triggering_event, metadata) VALUES (?, ?, ?, ?, ?, ?, ?)", eventuateSchema.qualifyTable("events")),
+            eventId.asString(), eventType, eventData, eventType, entityId,
+            null,
+            null);
+
+    return new EntityIdVersionAndEventIds(entityId, eventId, Collections.singletonList(eventId));
   }
 
   public EntityIdVersionAndEventIds updateEvent(String entityId, Int128 entityVersion, String eventData) {
-    List<EventTypeAndData> events = Collections.singletonList(new EventTypeAndData(AccountCreatedEvent.class.getTypeName(), eventData, Optional.empty()));
+    EventTypeAndData event = new EventTypeAndData(AccountCreatedEvent.class.getTypeName(), eventData, Optional.empty());
 
-    return localAggregateCrud.update(new EntityIdAndType(entityId, Account.class.getTypeName()),
-            entityVersion,
-            events,
-            Optional.empty());
+    EventIdTypeAndData eventsWithId = toEventWithId(event);
+
+    String entityType = Account.class.getTypeName();
+
+    jdbcTemplate.update(String.format("INSERT INTO %s (event_id, event_type, event_data, entity_type, entity_id, triggering_event, metadata) VALUES (?, ?, ?, ?, ?, ?, ?)", eventuateSchema.qualifyTable("events")),
+            eventsWithId.getId().asString(),
+            event.getEventType(),
+            eventData,
+            entityType,
+            entityId,
+            null,
+            event.getMetadata().orElse(null));
+
+
+    return new EntityIdVersionAndEventIds(entityId,
+            eventsWithId.getId(),
+            Collections.singletonList(eventsWithId.getId()));
   }
 
   public PublishedEvent waitForEvent(BlockingQueue<PublishedEvent> publishedEvents, Int128 eventId, LocalDateTime deadline, String eventData) throws InterruptedException {
@@ -88,5 +103,9 @@ public class AbstractCdcTest extends AbstractConnectorTest{
       }
     }
     throw new RuntimeException("entity not found: " + entityId);
+  }
+
+  private EventIdTypeAndData toEventWithId(EventTypeAndData eventTypeAndData) {
+    return new EventIdTypeAndData(idGenerator.genId(), eventTypeAndData.getEventType(), eventTypeAndData.getEventData(), eventTypeAndData.getMetadata());
   }
 }

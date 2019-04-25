@@ -3,9 +3,7 @@ package io.eventuate.local.test.util;
 import io.eventuate.Int128;
 import io.eventuate.common.PublishedEvent;
 import io.eventuate.javaclient.commonimpl.EntityIdVersionAndEventIds;
-import io.eventuate.javaclient.spring.jdbc.EventuateJdbcAccess;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -17,9 +15,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public abstract class CdcProcessorTest extends AbstractCdcTest implements CdcProcessorCommon{
-
-  @Autowired
-  protected EventuateJdbcAccess eventuateJdbcAccess;
 
   @Test
   public void shouldReadNewEventsOnly() throws InterruptedException {

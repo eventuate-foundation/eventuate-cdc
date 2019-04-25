@@ -1,9 +1,9 @@
 package io.eventuate.tram.cdc.mysql.connector;
 
+import io.eventuate.common.MessageImpl;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.local.common.BinlogEntry;
 import io.eventuate.local.common.BinlogEntryToEventConverter;
-import io.eventuate.tram.messaging.common.MessageImpl;
 
 import java.util.Map;
 

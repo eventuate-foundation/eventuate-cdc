@@ -1,6 +1,6 @@
 package io.eventuate.tram.cdc.mysql.connector;
 
-import io.eventuate.tram.messaging.common.ChannelType;
+import io.eventuate.common.ChannelType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

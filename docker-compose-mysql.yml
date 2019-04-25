@@ -25,3 +25,22 @@ mysql:
     - MYSQL_ROOT_PASSWORD=rootpassword
     - MYSQL_USER=mysqluser
     - MYSQL_PASSWORD=mysqlpw
+
+activemq:
+  image: webcenter/activemq:5.14.3
+  ports:
+    - 8161:8161
+    - 61616:61616
+    - 61613:61613
+    - 1883:1883
+    - 61614:61614
+
+rabbitmq:
+  image: test-eventuate-rabbitmq
+  ports:
+    - 5672:5672
+
+redis:
+  image: redis:5.0.3
+  ports:
+    - 6379:6379

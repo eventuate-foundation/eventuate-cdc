@@ -9,9 +9,13 @@ dependencies {
     compile 'io.micrometer:micrometer-registry-jmx:1.1.1'
     compile 'io.micrometer:micrometer-registry-prometheus:1.1.1'
     compile "io.eventuate.common:eventuate-common-coordination-leadership:$eventuateCommonVersion"
-    compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
     compile "io.eventuate.common:eventuate-common:$eventuateCommonVersion"
-
+    compile "io.eventuate.client.java:eventuate-client-java-jdbc-common:$eventuateClientVersion"
+    compile 'mysql:mysql-connector-java:5.1.39'
+    compile ('org.postgresql:postgresql:42.1.4') {
+        exclude group: "org.slf4j", module: "slf4j-simple"
+    }
+    compile 'com.microsoft.sqlserver:mssql-jdbc:7.2.1.jre8'
     testCompile "junit:junit:4.11"
 }
 

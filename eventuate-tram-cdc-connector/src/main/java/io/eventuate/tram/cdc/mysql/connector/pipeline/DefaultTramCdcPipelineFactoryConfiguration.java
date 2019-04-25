@@ -7,12 +7,16 @@ import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.CdcPipelineFactory;
 import io.eventuate.tram.cdc.mysql.connector.BinlogEntryToMessageConverter;
 import io.eventuate.tram.cdc.mysql.connector.MessageWithDestinationPublishingStrategy;
+import io.eventuate.tram.cdc.mysql.connector.configuration.condition.EventuateTramCondition;
 import io.micrometer.core.instrument.MeterRegistry;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class DefaultCdcTramPipelineFactoryConfiguration {
+@Conditional(EventuateTramCondition.class)
+public class DefaultTramCdcPipelineFactoryConfiguration {
   @Bean("defaultCdcPipelineFactory")
   public CdcPipelineFactory defaultCdcPipelineFactory(DataProducerFactory dataProducerFactory,
                                                       PublishingFilter publishingFilter,

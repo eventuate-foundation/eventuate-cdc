@@ -4,7 +4,7 @@ export TERM=dumb
 
 set -e
 
-. ./scripts/set-env-mysql.sh
+. ./scripts/set-env-mysql-binlog.sh
 
 GRADLE_OPTS=""
 
@@ -22,6 +22,6 @@ docker-compose -f docker-compose-${database}.yml up -d
 
 ./scripts/wait-for-mysql.sh
 
-./gradlew $* -x :eventuate-local-java-cdc-connector-postgres-wal:test
+./gradlew $* -x :eventuate-local-java-cdc-connector-postgres-wal:test -x :eventuate-local-java-cdc-connector-postgres-wal:test -x eventuate-local-java-cdc-connector-e2e-tests:test -x eventuate-tram-cdc-connector-e2e-tests:test
 
 docker-compose -f docker-compose-${database}.yml down -v --remove-orphans
