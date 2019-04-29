@@ -134,6 +134,8 @@ public class MySqlBinaryLogClient extends DbLogClient {
             break;
           }
 
+          cdcMonitoringTableId = cdcMonitoringTableId.filter(id -> !id.equals(tableMapEvent.getTableId()));
+
           SchemaAndTable schemaAndTable = new SchemaAndTable(tableMapEvent.getDatabase(), tableMapEvent.getTable());
 
           boolean shouldHandleTable = binlogEntryHandlers
@@ -209,6 +211,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
     }
 
     logger.info("Got binlog event {}", event);
+
     WriteRowsEventData eventData = event.getData();
 
     offset = extractOffset(event);
