@@ -1,11 +1,8 @@
 package io.eventuate.tram.connector;
 
-import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
-import io.eventuate.testutil.Eventually;
+import io.eventuate.sql.dialect.SqlDialectConfiguration;
 import io.eventuate.tram.redis.common.CommonRedisConfiguration;
 import io.lettuce.core.RedisCommandExecutionException;
-import org.junit.Assert;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -18,62 +15,27 @@ import org.springframework.data.redis.connection.stream.ReadOffset;
 import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.connection.stream.StreamReadOptions;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {EventuateTramCdcRedisTest.Config.class})
-public class EventuateTramCdcRedisTest {
+public class EventuateTramCdcRedisTest extends AbstractTramCdcTest {
 
-  @Import(CommonRedisConfiguration.class)
   @Configuration
   @EnableAutoConfiguration
+  @Import({CommonRedisConfiguration.class, SqlDialectConfiguration.class})
   public static class Config {
   }
 
   @Autowired
-  private JdbcTemplate jdbcTemplate;
-
-  @Autowired
   private RedisTemplate<String, String> redisTemplate;
 
-  private String subscriberId = UUID.randomUUID().toString();
-
-  @Test
-  public void insertToMessageTableAndWaitMessageInRedis() throws Exception {
-    String data = UUID.randomUUID().toString();
-    String topic = UUID.randomUUID().toString();
-
-    BlockingQueue<String> blockingQueue = new LinkedBlockingDeque<>();
-
-    saveEvent(data, topic, new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
-
-    makeSureConsumerGroupExists(channelToRedisStream(topic, 0));
-    makeSureConsumerGroupExists(channelToRedisStream(topic, 1));
-
-    createConsumer(channelToRedisStream(topic, 0), blockingQueue::add);
-    createConsumer(channelToRedisStream(topic, 1), blockingQueue::add);
-
-
-    Eventually.eventually(120, 500, TimeUnit.MILLISECONDS, () -> {
-      try {
-        Assert.assertTrue(blockingQueue.poll(100, TimeUnit.MILLISECONDS).contains(data));
-      } catch (InterruptedException e) {
-        throw new RuntimeException(e);
-      }
-    });
-  }
-
   private void makeSureConsumerGroupExists(String channel) throws Exception{
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 100; i++) {
       try {
         redisTemplate.opsForStream().createGroup(channel, ReadOffset.from("0"), subscriberId);
         return;
@@ -105,27 +67,19 @@ public class EventuateTramCdcRedisTest {
             message.contains(expectedMessage);
   }
 
-  private void createConsumer(String channel, Consumer<String> consumer) {
+  @Override
+  protected void createConsumer(String channel, Consumer<String> consumer) throws Exception{
+    String redisStream = channelToRedisStream(channel, 0);
+
+    makeSureConsumerGroupExists(redisStream);
+
     new Thread(() -> {
       while(true) {
-        getUnprocessedRecords(channel)
+        getUnprocessedRecords(redisStream)
                 .forEach(entries ->
                         entries.getValue().values().forEach(o -> consumer.accept(o.toString())));
       }
     }).start();
-  }
-
-  private void saveEvent(String eventData, String eventType, EventuateSchema eventuateSchema) {
-    String table = eventuateSchema.qualifyTable("message");
-    String id = UUID.randomUUID().toString();
-
-    jdbcTemplate.update(String.format("insert into %s(id, destination, headers, payload, creation_time) values(?, ?, ?, ?, ?)",
-            table),
-            id,
-            eventType,
-            String.format("{\"ID\" : \"%s\"}", id),
-            eventData,
-            System.currentTimeMillis());
   }
 
   private List<MapRecord<String, Object, Object>> getUnprocessedRecords(String channel) {

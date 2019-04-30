@@ -13,6 +13,7 @@ include 'eventuate-tram-cdc-connector'
 include 'eventuate-tram-cdc-mysql-connector-autoconfigure'
 include 'eventuate-tram-cdc-mysql-service'
 
+include 'eventuate-cdc-common-e2e-tests'
 include 'eventuate-local-java-cdc-connector-e2e-tests'
 include 'eventuate-tram-cdc-connector-e2e-tests'
 

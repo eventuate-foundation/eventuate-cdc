@@ -38,7 +38,7 @@ public class ZookeeperConfiguration {
   }
 
   static CuratorFramework makeStartedCuratorClient(String connectionString) {
-    RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
+    RetryPolicy retryPolicy = new ExponentialBackoffRetry(100, Integer.MAX_VALUE);
     CuratorFramework client = CuratorFrameworkFactory.
             builder().retryPolicy(retryPolicy)
             .connectString(connectionString)

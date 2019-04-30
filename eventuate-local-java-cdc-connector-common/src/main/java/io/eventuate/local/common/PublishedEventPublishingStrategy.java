@@ -26,7 +26,9 @@ public class PublishedEventPublishingStrategy implements PublishingStrategy<Publ
 
   @Override
   public Optional<Long> getCreateTime(PublishedEvent publishedEvent) {
-    return Optional.of(Int128.fromString(publishedEvent.getId()).getHi());
+// TODO: Original implementation is based in Int128 id, which should not be required.
+//    return Optional.of(Int128.fromString(publishedEvent.getId()).getHi());
+    return Optional.empty();
   }
 
 }
