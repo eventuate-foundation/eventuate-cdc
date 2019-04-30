@@ -45,7 +45,7 @@ public class EventuateLocalCdcTest extends AbstractEventuateCdcTest {
   }
 
   @Override
-  protected void saveEvent(String eventData, String eventType, EventuateSchema eventuateSchema) {
-    eventuateCommonJdbcOperations.insertIntoEventsTable(generateId(), eventType, eventData, eventType, eventuateSchema);
+  protected void saveEvent(String eventData, String entityType, EventuateSchema eventuateSchema) {
+    eventuateCommonJdbcOperations.insertIntoEventsTable(generateId(), generateId(), eventData, generateId(), entityType, eventuateSchema);
   }
 }

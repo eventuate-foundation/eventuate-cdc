@@ -1,7 +1,6 @@
 package io.eventuate.local.postgres.wal;
 
 import io.eventuate.common.PublishedEvent;
-import io.eventuate.javaclient.commonimpl.EntityIdVersionAndEventIds;
 import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.CdcDataPublisher;
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -55,16 +53,16 @@ public abstract class AbstractPostgresWalCdcIntegrationTest extends AbstractCdcT
 
     postgresWalClient.start();
 
-    String accountCreatedEventData = generateAccountCreatedEvent();
-    EntityIdVersionAndEventIds saveResult = saveEvent(accountCreatedEventData);
+    String testCreatedEvent = generateTestCreatedEvent();
+    EventIdEntityId saveResult = saveEvent(testCreatedEvent);
 
-    String accountDebitedEventData = generateAccountDebitedEvent();
-    EntityIdVersionAndEventIds updateResult = updateEvent(saveResult.getEntityId(), saveResult.getEntityVersion(), accountDebitedEventData);
+    String testUpdatedEvent = generateTestUpdatedEvent();
+    EventIdEntityId updateResult = updateEvent(saveResult.getEntityId(), testUpdatedEvent);
 
     LocalDateTime deadline = LocalDateTime.now().plusSeconds(20);
 
-    waitForEvent(publishedEvents, saveResult.getEntityVersion(), deadline, accountCreatedEventData);
-    waitForEvent(publishedEvents, updateResult.getEntityVersion(), deadline, accountDebitedEventData);
+    waitForEvent(publishedEvents, saveResult.getEventId(), deadline, testCreatedEvent);
+    waitForEvent(publishedEvents, updateResult.getEventId(), deadline, testUpdatedEvent);
     postgresWalClient.stop();
   }
 

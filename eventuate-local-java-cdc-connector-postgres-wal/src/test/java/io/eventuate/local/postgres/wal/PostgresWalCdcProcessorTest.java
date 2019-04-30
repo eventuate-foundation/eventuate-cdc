@@ -31,9 +31,9 @@ public class PostgresWalCdcProcessorTest extends AbstractPostgresWalCdcProcessor
 
     startEventProcessing();
 
-    saveEvent(generateAccountCreatedEvent());
-    saveEvent(generateAccountCreatedEvent());
-    saveEvent(generateAccountCreatedEvent());
+    saveEvent(generateTestCreatedEvent());
+    saveEvent(generateTestCreatedEvent());
+    saveEvent(generateTestCreatedEvent());
 
     CdcProcessingStatusService cdcProcessingStatusService = postgresWalClient.getCdcProcessingStatusService();
 

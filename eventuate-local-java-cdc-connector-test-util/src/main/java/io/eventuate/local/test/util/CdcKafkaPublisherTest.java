@@ -2,7 +2,6 @@ package io.eventuate.local.test.util;
 
 import io.eventuate.common.PublishedEvent;
 import io.eventuate.common.kafka.EventuateKafkaConfigurationProperties;
-import io.eventuate.javaclient.commonimpl.EntityIdVersionAndEventIds;
 import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.common.PublishingStrategy;
@@ -37,14 +36,14 @@ public abstract class CdcKafkaPublisherTest extends AbstractCdcTest {
 
   @Before
   public void init() {
+    super.init();
     cdcDataPublisher = createCdcKafkaPublisher();
     cdcDataPublisher.start();
   }
 
   @Test
   public void shouldSendPublishedEventsToKafka() {
-    String accountCreatedEventData = generateAccountCreatedEvent();
-    EntityIdVersionAndEventIds entityIdVersionAndEventIds = saveEvent(accountCreatedEventData);
+    EventIdEntityId entityIdVersionAndEventIds = saveEvent(generateTestCreatedEvent());
 
     KafkaConsumer<String, String> consumer = createConsumer(eventuateKafkaConfigurationProperties.getBootstrapServers());
     consumer.partitionsFor(getEventTopicName());

@@ -27,9 +27,9 @@ public class MySQLCdcProcessorTest extends AbstractMySQLCdcProcessorTest {
 
     startEventProcessing();
 
-    saveEvent(generateAccountCreatedEvent());
-    saveEvent(generateAccountCreatedEvent());
-    saveEvent(generateAccountCreatedEvent());
+    saveEvent(generateTestCreatedEvent());
+    saveEvent(generateTestCreatedEvent());
+    saveEvent(generateTestCreatedEvent());
 
     CdcProcessingStatusService cdcProcessingStatusService = mySqlBinaryLogClient.getCdcProcessingStatusService();
 

@@ -1,5 +1,6 @@
 dependencies {
     compile project(":eventuate-local-java-cdc-connector-common")
+    compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
     compile "io.eventuate.client.java:eventuate-client-java-tests-common:$eventuateClientVersion"
 }
 

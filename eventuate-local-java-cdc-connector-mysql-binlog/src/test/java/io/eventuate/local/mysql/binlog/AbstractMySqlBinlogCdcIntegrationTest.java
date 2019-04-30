@@ -1,9 +1,6 @@
 package io.eventuate.local.mysql.binlog;
 
-import io.eventuate.Int128;
 import io.eventuate.common.PublishedEvent;
-import io.eventuate.example.banking.domain.AccountCreatedEvent;
-import io.eventuate.javaclient.commonimpl.EntityIdVersionAndEventIds;
 import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.CdcDataPublisher;
@@ -15,7 +12,6 @@ import io.eventuate.local.testutil.CustomDBCreator;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -48,9 +44,6 @@ public abstract class AbstractMySqlBinlogCdcIntegrationTest extends AbstractCdcT
   @Value("${spring.datasource.driver.class.name}")
   private String driverClassName;
 
-  @Autowired
-  private JdbcTemplate jdbcTemplate;
-
   @Test
   public void shouldGetEvents() throws InterruptedException {
     try {
@@ -59,17 +52,17 @@ public abstract class AbstractMySqlBinlogCdcIntegrationTest extends AbstractCdcT
       prepareBinlogEntryHandler(publishedEvents::add);
       mySqlBinaryLogClient.start();
 
-      String accountCreatedEventData = generateAccountCreatedEvent();
-      EntityIdVersionAndEventIds saveResult = saveEvent(accountCreatedEventData);
+      String testCreatedEvent = generateTestCreatedEvent();
+      EventIdEntityId saveResult = saveEvent(testCreatedEvent);
 
-      String accountDebitedEventData = generateAccountDebitedEvent();
-      EntityIdVersionAndEventIds updateResult = updateEvent(saveResult.getEntityId(), saveResult.getEntityVersion(), accountDebitedEventData);
+      String testUpdatedEvent = generateTestUpdatedEvent();
+      EventIdEntityId updateResult = updateEvent(saveResult.getEntityId(), testUpdatedEvent);
 
       // Wait for 10 seconds
       LocalDateTime deadline = LocalDateTime.now().plusSeconds(40);
 
-      waitForEvent(publishedEvents, saveResult.getEntityVersion(), deadline, accountCreatedEventData);
-      waitForEvent(publishedEvents, updateResult.getEntityVersion(), deadline, accountDebitedEventData);
+      waitForEvent(publishedEvents, saveResult.getEventId(), deadline, testCreatedEvent);
+      waitForEvent(publishedEvents, updateResult.getEventId(), deadline, testUpdatedEvent);
     } finally {
       mySqlBinaryLogClient.stop();
     }
@@ -82,7 +75,7 @@ public abstract class AbstractMySqlBinlogCdcIntegrationTest extends AbstractCdcT
 
     createOtherSchema(otherSchemaName);
 
-    EntityIdVersionAndEventIds otherSaveResult = insertEventIntoOtherSchema(otherSchemaName);
+    EventIdEntityId otherSaveResult = insertEventIntoOtherSchema(otherSchemaName);
 
     try {
       BlockingQueue<PublishedEvent> publishedEvents = new LinkedBlockingDeque<>();
@@ -90,13 +83,13 @@ public abstract class AbstractMySqlBinlogCdcIntegrationTest extends AbstractCdcT
       prepareBinlogEntryHandler(publishedEvents::add);
       mySqlBinaryLogClient.start();
 
-      String accountCreatedEventData = generateAccountCreatedEvent();
-      EntityIdVersionAndEventIds saveResult = saveEvent(accountCreatedEventData);
+      String testCreatedEvent = generateTestCreatedEvent();
+      EventIdEntityId saveResult = saveEvent(testCreatedEvent);
 
       LocalDateTime deadline = LocalDateTime.now().plusSeconds(40);
 
-      Int128 eventId = saveResult.getEntityVersion();
-      String eventData = accountCreatedEventData;
+      String eventId = saveResult.getEventId();
+      String eventData = testCreatedEvent;
 
       boolean foundEvent = false;
 
@@ -105,9 +98,9 @@ public abstract class AbstractMySqlBinlogCdcIntegrationTest extends AbstractCdcT
         PublishedEvent event = publishedEvents.poll(millis, TimeUnit.MILLISECONDS);
         if (event != null) {
           System.out.println("Got: " + event);
-          if (event.getId().equals(eventId.asString()) && eventData.equals(event.getEventData())) {
+          if (event.getId().equals(eventId) && eventData.equals(event.getEventData())) {
               foundEvent = true;
-          } else if (event.getId().equals(otherSaveResult.getEventIds().get(0).asString())) {
+          } else if (event.getId().equals(otherSaveResult.getEventId())) {
               fail("Found event inserted into other schema");
           }
         }
@@ -120,8 +113,8 @@ public abstract class AbstractMySqlBinlogCdcIntegrationTest extends AbstractCdcT
     }
   }
 
-  private EntityIdVersionAndEventIds insertEventIntoOtherSchema(String otherSchemaName) {
-    return saveEvent(generateAccountCreatedEvent(), "Other-" + AccountCreatedEvent.class.getTypeName(), new EventuateSchema(otherSchemaName));
+  private EventIdEntityId insertEventIntoOtherSchema(String otherSchemaName) {
+    return saveEvent("Other", getTestCreatedEventType(), generateTestCreatedEvent(), new EventuateSchema(otherSchemaName));
   }
 
   private void createOtherSchema(String otherSchemaName) {

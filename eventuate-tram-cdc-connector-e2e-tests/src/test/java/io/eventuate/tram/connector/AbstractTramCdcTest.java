@@ -15,10 +15,10 @@ public abstract class AbstractTramCdcTest extends AbstractEventuateCdcTest {
   private String driver;
 
   @Override
-  protected void saveEvent(String eventData, String eventType, EventuateSchema eventuateSchema) {
+  protected void saveEvent(String eventData, String entityType, EventuateSchema eventuateSchema) {
     eventuateCommonJdbcOperations.insertIntoMessageTable(generateId(),
             eventData,
-            eventType,
+            entityType,
             sqlDialectSelector.getDialect(driver).getCurrentTimeInMillisecondsExpression(),
             eventuateSchema);
   }

@@ -1,18 +1,16 @@
 package io.eventuate.local.test.util;
 
-import io.eventuate.Int128;
 import io.eventuate.common.PublishedEvent;
-import io.eventuate.javaclient.commonimpl.EntityIdVersionAndEventIds;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public abstract class CdcProcessorTest extends AbstractCdcTest implements CdcProcessorCommon{
 
@@ -26,9 +24,9 @@ public abstract class CdcProcessorTest extends AbstractCdcTest implements CdcPro
 
     startEventProcessing();
 
-    String accountCreatedEventData = generateAccountCreatedEvent();
-    EntityIdVersionAndEventIds entityIdVersionAndEventIds = saveEvent(accountCreatedEventData);
-    waitForEvent(publishedEvents, entityIdVersionAndEventIds.getEntityVersion(), LocalDateTime.now().plusSeconds(60), accountCreatedEventData);
+    String testCreatedEvent = generateTestCreatedEvent();
+    EventIdEntityId eventIdEntityId = saveEvent(testCreatedEvent);
+    waitForEvent(publishedEvents, eventIdEntityId.getEventId(), LocalDateTime.now().plusSeconds(60), testCreatedEvent);
     stopEventProcessing();
 
     publishedEvents.clear();
@@ -37,11 +35,10 @@ public abstract class CdcProcessorTest extends AbstractCdcTest implements CdcPro
       onEventSent(publishedEvent);
     });
     startEventProcessing();
-    List<String> excludedIds = entityIdVersionAndEventIds.getEventIds().stream().map(Int128::asString).collect(Collectors.toList());
 
-    accountCreatedEventData = generateAccountCreatedEvent();
-    entityIdVersionAndEventIds = updateEvent(entityIdVersionAndEventIds.getEntityId(), entityIdVersionAndEventIds.getEntityVersion(), accountCreatedEventData);
-    waitForEventExcluding(publishedEvents, entityIdVersionAndEventIds.getEntityVersion(), LocalDateTime.now().plusSeconds(60), accountCreatedEventData, excludedIds);
+    testCreatedEvent = generateTestCreatedEvent();
+    eventIdEntityId = updateEvent(eventIdEntityId.getEntityId(), testCreatedEvent);
+    waitForEventExcluding(publishedEvents, eventIdEntityId.getEventId(), LocalDateTime.now().plusSeconds(60), testCreatedEvent, Collections.singletonList(eventIdEntityId.getEventId()));
     stopEventProcessing();
   }
 
@@ -49,23 +46,23 @@ public abstract class CdcProcessorTest extends AbstractCdcTest implements CdcPro
   public void shouldReadUnprocessedEventsAfterStartup() throws InterruptedException {
     BlockingQueue<PublishedEvent> publishedEvents = new LinkedBlockingDeque<>();
 
-    String accountCreatedEventData = generateAccountCreatedEvent();
-    EntityIdVersionAndEventIds entityIdVersionAndEventIds = saveEvent(accountCreatedEventData);
+    String testCreatedEvent = generateTestCreatedEvent();
+    EventIdEntityId eventIdEntityId = saveEvent(testCreatedEvent);
 
     prepareBinlogEntryHandler(publishedEvents::add);
     startEventProcessing();
 
-    waitForEvent(publishedEvents, entityIdVersionAndEventIds.getEntityVersion(), LocalDateTime.now().plusSeconds(60), accountCreatedEventData);
+    waitForEvent(publishedEvents, eventIdEntityId.getEventId(), LocalDateTime.now().plusSeconds(60), testCreatedEvent);
     stopEventProcessing();
   }
 
-  private PublishedEvent waitForEventExcluding(BlockingQueue<PublishedEvent> publishedEvents, Int128 eventId, LocalDateTime deadline, String eventData, List<String> excludedIds) throws InterruptedException {
+  private PublishedEvent waitForEventExcluding(BlockingQueue<PublishedEvent> publishedEvents, String eventId, LocalDateTime deadline, String eventData, List<String> excludedIds) throws InterruptedException {
     PublishedEvent result = null;
     while (LocalDateTime.now().isBefore(deadline)) {
       long millis = ChronoUnit.MILLIS.between(deadline, LocalDateTime.now());
       PublishedEvent event = publishedEvents.poll(millis, TimeUnit.MILLISECONDS);
       if (event != null) {
-        if (event.getId().equals(eventId.asString()) && eventData.equals(event.getEventData())) {
+        if (event.getId().equals(eventId) && eventData.equals(event.getEventData())) {
           result = event;
           break;
         }
