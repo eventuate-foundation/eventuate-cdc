@@ -9,7 +9,7 @@ else
     echo using existing DOCKER_COMPOSE = $DOCKER_COMPOSE
 fi
 
-./gradlew $GRADLE_OPTIONS $* :eventuate-tram-cdc-mysql-service:clean :eventuate-tram-cdc-mysql-service:assemble
+./gradlew $GRADLE_OPTIONS $* :eventuate-cdc-service:clean :eventuate-cdc-service:assemble
 
 . ./scripts/set-env-${DATABASE}-${MODE}.sh
 

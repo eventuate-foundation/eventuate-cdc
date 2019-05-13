@@ -11,7 +11,7 @@ fi
 
 export EVENTUATE_CDC_TYPE=EventuateLocal
 
-./gradlew $GRADLE_OPTIONS $* :eventuate-tram-cdc-mysql-service:clean :eventuate-tram-cdc-mysql-service:assemble
+./gradlew $GRADLE_OPTIONS $* :eventuate-cdc-service:clean :eventuate-cdc-service:assemble
 
 
 if [[ "${database}" == "mariadb" ]]; then

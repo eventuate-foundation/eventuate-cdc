@@ -12,7 +12,7 @@ else
 fi
 
 
-./gradlew $GRADLE_OPTIONS $* :eventuate-tram-cdc-mysql-service:clean :eventuate-tram-cdc-mysql-service:assemble
+./gradlew $GRADLE_OPTIONS $* :eventuate-cdc-service:clean :eventuate-cdc-service:assemble
 
 $DOCKER_COMPOSE stop
 $DOCKER_COMPOSE rm --force -v

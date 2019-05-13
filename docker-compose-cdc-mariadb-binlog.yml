@@ -1,5 +1,5 @@
 cdcservice:
-  build: ./eventuate-tram-cdc-mysql-service
+  build: ./eventuate-cdc-service
   ports:
     - "8099:8080"
   links:
