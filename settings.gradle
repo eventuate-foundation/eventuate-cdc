@@ -1,0 +1,21 @@
+include 'eventuate-local-java-test-util'
+include 'eventuate-local-java-jdbc'
+
+include 'eventuate-local-java-cdc-connector-common'
+include 'eventuate-local-java-cdc-connector-db-log-common'
+include 'eventuate-local-java-cdc-connector-mysql-binlog'
+include 'eventuate-local-java-cdc-connector-postgres-wal'
+include 'eventuate-local-java-cdc-connector-unified'
+include 'eventuate-local-java-cdc-connector-polling'
+include 'eventuate-local-java-cdc-connector-test-util'
+include 'eventuate-local-java-cdc-connector-db-log-test-common'
+include 'eventuate-tram-cdc-connector'
+include 'eventuate-cdc-connector-autoconfigure'
+include 'eventuate-cdc-service'
+include 'eventuate-local-java-migration'
+
+include 'eventuate-cdc-common-e2e-tests'
+include 'eventuate-local-java-cdc-connector-e2e-tests'
+include 'eventuate-tram-cdc-connector-e2e-tests'
+
+rootProject.name = 'eventuate-cdc'

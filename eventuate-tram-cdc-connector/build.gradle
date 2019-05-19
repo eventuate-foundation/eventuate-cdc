@@ -1,0 +1,13 @@
+apply plugin: PrivateModulePlugin
+
+dependencies {
+    compile "io.eventuate.common:eventuate-common-producer-activemq:$eventuateCommonVersion"
+    compile "io.eventuate.common:eventuate-common-producer-rabbitmq:$eventuateCommonVersion"
+    compile "io.eventuate.common:eventuate-common-producer-redis:$eventuateCommonVersion"
+    compile "io.eventuate.common:eventuate-common-coordination-leadership-redis:$eventuateCommonVersion"
+
+    compile project(":eventuate-local-java-cdc-connector-unified:")
+    compile "org.springframework.boot:spring-boot-starter-web:$springBootCdcVersion"
+
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+}

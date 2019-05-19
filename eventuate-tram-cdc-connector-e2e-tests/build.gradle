@@ -1,0 +1,15 @@
+dependencies {
+    compile project (":eventuate-local-java-cdc-connector-common")
+    compile project (":eventuate-local-java-jdbc")
+    compile project (":eventuate-cdc-common-e2e-tests")
+    testCompile "io.eventuate.client.java:eventuate-client-java-tests-common:$eventuateClientVersion"
+    testCompile "io.eventuate.common:eventuate-common-redis:$eventuateCommonVersion"
+    testCompile 'com.rabbitmq:amqp-client:5.2.0'
+    testCompile "org.apache.activemq:activemq-core:5.7.0"
+    testCompile "junit:junit:4.11"
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+}
+
+test {
+    forkEvery 1
+}
