@@ -10,6 +10,7 @@ dependencies {
     compile 'io.micrometer:micrometer-registry-prometheus:1.1.1'
     compile "io.eventuate.common:eventuate-common-coordination-leadership:$eventuateCommonVersion"
     compile "io.eventuate.common:eventuate-common:$eventuateCommonVersion"
+    compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
     compile "io.eventuate.client.java:eventuate-client-java-jdbc-common:$eventuateClientVersion"
     compile 'mysql:mysql-connector-java:5.1.39'
     compile ('org.postgresql:postgresql:42.1.4') {

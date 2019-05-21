@@ -9,7 +9,7 @@ import io.eventuate.common.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.common.kafka.producer.EventuateKafkaProducerConfigurationProperties;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.coordination.leadership.zookeeper.ZkLeaderSelector;
-import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.*;
 import io.eventuate.local.db.log.common.OffsetStore;
 import io.eventuate.local.test.util.SourceTableNameSupplier;

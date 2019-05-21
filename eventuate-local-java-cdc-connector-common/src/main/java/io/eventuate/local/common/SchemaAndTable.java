@@ -1,7 +1,7 @@
 package io.eventuate.local.common;
 
 import com.google.common.base.Objects;
-import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.EventuateSchema;
 import org.apache.commons.lang.builder.EqualsBuilder;
 
 public class SchemaAndTable {

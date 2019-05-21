@@ -1,7 +1,7 @@
 package io.eventuate.local.polling;
 
 import io.eventuate.common.PublishedEvent;
-import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.test.util.SourceTableNameSupplier;

@@ -5,7 +5,7 @@ import io.eventuate.common.kafka.EventuateKafkaConfigurationProperties;
 import io.eventuate.common.kafka.consumer.EventuateKafkaConsumer;
 import io.eventuate.common.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.common.kafka.consumer.EventuateKafkaConsumerMessageHandler;
-import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.EventuateSchema;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.Assert;
 import org.junit.Before;
@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -55,7 +56,13 @@ public abstract class AbstractE2EMigrationTest {
     String id = UUID.randomUUID().toString();
 
     eventuateCommonJdbcOperations.insertIntoEventsTable(id,
-            generateId(), "", generateId(), aggregateType, new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
+            generateId(),
+            "",
+            generateId(),
+            aggregateType,
+            Optional.empty(),
+            Optional.empty(),
+            new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
 
     return id;
   }

@@ -1,7 +1,7 @@
 package io.eventuate.tram.cdc.connector;
 
 import io.eventuate.common.BinlogFileOffset;
-import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.EventuateSchema;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

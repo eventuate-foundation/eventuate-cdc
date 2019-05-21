@@ -18,7 +18,7 @@ kafka:
     - ZOOKEEPER_SERVERS=zookeeper:2181
 
 mysql:
-  build: ./mysql
+  image: test-eventuate-mysql
   ports:
     - 3306:3306
   environment:

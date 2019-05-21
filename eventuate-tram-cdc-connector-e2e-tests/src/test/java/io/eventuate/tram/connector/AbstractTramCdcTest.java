@@ -1,7 +1,8 @@
 package io.eventuate.tram.connector;
 
+import com.google.common.collect.ImmutableMap;
 import io.eventuate.cdc.e2e.common.AbstractEventuateCdcTest;
-import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.sql.dialect.SqlDialectSelector;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,10 +17,13 @@ public abstract class AbstractTramCdcTest extends AbstractEventuateCdcTest {
 
   @Override
   protected void saveEvent(String eventData, String entityType, EventuateSchema eventuateSchema) {
-    eventuateCommonJdbcOperations.insertIntoMessageTable(generateId(),
+    String id = generateId();
+
+    eventuateCommonJdbcOperations.insertIntoMessageTable(id,
             eventData,
             entityType,
             sqlDialectSelector.getDialect(driver).getCurrentTimeInMillisecondsExpression(),
+            ImmutableMap.of("ID", id),
             eventuateSchema);
   }
 }

@@ -2,7 +2,7 @@ package io.eventuate.local.test.util;
 
 import io.eventuate.common.PublishedEvent;
 import io.eventuate.common.kafka.EventuateKafkaConfigurationProperties;
-import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.common.PublishingStrategy;
 import io.micrometer.core.instrument.MeterRegistry;
