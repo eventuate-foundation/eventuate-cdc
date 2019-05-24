@@ -1,10 +1,10 @@
 package io.eventuate.local.db.log.common;
 
-import io.eventuate.common.BinlogFileOffset;
-import io.eventuate.common.kafka.EventuateKafkaConfigurationProperties;
-import io.eventuate.common.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
-import io.eventuate.common.kafka.producer.EventuateKafkaProducer;
+import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
+import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
+import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
+import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

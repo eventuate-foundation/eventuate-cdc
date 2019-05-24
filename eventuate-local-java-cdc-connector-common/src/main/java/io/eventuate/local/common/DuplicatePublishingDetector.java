@@ -1,11 +1,11 @@
 package io.eventuate.local.common;
 
-import io.eventuate.common.BinlogFileOffset;
-import io.eventuate.common.PublishedEvent;
-import io.eventuate.common.kafka.consumer.ConsumerPropertiesFactory;
-import io.eventuate.common.kafka.consumer.EventuateKafkaConsumer;
-import io.eventuate.common.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
+import io.eventuate.common.eventuate.local.BinlogFileOffset;
+import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.javaclient.commonimpl.JSonMapper;
+import io.eventuate.messaging.kafka.basic.consumer.ConsumerPropertiesFactory;
+import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumer;
+import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
 

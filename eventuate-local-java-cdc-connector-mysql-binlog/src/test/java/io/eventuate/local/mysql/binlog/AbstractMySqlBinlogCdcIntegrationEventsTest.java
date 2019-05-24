@@ -1,6 +1,6 @@
 package io.eventuate.local.mysql.binlog;
 
-import io.eventuate.common.PublishedEvent;
+import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.CdcDataPublisher;

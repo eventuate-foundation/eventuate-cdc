@@ -1,6 +1,6 @@
 package io.eventuate.local.test.util;
 
-import io.eventuate.common.PublishedEvent;
+import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
 import io.eventuate.common.jdbc.EventuateSchema;
 import org.apache.kafka.clients.consumer.ConsumerRecord;

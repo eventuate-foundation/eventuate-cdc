@@ -6,7 +6,7 @@ import com.github.shyiko.mysql.binlog.event.*;
 import com.github.shyiko.mysql.binlog.event.deserialization.EventDeserializer;
 import com.github.shyiko.mysql.binlog.event.deserialization.NullEventDataDeserializer;
 import com.google.common.collect.ImmutableSet;
-import io.eventuate.common.BinlogFileOffset;
+import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.local.common.*;
 import io.eventuate.local.db.log.common.DbLogClient;

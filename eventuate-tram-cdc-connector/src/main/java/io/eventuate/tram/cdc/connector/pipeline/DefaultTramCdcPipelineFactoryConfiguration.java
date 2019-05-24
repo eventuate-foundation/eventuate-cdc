@@ -1,6 +1,6 @@
 package io.eventuate.tram.cdc.connector.pipeline;
 
-import io.eventuate.common.broker.DataProducerFactory;
+import io.eventuate.cdc.producer.wrappers.DataProducerFactory;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.common.PublishingFilter;
 import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;

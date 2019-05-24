@@ -1,7 +1,7 @@
 package io.eventuate.local.unified.cdc.pipeline.common.configuration;
 
-import io.eventuate.common.PublishedEvent;
-import io.eventuate.common.broker.DataProducerFactory;
+import io.eventuate.cdc.producer.wrappers.DataProducerFactory;
+import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.local.common.*;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.context.annotation.Bean;

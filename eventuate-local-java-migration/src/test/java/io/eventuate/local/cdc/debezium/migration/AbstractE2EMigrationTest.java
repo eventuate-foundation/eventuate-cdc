@@ -1,11 +1,11 @@
 package io.eventuate.local.cdc.debezium.migration;
 
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
-import io.eventuate.common.kafka.EventuateKafkaConfigurationProperties;
-import io.eventuate.common.kafka.consumer.EventuateKafkaConsumer;
-import io.eventuate.common.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
-import io.eventuate.common.kafka.consumer.EventuateKafkaConsumerMessageHandler;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumer;
+import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
+import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerMessageHandler;
+import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.Assert;
 import org.junit.Before;

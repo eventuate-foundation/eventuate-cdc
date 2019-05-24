@@ -1,10 +1,10 @@
 apply plugin: PrivateModulePlugin
 
 dependencies {
-    compile "io.eventuate.common:eventuate-common-producer-activemq:$eventuateCommonVersion"
-    compile "io.eventuate.common:eventuate-common-producer-rabbitmq:$eventuateCommonVersion"
-    compile "io.eventuate.common:eventuate-common-producer-redis:$eventuateCommonVersion"
-    compile "io.eventuate.common:eventuate-common-coordination-leadership-redis:$eventuateCommonVersion"
+    compile "io.eventuate.messaging.redis:eventuate-messaging-redis-coordination-leadership:$eventuateMessagingRedisVersion"
+
+    compile "io.eventuate.messaging.activemq:eventuate-messaging-activemq-common:$eventuateMessagingActiveMQVersion"
+    compile "io.eventuate.messaging.redis:eventuate-messaging-redis-common:$eventuateMessagingRedisVersion"
 
     compile project(":eventuate-local-java-cdc-connector-unified:")
     compile "org.springframework.boot:spring-boot-starter-web:$springBootCdcVersion"

@@ -1,7 +1,7 @@
 package io.eventuate.tram.connector;
 
+import io.eventuate.messaging.redis.common.CommonRedisConfiguration;
 import io.eventuate.sql.dialect.SqlDialectConfiguration;
-import io.eventuate.tram.redis.common.CommonRedisConfiguration;
 import io.lettuce.core.RedisCommandExecutionException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

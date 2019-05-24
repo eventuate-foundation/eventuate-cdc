@@ -1,6 +1,6 @@
 package io.eventuate.local.mysql.binlog;
 
-import io.eventuate.common.BinlogFileOffset;
+import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.local.db.log.common.OffsetStore;
 
 import java.util.Optional;

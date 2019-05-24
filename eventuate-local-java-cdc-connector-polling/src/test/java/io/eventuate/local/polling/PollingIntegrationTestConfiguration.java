@@ -1,16 +1,16 @@
 package io.eventuate.local.polling;
 
-import io.eventuate.common.PublishedEvent;
-import io.eventuate.common.kafka.EventuateKafkaConfigurationProperties;
-import io.eventuate.common.kafka.EventuateKafkaPropertiesConfiguration;
-import io.eventuate.common.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
-import io.eventuate.common.kafka.producer.EventuateKafkaProducer;
-import io.eventuate.common.kafka.producer.EventuateKafkaProducerConfigurationProperties;
+import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.coordination.leadership.zookeeper.ZkLeaderSelector;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.*;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
+import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
+import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
+import io.eventuate.messaging.kafka.common.EventuateKafkaPropertiesConfiguration;
+import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
+import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
 import io.eventuate.sql.dialect.SqlDialectConfiguration;
 import io.eventuate.sql.dialect.SqlDialectSelector;
 import io.micrometer.core.instrument.MeterRegistry;

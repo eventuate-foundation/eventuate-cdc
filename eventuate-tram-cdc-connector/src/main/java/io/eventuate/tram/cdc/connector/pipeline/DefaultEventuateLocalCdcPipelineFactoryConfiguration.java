@@ -1,6 +1,6 @@
 package io.eventuate.tram.cdc.connector.pipeline;
 
-import io.eventuate.common.PublishedEvent;
+import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;

@@ -1,6 +1,6 @@
 package io.eventuate.local.unified.cdc.pipeline.common.health;
 
-import io.eventuate.common.kafka.consumer.ConsumerPropertiesFactory;
+import io.eventuate.messaging.kafka.basic.consumer.ConsumerPropertiesFactory;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

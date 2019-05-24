@@ -1,6 +1,6 @@
 package io.eventuate.local.unified.cdc.pipeline.common.configuration;
 
-import io.eventuate.common.PublishedEvent;
+import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.local.common.*;
 import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.CdcPipelineFactory;

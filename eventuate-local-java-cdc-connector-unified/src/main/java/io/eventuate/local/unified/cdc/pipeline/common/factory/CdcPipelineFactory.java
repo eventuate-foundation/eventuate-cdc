@@ -1,6 +1,6 @@
 package io.eventuate.local.unified.cdc.pipeline.common.factory;
 
-import io.eventuate.common.BinLogEvent;
+import io.eventuate.common.eventuate.local.BinLogEvent;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogEntryReader;
 import io.eventuate.local.common.BinlogEntryToEventConverter;

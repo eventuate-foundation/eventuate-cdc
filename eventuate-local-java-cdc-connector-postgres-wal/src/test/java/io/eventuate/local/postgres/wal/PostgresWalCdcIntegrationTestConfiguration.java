@@ -1,18 +1,19 @@
 package io.eventuate.local.postgres.wal;
 
-import io.eventuate.common.PublishedEvent;
-import io.eventuate.common.broker.DataProducerFactory;
-import io.eventuate.common.kafka.EventuateKafkaConfigurationProperties;
-import io.eventuate.common.kafka.EventuateKafkaPropertiesConfiguration;
-import io.eventuate.common.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
-import io.eventuate.common.kafka.producer.EventuateKafkaProducer;
-import io.eventuate.common.kafka.producer.EventuateKafkaProducerConfigurationProperties;
+import io.eventuate.cdc.producer.wrappers.DataProducerFactory;
+import io.eventuate.cdc.producer.wrappers.EventuateKafkaDataProducerWrapper;
+import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.coordination.leadership.zookeeper.ZkLeaderSelector;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.*;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
 import io.eventuate.local.testutil.SqlScriptEditor;
+import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
+import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
+import io.eventuate.messaging.kafka.common.EventuateKafkaPropertiesConfiguration;
+import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
+import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
@@ -110,8 +111,8 @@ public class PostgresWalCdcIntegrationTestConfiguration {
   @Bean
   public DataProducerFactory dataProducerFactory(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
                                                  EventuateKafkaProducerConfigurationProperties eventuateKafkaProducerConfigurationProperties) {
-    return () -> new EventuateKafkaProducer(eventuateKafkaConfigurationProperties.getBootstrapServers(),
-            eventuateKafkaProducerConfigurationProperties);
+    return () -> new EventuateKafkaDataProducerWrapper(new EventuateKafkaProducer(eventuateKafkaConfigurationProperties.getBootstrapServers(),
+            eventuateKafkaProducerConfigurationProperties));
   }
 
   @Bean

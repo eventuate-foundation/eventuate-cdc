@@ -1,6 +1,6 @@
 package io.eventuate.local.common;
 
-import io.eventuate.common.BinLogEvent;
+import io.eventuate.common.eventuate.local.BinLogEvent;
 import io.eventuate.coordination.leadership.EventuateLeaderSelector;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.common.jdbc.EventuateSchema;

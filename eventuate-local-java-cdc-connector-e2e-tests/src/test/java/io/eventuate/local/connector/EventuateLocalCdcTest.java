@@ -1,11 +1,11 @@
 package io.eventuate.local.connector;
 
 import io.eventuate.cdc.e2e.common.AbstractEventuateCdcTest;
-import io.eventuate.common.kafka.EventuateKafkaConfigurationProperties;
-import io.eventuate.common.kafka.EventuateKafkaPropertiesConfiguration;
-import io.eventuate.common.kafka.consumer.EventuateKafkaConsumer;
-import io.eventuate.common.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumer;
+import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
+import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
+import io.eventuate.messaging.kafka.common.EventuateKafkaPropertiesConfiguration;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

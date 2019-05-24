@@ -1,6 +1,6 @@
 package io.eventuate.local.common;
 
-import io.eventuate.common.PublishedEvent;
+import io.eventuate.common.eventuate.local.PublishedEvent;
 
 import java.util.Optional;
 

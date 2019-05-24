@@ -1,8 +1,9 @@
 package io.eventuate.tram.cdc.connector.configuration;
 
-import io.eventuate.common.broker.DataProducerFactory;
+import io.eventuate.cdc.producer.wrappers.DataProducerFactory;
+import io.eventuate.cdc.producer.wrappers.EventuateActiveMQDataProducerWrapper;
 import io.eventuate.local.common.PublishingFilter;
-import io.eventuate.tram.data.producer.activemq.EventuateActiveMQProducer;
+import io.eventuate.messaging.activemq.producer.EventuateActiveMQProducer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +19,6 @@ public class ActiveMQMessageTableChangesToDestinationsConfiguration {
 
   @Bean
   public DataProducerFactory activeMQDataProducerFactory(@Value("${activemq.url}") String activeMQURL) {
-    return () -> new EventuateActiveMQProducer(activeMQURL);
+    return () -> new EventuateActiveMQDataProducerWrapper(new EventuateActiveMQProducer(activeMQURL));
   }
 }

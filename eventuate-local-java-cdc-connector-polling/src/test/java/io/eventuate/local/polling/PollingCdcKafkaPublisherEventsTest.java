@@ -1,12 +1,13 @@
 package io.eventuate.local.polling;
 
-import io.eventuate.common.PublishedEvent;
-import io.eventuate.common.kafka.producer.EventuateKafkaProducer;
-import io.eventuate.common.kafka.producer.EventuateKafkaProducerConfigurationProperties;
+import io.eventuate.cdc.producer.wrappers.EventuateKafkaDataProducerWrapper;
+import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.common.DuplicatePublishingDetector;
 import io.eventuate.local.test.util.CdcKafkaPublisherEventsTest;
+import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
+import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,8 +42,8 @@ public class PollingCdcKafkaPublisherEventsTest extends CdcKafkaPublisherEventsT
   @Override
   protected CdcDataPublisher<PublishedEvent> createCdcKafkaPublisher() {
     return new CdcDataPublisher<>(() ->
-            new EventuateKafkaProducer(eventuateKafkaConfigurationProperties.getBootstrapServers(),
-                    EventuateKafkaProducerConfigurationProperties.empty()),
+            new EventuateKafkaDataProducerWrapper(new EventuateKafkaProducer(eventuateKafkaConfigurationProperties.getBootstrapServers(),
+                    EventuateKafkaProducerConfigurationProperties.empty())),
             duplicatePublishingDetector,
             publishingStrategy,
             meterRegistry);

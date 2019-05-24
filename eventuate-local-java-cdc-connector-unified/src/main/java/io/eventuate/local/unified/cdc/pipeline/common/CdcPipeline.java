@@ -1,6 +1,6 @@
 package io.eventuate.local.unified.cdc.pipeline.common;
 
-import io.eventuate.common.BinLogEvent;
+import io.eventuate.common.eventuate.local.BinLogEvent;
 import io.eventuate.local.common.CdcDataPublisher;
 
 public class CdcPipeline<EVENT extends BinLogEvent> {

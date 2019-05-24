@@ -1,6 +1,6 @@
 package io.eventuate.tram.cdc.connector;
 
-import io.eventuate.common.ChannelType;
+import io.eventuate.messaging.activemq.common.ChannelType;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Map;

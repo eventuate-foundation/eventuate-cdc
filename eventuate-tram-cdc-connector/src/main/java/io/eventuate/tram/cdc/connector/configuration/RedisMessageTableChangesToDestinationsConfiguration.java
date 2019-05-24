@@ -1,13 +1,14 @@
 package io.eventuate.tram.cdc.connector.configuration;
 
-import io.eventuate.common.broker.DataProducerFactory;
+import io.eventuate.cdc.producer.wrappers.DataProducerFactory;
+import io.eventuate.cdc.producer.wrappers.EventuateRedisDataProducerWrapper;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.local.common.PublishingFilter;
-import io.eventuate.tram.data.producer.redis.EventuateRedisProducer;
-import io.eventuate.tram.redis.common.CommonRedisConfiguration;
-import io.eventuate.tram.redis.common.RedisConfigurationProperties;
-import io.eventuate.tram.redis.common.RedisLeaderSelector;
-import io.eventuate.tram.redis.common.RedissonClients;
+import io.eventuate.messaging.redis.common.CommonRedisConfiguration;
+import io.eventuate.messaging.redis.common.RedisConfigurationProperties;
+import io.eventuate.messaging.redis.common.RedissonClients;
+import io.eventuate.messaging.redis.leadership.RedisLeaderSelector;
+import io.eventuate.messaging.redis.producer.EventuateRedisProducer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -26,7 +27,7 @@ public class RedisMessageTableChangesToDestinationsConfiguration {
   @Bean
   public DataProducerFactory redisDataProducerFactory(RedisTemplate<String, String> redisTemplate,
                                                       RedisConfigurationProperties redisConfigurationProperties) {
-    return () -> new EventuateRedisProducer(redisTemplate, redisConfigurationProperties.getPartitions());
+    return () -> new EventuateRedisDataProducerWrapper(new EventuateRedisProducer(redisTemplate, redisConfigurationProperties.getPartitions()));
   }
 
   @Bean
