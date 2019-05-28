@@ -3,14 +3,20 @@ package io.eventuate.tram.cdc.connector.configuration;
 import io.eventuate.cdc.producer.wrappers.DataProducerFactory;
 import io.eventuate.cdc.producer.wrappers.EventuateActiveMQDataProducerWrapper;
 import io.eventuate.local.common.PublishingFilter;
+import io.eventuate.messaging.activemq.common.EventuateActiveMQCommonConfiguration;
+import io.eventuate.messaging.activemq.common.EventuateActiveMQConfigurationProperties;
 import io.eventuate.messaging.activemq.producer.EventuateActiveMQProducer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
+
+import java.util.Optional;
 
 @Configuration
 @Profile("ActiveMQ")
+@Import(EventuateActiveMQCommonConfiguration.class)
 public class ActiveMQMessageTableChangesToDestinationsConfiguration {
   @Bean
   public PublishingFilter activeMQDuplicatePublishingDetector() {
@@ -18,7 +24,9 @@ public class ActiveMQMessageTableChangesToDestinationsConfiguration {
   }
 
   @Bean
-  public DataProducerFactory activeMQDataProducerFactory(@Value("${activemq.url}") String activeMQURL) {
-    return () -> new EventuateActiveMQDataProducerWrapper(new EventuateActiveMQProducer(activeMQURL));
+  public DataProducerFactory activeMQDataProducerFactory(EventuateActiveMQConfigurationProperties eventuateActiveMQConfigurationProperties) {
+    return () -> new EventuateActiveMQDataProducerWrapper(new EventuateActiveMQProducer(eventuateActiveMQConfigurationProperties.getUrl(),
+            Optional.ofNullable(eventuateActiveMQConfigurationProperties.getUser()),
+            Optional.ofNullable(eventuateActiveMQConfigurationProperties.getPassword())));
   }
 }
