@@ -1,9 +1,10 @@
 package io.eventuate.tram.connector;
 
-import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumer;
+import com.google.common.collect.ImmutableSet;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
 import io.eventuate.messaging.kafka.common.EventuateKafkaPropertiesConfiguration;
+import io.eventuate.messaging.kafka.consumer.MessageConsumerKafkaImpl;
 import io.eventuate.sql.dialect.SqlDialectConfiguration;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Collections;
 import java.util.function.Consumer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -22,7 +22,8 @@ public class EventuateTramCdcKafkaTest extends AbstractTramCdcTest {
 
   @Configuration
   @EnableAutoConfiguration
-  @Import({EventuateKafkaPropertiesConfiguration.class, SqlDialectConfiguration.class})
+  @Import({EventuateKafkaPropertiesConfiguration.class,
+          SqlDialectConfiguration.class})
   public static class Config {
   }
 
@@ -30,16 +31,12 @@ public class EventuateTramCdcKafkaTest extends AbstractTramCdcTest {
   private EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties;
 
   @Override
-  protected void createConsumer(String topic, Consumer<String> consumer) throws Exception {
-    EventuateKafkaConsumer eventuateKafkaConsumer = new EventuateKafkaConsumer(subscriberId,
-            (record, callback) -> {
-              consumer.accept(record.value());
-              callback.accept(null, null);
-            },
-            Collections.singletonList(topic),
-            eventuateKafkaConfigurationProperties.getBootstrapServers(),
+  protected void createConsumer(String topic, Consumer<String> consumer) {
+    MessageConsumerKafkaImpl messageConsumerKafka = new MessageConsumerKafkaImpl(eventuateKafkaConfigurationProperties.getBootstrapServers(),
             EventuateKafkaConsumerConfigurationProperties.empty());
 
-    eventuateKafkaConsumer.start();
+    messageConsumerKafka.subscribe(subscriberId,
+            ImmutableSet.of(topic),
+            kafkaMessage -> consumer.accept(kafkaMessage.getPayload()));
   }
 }
