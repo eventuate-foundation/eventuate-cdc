@@ -1,7 +1,7 @@
 package io.eventuate.tram.cdc.connector;
 
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
-import io.eventuate.javaclient.commonimpl.JSonMapper;
+import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.db.log.common.OffsetStore;
 import org.springframework.jdbc.core.JdbcTemplate;

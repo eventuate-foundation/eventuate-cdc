@@ -1,7 +1,7 @@
 package io.eventuate.local.postgres.wal;
 
+import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
-import io.eventuate.javaclient.commonimpl.JSonMapper;
 import io.eventuate.local.common.BinlogEntry;
 import io.eventuate.local.common.CdcProcessingStatusService;
 import io.eventuate.local.common.SchemaAndTable;

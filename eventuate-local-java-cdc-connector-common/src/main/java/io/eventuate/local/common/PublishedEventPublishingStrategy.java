@@ -1,7 +1,7 @@
 package io.eventuate.local.common;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
-import io.eventuate.javaclient.commonimpl.JSonMapper;
+import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.messaging.kafka.common.AggregateTopicMapping;
 
 import java.util.Optional;

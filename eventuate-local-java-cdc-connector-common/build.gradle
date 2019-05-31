@@ -11,6 +11,7 @@ dependencies {
     compile 'io.micrometer:micrometer-registry-jmx:1.1.1'
     compile 'io.micrometer:micrometer-registry-prometheus:1.1.1'
     compile "io.eventuate.common:eventuate-common-coordination-leadership:$eventuateCommonVersion"
+    compile "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
     compile "io.eventuate.common:eventuate-common-eventuate-local:$eventuateCommonVersion"
     compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
     compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-producer:$eventuateMessagingKafkaVersion"
