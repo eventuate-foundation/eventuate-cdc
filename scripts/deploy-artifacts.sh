@@ -42,8 +42,4 @@ $PREFIX docker login -u ${DOCKER_USER_ID?} -p ${DOCKER_PASSWORD?}
 
 docker images
 
-tagAndPush "mysql" "mysql"
-tagAndPush "mariadb" "mariadb"
-tagAndPush "mssql" "mssql"
-tagAndPush "postgres" "postgres"
 tagAndPush "eventuate-cdc-service" "eventuate-cdc-service"

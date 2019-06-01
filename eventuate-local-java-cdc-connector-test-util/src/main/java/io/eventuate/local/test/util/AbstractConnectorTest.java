@@ -1,6 +1,6 @@
 package io.eventuate.local.test.util;
 
-import io.eventuate.common.BinlogFileOffset;
+import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;

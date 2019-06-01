@@ -1,14 +1,14 @@
 package io.eventuate.local.db.log.test.common;
 
-import io.eventuate.common.BinlogFileOffset;
-import io.eventuate.common.kafka.EventuateKafkaConfigurationProperties;
-import io.eventuate.common.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
-import io.eventuate.common.kafka.producer.EventuateKafkaProducer;
-import io.eventuate.common.kafka.producer.EventuateKafkaProducerConfigurationProperties;
+import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.local.common.EventuateConfigurationProperties;
 import io.eventuate.local.db.log.common.DatabaseOffsetKafkaStore;
 import io.eventuate.local.db.log.common.OffsetStore;
 import io.eventuate.local.test.util.AbstractConnectorTest;
+import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
+import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
+import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
+import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.Test;

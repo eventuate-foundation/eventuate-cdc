@@ -1,6 +1,6 @@
 package io.eventuate.local.unified.cdc.pipeline;
 
-import io.eventuate.common.PublishedEvent;
+import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.local.common.BinlogEntryReader;
 import io.eventuate.local.mysql.binlog.MySqlBinaryLogClient;
 import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;

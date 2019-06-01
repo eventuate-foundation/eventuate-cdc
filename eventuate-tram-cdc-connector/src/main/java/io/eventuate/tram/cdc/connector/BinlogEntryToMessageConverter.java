@@ -1,6 +1,6 @@
 package io.eventuate.tram.cdc.connector;
 
-import io.eventuate.javaclient.commonimpl.JSonMapper;
+import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.local.common.BinlogEntry;
 import io.eventuate.local.common.BinlogEntryToEventConverter;
 

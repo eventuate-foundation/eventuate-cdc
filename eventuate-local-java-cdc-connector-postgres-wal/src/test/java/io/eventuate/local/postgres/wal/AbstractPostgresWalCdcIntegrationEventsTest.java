@@ -1,7 +1,7 @@
 package io.eventuate.local.postgres.wal;
 
-import io.eventuate.common.PublishedEvent;
-import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
+import io.eventuate.common.eventuate.local.PublishedEvent;
+import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.common.exception.EventuateLocalPublishingException;

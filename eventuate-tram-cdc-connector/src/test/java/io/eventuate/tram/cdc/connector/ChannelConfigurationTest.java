@@ -1,6 +1,6 @@
 package io.eventuate.tram.cdc.connector;
 
-import io.eventuate.common.ChannelType;
+import io.eventuate.messaging.activemq.common.ChannelType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -18,7 +18,7 @@ kafka:
     - ZOOKEEPER_SERVERS=zookeeper:2181
 
 mysql:
-  build: ./mysql
+  image: test-eventuate-mysql
   ports:
     - 3306:3306
   environment:
@@ -27,7 +27,7 @@ mysql:
     - MYSQL_PASSWORD=mysqlpw
 
 activemq:
-  image: webcenter/activemq:5.14.3
+  image: test-eventuate-activemq
   ports:
     - 8161:8161
     - 61616:61616

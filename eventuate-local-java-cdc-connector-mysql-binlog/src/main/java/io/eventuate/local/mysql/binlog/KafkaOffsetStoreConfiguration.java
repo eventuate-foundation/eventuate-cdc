@@ -1,11 +1,11 @@
 package io.eventuate.local.mysql.binlog;
 
-import io.eventuate.common.kafka.EventuateKafkaConfigurationProperties;
-import io.eventuate.common.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
-import io.eventuate.common.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.local.common.EventuateConfigurationProperties;
 import io.eventuate.local.db.log.common.DatabaseOffsetKafkaStore;
 import io.eventuate.local.db.log.common.OffsetStore;
+import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
+import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
+import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;

@@ -1,6 +1,6 @@
 package io.eventuate.local.common;
 
-import io.eventuate.common.BinLogEvent;
+import io.eventuate.common.eventuate.local.BinLogEvent;
 
 public class BinlogEntryHandler<EVENT extends BinLogEvent> {
   protected SchemaAndTable schemaAndTable;

@@ -1,6 +1,6 @@
 package io.eventuate.local.postgres.wal;
 
-import io.eventuate.common.BinlogFileOffset;
+import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.local.common.BinlogEntry;
 
 import java.util.Arrays;

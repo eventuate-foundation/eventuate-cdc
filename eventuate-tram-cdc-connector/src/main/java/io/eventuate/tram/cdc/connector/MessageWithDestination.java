@@ -1,9 +1,9 @@
 package io.eventuate.tram.cdc.connector;
 
 import com.google.common.collect.ImmutableMap;
-import io.eventuate.common.BinLogEvent;
-import io.eventuate.common.BinlogFileOffset;
-import io.eventuate.javaclient.commonimpl.JSonMapper;
+import io.eventuate.common.eventuate.local.BinLogEvent;
+import io.eventuate.common.eventuate.local.BinlogFileOffset;
+import io.eventuate.common.json.mapper.JSonMapper;
 
 import java.util.HashMap;
 import java.util.Map;

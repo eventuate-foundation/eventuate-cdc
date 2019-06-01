@@ -1,4 +1,6 @@
 dependencies {
+    compile project (":eventuate-cdc-data-producer-wrappers")
+
     compile "org.springframework.boot:spring-boot-starter-actuator:$springBootCdcVersion"
     compile "org.springframework.boot:spring-boot-starter:$springBootCdcVersion"
     compile "io.eventuate.client.java:eventuate-client-java-common-impl:$eventuateClientVersion"
@@ -9,7 +11,11 @@ dependencies {
     compile 'io.micrometer:micrometer-registry-jmx:1.1.1'
     compile 'io.micrometer:micrometer-registry-prometheus:1.1.1'
     compile "io.eventuate.common:eventuate-common-coordination-leadership:$eventuateCommonVersion"
-    compile "io.eventuate.common:eventuate-common:$eventuateCommonVersion"
+    compile "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
+    compile "io.eventuate.common:eventuate-common-eventuate-local:$eventuateCommonVersion"
+    compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
+    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-producer:$eventuateMessagingKafkaVersion"
+    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-basic-consumer:$eventuateMessagingKafkaVersion"
     compile "io.eventuate.client.java:eventuate-client-java-jdbc-common:$eventuateClientVersion"
     compile 'mysql:mysql-connector-java:5.1.39'
     compile ('org.postgresql:postgresql:42.1.4') {

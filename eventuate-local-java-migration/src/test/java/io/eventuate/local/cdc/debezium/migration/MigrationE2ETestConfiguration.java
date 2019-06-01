@@ -1,6 +1,6 @@
 package io.eventuate.local.cdc.debezium.migration;
 
-import io.eventuate.common.kafka.EventuateKafkaPropertiesConfiguration;
+import io.eventuate.messaging.kafka.common.EventuateKafkaPropertiesConfiguration;
 import io.eventuate.sql.dialect.SqlDialectConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Configuration;

@@ -1,9 +1,9 @@
 package io.eventuate.local.common;
 
-import io.eventuate.common.BinLogEvent;
+import io.eventuate.common.eventuate.local.BinLogEvent;
 import io.eventuate.coordination.leadership.EventuateLeaderSelector;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
-import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.EventuateSchema;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,11 +1,7 @@
 package io.eventuate.tram.cdc.connector.configuration;
 
-import io.eventuate.common.broker.DataProducerFactory;
-import io.eventuate.common.kafka.EventuateKafkaConfigurationProperties;
-import io.eventuate.common.kafka.EventuateKafkaPropertiesConfiguration;
-import io.eventuate.common.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
-import io.eventuate.common.kafka.producer.EventuateKafkaProducer;
-import io.eventuate.common.kafka.producer.EventuateKafkaProducerConfigurationProperties;
+import io.eventuate.cdc.producer.wrappers.DataProducerFactory;
+import io.eventuate.cdc.producer.wrappers.EventuateKafkaDataProducerWrapper;
 import io.eventuate.local.common.DuplicatePublishingDetector;
 import io.eventuate.local.common.PublishingFilter;
 import io.eventuate.local.db.log.common.DatabaseOffsetKafkaStore;
@@ -13,6 +9,11 @@ import io.eventuate.local.mysql.binlog.DebeziumBinlogOffsetKafkaStore;
 import io.eventuate.local.unified.cdc.pipeline.common.health.KafkaHealthCheck;
 import io.eventuate.local.unified.cdc.pipeline.dblog.common.factory.OffsetStoreFactory;
 import io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.factory.DebeziumOffsetStoreFactory;
+import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
+import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
+import io.eventuate.messaging.kafka.common.EventuateKafkaPropertiesConfiguration;
+import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
+import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
 import io.eventuate.tram.cdc.connector.configuration.condition.KafkaCondition;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -36,8 +37,8 @@ public class KafkaMessageTableChangesToDestinationsConfiguration {
   @Bean
   public DataProducerFactory kafkaDataProducerFactory(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
                                                       EventuateKafkaProducerConfigurationProperties eventuateKafkaProducerConfigurationProperties) {
-    return () -> new EventuateKafkaProducer(eventuateKafkaConfigurationProperties.getBootstrapServers(),
-            eventuateKafkaProducerConfigurationProperties);
+    return () -> new EventuateKafkaDataProducerWrapper(new EventuateKafkaProducer(eventuateKafkaConfigurationProperties.getBootstrapServers(),
+            eventuateKafkaProducerConfigurationProperties));
   }
 
   @Bean

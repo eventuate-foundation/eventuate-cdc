@@ -1,10 +1,10 @@
 package io.eventuate.local.polling;
 
 import com.google.common.collect.ImmutableMap;
-import io.eventuate.common.BinLogEvent;
-import io.eventuate.common.BinlogFileOffset;
+import io.eventuate.common.eventuate.local.BinLogEvent;
+import io.eventuate.common.eventuate.local.BinlogFileOffset;
+import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
-import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
 import io.eventuate.local.common.*;
 import io.eventuate.sql.dialect.EventuateSqlDialect;
 import io.micrometer.core.instrument.MeterRegistry;

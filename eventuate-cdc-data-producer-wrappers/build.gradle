@@ -1,0 +1,10 @@
+dependencies {
+    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-producer:$eventuateMessagingKafkaVersion"
+    compile "io.eventuate.messaging.activemq:eventuate-messaging-activemq-producer:$eventuateMessagingKafkaVersion"
+    compile "io.eventuate.messaging.rabbitmq:eventuate-messaging-rabbitmq-producer:$eventuateMessagingKafkaVersion"
+    compile "io.eventuate.messaging.redis:eventuate-messaging-redis-producer:$eventuateMessagingKafkaVersion"
+}
+
+test {
+    forkEvery 1
+}

@@ -1,8 +1,8 @@
 package io.eventuate.local.db.log.common;
 
-import io.eventuate.common.BinlogFileOffset;
+import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
-import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.*;
 import io.micrometer.core.instrument.MeterRegistry;
 

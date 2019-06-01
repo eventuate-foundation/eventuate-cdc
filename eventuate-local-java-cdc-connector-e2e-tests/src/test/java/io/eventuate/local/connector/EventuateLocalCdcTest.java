@@ -1,11 +1,11 @@
 package io.eventuate.local.connector;
 
 import io.eventuate.cdc.e2e.common.AbstractEventuateCdcTest;
-import io.eventuate.common.kafka.EventuateKafkaConfigurationProperties;
-import io.eventuate.common.kafka.EventuateKafkaPropertiesConfiguration;
-import io.eventuate.common.kafka.consumer.EventuateKafkaConsumer;
-import io.eventuate.common.kafka.consumer.EventuateKafkaConsumerConfigurationProperties;
-import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumer;
+import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
+import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
+import io.eventuate.messaging.kafka.common.EventuateKafkaPropertiesConfiguration;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -46,6 +47,13 @@ public class EventuateLocalCdcTest extends AbstractEventuateCdcTest {
 
   @Override
   protected void saveEvent(String eventData, String entityType, EventuateSchema eventuateSchema) {
-    eventuateCommonJdbcOperations.insertIntoEventsTable(generateId(), generateId(), eventData, generateId(), entityType, eventuateSchema);
+    eventuateCommonJdbcOperations.insertIntoEventsTable(generateId(),
+            generateId(),
+            eventData,
+            generateId(),
+            entityType,
+            Optional.empty(),
+            Optional.empty(),
+            eventuateSchema);
   }
 }

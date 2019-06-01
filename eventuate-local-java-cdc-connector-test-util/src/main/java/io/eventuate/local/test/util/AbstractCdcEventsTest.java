@@ -1,8 +1,8 @@
 package io.eventuate.local.test.util;
 
-import io.eventuate.common.PublishedEvent;
+import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
-import io.eventuate.javaclient.spring.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.EventuateSchema;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -62,7 +63,14 @@ public class AbstractCdcEventsTest extends AbstractConnectorTest {
     String eventId = generateId();
     String entityId = generateId();
 
-    eventuateCommonJdbcOperations.insertIntoEventsTable(eventId, entityId, eventData, eventType, entityType, eventuateSchema);
+    eventuateCommonJdbcOperations.insertIntoEventsTable(eventId,
+            entityId,
+            eventData,
+            eventType,
+            entityType,
+            Optional.empty(),
+            Optional.empty(),
+            eventuateSchema);
 
     return new EventIdEntityId(eventId, entityId);
   }
@@ -74,7 +82,14 @@ public class AbstractCdcEventsTest extends AbstractConnectorTest {
   protected EventIdEntityId updateEvent(String entityType, String eventType, String entityId, String eventData) {
     String eventId = generateId();
 
-    eventuateCommonJdbcOperations.insertIntoEventsTable(eventId, entityId, eventData, eventType, entityType, eventuateSchema);
+    eventuateCommonJdbcOperations.insertIntoEventsTable(eventId,
+            entityId,
+            eventData,
+            eventType,
+            entityType,
+            Optional.empty(),
+            Optional.empty(),
+            eventuateSchema);
 
     return new EventIdEntityId(eventId, entityId);
   }
