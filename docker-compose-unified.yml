@@ -1,5 +1,5 @@
 zookeeper:
-  image: test-eventuate-zookeeper
+  image: eventuateio/eventuate-zookeeper:0.1.0.RELEASE
   ports:
     - 2181:2181
     - 2888:2888
@@ -7,7 +7,7 @@ zookeeper:
 
 
 kafka:
-  image: test-eventuate-kafka
+  image: eventuateio/eventuate-kafka:0.1.0.RELEASE
   ports:
     - 9092:9092
   links:
@@ -18,7 +18,7 @@ kafka:
     - ZOOKEEPER_SERVERS=zookeeper:2181
 
 mysqlbinlogpipeline:
-  image: test-eventuate-mysql
+  image: eventuateio/eventuate-mysql:0.1.0.RELEASE
   ports:
     - 3306:3306
   environment:
@@ -27,7 +27,7 @@ mysqlbinlogpipeline:
     - MYSQL_PASSWORD=mysqlpw
 
 postgrespollingpipeline:
-  image: test-eventuate-postgres
+  image: eventuateio/eventuate-postgres:0.1.0.RELEASE
   ports:
     - 5432:5432
   environment:
@@ -35,7 +35,7 @@ postgrespollingpipeline:
     POSTGRES_PASSWORD: eventuate
 
 postgreswalpipeline:
-  image: test-eventuate-postgres
+  image: eventuateio/eventuate-postgres:0.1.0.RELEASE
   ports:
     - 5433:5432
   environment:
