@@ -159,7 +159,7 @@ jobs:
           path: ~/junit
       - store_artifacts:
           path: ~/junit
-  build-eventuate-tram-cdc-postgres-wal:
+  build-eventuate-local-cdc-postgres-wal:
     machine: true
     working_directory: ~/eventuate-cdc
     steps:
@@ -303,7 +303,7 @@ workflows:
       - build-eventuate-local-cdc-mariadb:
           requires:
             - build-mariadb
-      - build-eventuate-tram-cdc-postgres-wal:
+      - build-eventuate-local-cdc-postgres-wal:
           requires:
             - build-postgres-wal
       - build-eventuate-local-cdc-postgres-polling:
@@ -325,7 +325,7 @@ workflows:
           requires:
             - build-eventuate-local-cdc-mysql
             - build-eventuate-local-cdc-mariadb
-            - build-eventuate-local-postgres-wal
+            - build-eventuate-local-cdc-postgres-wal
             - build-eventuate-local-cdc-postgres-polling
             - build-eventuate-tram-cdc-mysql
             - build-eventuate-tram-cdc-postgres-polling
