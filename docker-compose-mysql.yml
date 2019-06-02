@@ -1,5 +1,5 @@
 zookeeper:
-  image: eventuateio/eventuate-zookeeper:0.2.0.RELEASE
+  image: eventuateio/eventuate-zookeeper:0.3.0.RELEASE
   ports:
     - 2181:2181
     - 2888:2888
@@ -7,7 +7,7 @@ zookeeper:
 
 
 kafka:
-  image: eventuateio/eventuate-kafka:0.2.0.RELEASE
+  image: eventuateio/eventuate-kafka:0.3.0.RELEASE
   ports:
     - 9092:9092
   links:
@@ -18,7 +18,7 @@ kafka:
     - ZOOKEEPER_SERVERS=zookeeper:2181
 
 mysql:
-  image: eventuateio/eventuate-mysql:0.2.0.RELEASE
+  image: eventuateio/eventuate-mysql:0.3.0.RELEASE
   ports:
     - 3306:3306
   environment:
@@ -27,7 +27,7 @@ mysql:
     - MYSQL_PASSWORD=mysqlpw
 
 activemq:
-  image: eventuateio/eventuate-activemq:0.2.0.RELEASE
+  image: eventuateio/eventuate-activemq:0.3.0.RELEASE
   ports:
     - 8161:8161
     - 61616:61616
@@ -36,7 +36,7 @@ activemq:
     - 61614:61614
 
 rabbitmq:
-  image: eventuateio/eventuate-rabbitmq:0.2.0.RELEASE
+  image: eventuateio/eventuate-rabbitmq:0.3.0.RELEASE
   ports:
     - 5672:5672
 
