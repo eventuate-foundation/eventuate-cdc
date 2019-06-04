@@ -6,12 +6,12 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: eventuate-cdc-{{ checksum "build.gradle" }}
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./gradlew testClasses
       - save_cache:
           paths:
             - ~/.gradle
-          key: eventuate-cdc-{{ checksum "build.gradle" }}
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./scripts/build-and-test-mysql.sh
       - run:
           name: Save test results
@@ -29,12 +29,12 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: eventuate-cdc-{{ checksum "build.gradle" }}
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./gradlew testClasses
       - save_cache:
           paths:
             - ~/.gradle
-          key: eventuate-cdc-{{ checksum "build.gradle" }}
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./scripts/build-and-test-mysql-migration.sh
       - run:
           name: Save test results
@@ -52,12 +52,12 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: eventuate-cdc-{{ checksum "build.gradle" }}
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./gradlew testClasses
       - save_cache:
           paths:
             - ~/.gradle
-          key: eventuate-cdc-{{ checksum "build.gradle" }}
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./scripts/build-and-test-mariadb.sh
       - run:
           name: Save test results
@@ -75,7 +75,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: eventuate-cdc-{{ checksum "build.gradle" }}
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./scripts/build-and-test-postgres-wal.sh
       - run:
           name: Save test results
@@ -93,7 +93,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: eventuate-cdc-{{ checksum "build.gradle" }}
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./scripts/build-and-test-mssql-polling.sh
       - run:
           name: Save test results
@@ -111,7 +111,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: eventuate-cdc-{{ checksum "build.gradle" }}
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./scripts/build-and-test-all-eventuate-local-cdc-mysql-binlog.sh
       - run:
           name: Save test results
@@ -129,7 +129,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: eventuate-cdc-{{ checksum "build.gradle" }}
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./scripts/build-and-test-all-eventuate-local-cdc-mariadb-binlog.sh
       - run:
           name: Save test results
@@ -147,7 +147,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: eventuate-cdc-{{ checksum "build.gradle" }}
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./scripts/build-and-test-all-eventuate-local-cdc-postgres-polling.sh
       - run:
           name: Save test results
@@ -165,7 +165,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: eventuate-cdc-{{ checksum "build.gradle" }}
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./scripts/build-and-test-all-eventuate-local-cdc-postgres-wal.sh
       - run:
           name: Save test results
@@ -183,7 +183,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: eventuate-cdc-{{ checksum "build.gradle" }}
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./scripts/build-and-test-all-tram-cdc-mysql-binlog.sh
       - run:
           name: Save test results
@@ -201,7 +201,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: eventuate-cdc-{{ checksum "build.gradle" }}
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./scripts/build-and-test-all-tram-cdc-postgres-polling.sh
       - run:
           name: Save test results
@@ -219,7 +219,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: eventuate-cdc-{{ checksum "build.gradle" }}
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./scripts/build-and-test-all-tram-cdc-postgres-wal.sh
       - run:
           name: Save test results
@@ -237,7 +237,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: eventuate-cdc-{{ checksum "build.gradle" }}
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./scripts/build-and-test-all-tram-cdc-mssql-polling.sh
       - run:
           name: Save test results
@@ -255,7 +255,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: eventuate-cdc-{{ checksum "build.gradle" }}
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./scripts/build-and-test-all-cdc-unified.sh
       - run:
           name: Save test results
@@ -273,12 +273,12 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: eventuate-cdc-{{ checksum "build.gradle" }}
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
       - run: TERM=dumb ./gradlew testClasses
       - save_cache:
           paths:
             - ~/.gradle
-          key: eventuate-cdc-{{ checksum "build.gradle" }}
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
       - run:
           name: Publish artifacts
           command: |

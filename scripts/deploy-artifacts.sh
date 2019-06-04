@@ -26,7 +26,15 @@ $PREFIX ./gradlew -P version=${VERSION} \
   testClasses bintrayUpload
 
 DOCKER_REPO=eventuateio
-DOCKER_COMPOSE_PREFIX=eventuatecdc_
+
+# This is current directory name, right?
+# But CircleCI is using older version
+
+DOCKER_COMPOSE_PREFIX=eventuate-cdc_
+
+$PREFIX ./gradlew assemble
+docker-compose -p eventuate-cdc -f docker-compose-mysql.yml -f docker-compose-cdc-mysql-binlog.yml build cdcservice
+
 
 function tagAndPush() {
   LOCAL=$1
@@ -42,4 +50,4 @@ $PREFIX docker login -u ${DOCKER_USER_ID?} -p ${DOCKER_PASSWORD?}
 
 docker images
 
-tagAndPush "eventuate-cdc-service" "eventuate-cdc-service"
+tagAndPush "cdcservice" "eventuate-cdc-service"

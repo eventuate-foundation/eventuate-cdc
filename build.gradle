@@ -41,9 +41,9 @@ subprojects {
         configurations = ['archives']
         pkg {
             repo = "eventuate-maven-$bintrayRepoType"
-            name = 'eventuate-local'
+            name = 'eventuate-cdc'
             licenses = ['Apache-2.0']
-            vcsUrl = 'https://github.com/eventuate-local/eventuate-local'
+            vcsUrl = 'https://github.com/eventuate-incubator/eventuate-cdc'
         }
     }
 
