@@ -1,6 +1,6 @@
 package io.eventuate.local.cdc.debezium.migration;
 
-import io.eventuate.testutil.Eventually;
+import io.eventuate.util.test.async.Eventually;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.Assert;
 import org.junit.Test;

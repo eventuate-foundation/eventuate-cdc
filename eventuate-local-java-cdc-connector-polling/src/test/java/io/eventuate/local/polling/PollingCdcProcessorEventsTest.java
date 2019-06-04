@@ -1,7 +1,7 @@
 package io.eventuate.local.polling;
 
 import io.eventuate.local.common.CdcProcessingStatusService;
-import io.eventuate.testutil.Eventually;
+import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
