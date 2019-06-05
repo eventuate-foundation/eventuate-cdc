@@ -30,10 +30,10 @@ DOCKER_REPO=eventuateio
 # This is current directory name, right?
 # But CircleCI is using older version
 
-DOCKER_COMPOSE_PREFIX=eventuate-cdc_
+DOCKER_COMPOSE_PREFIX=eventuatecdc_
 
 $PREFIX ./gradlew assemble
-docker-compose -p eventuate-cdc -f docker-compose-mysql.yml -f docker-compose-cdc-mysql-binlog.yml build cdcservice
+docker-compose -f docker-compose-mysql.yml -f docker-compose-cdc-mysql-binlog.yml build cdcservice
 
 
 function tagAndPush() {
