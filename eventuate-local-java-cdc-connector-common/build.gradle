@@ -3,7 +3,6 @@ dependencies {
 
     compile "org.springframework.boot:spring-boot-starter-actuator:$springBootCdcVersion"
     compile "org.springframework.boot:spring-boot-starter:$springBootCdcVersion"
-    compile "io.eventuate.client.java:eventuate-client-java-common-impl:$eventuateClientVersion"
     compile 'org.apache.curator:curator-recipes:2.11.0'
     compile "io.dropwizard.metrics:metrics-core:$dropwizardMetricsVersion"
     compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootCdcVersion"
@@ -16,7 +15,6 @@ dependencies {
     compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
     compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-producer:$eventuateMessagingKafkaVersion"
     compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-basic-consumer:$eventuateMessagingKafkaVersion"
-    compile "io.eventuate.client.java:eventuate-client-java-jdbc-common:$eventuateClientVersion"
     compile 'mysql:mysql-connector-java:5.1.39'
     compile ('org.postgresql:postgresql:42.1.4') {
         exclude group: "org.slf4j", module: "slf4j-simple"

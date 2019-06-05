@@ -8,7 +8,7 @@ dependencies {
     testCompile "io.eventuate.messaging.rabbitmq:eventuate-messaging-rabbitmq-consumer:$eventuateMessagingRabbitMQVersion"
     testCompile "io.eventuate.messaging.redis:eventuate-messaging-redis-consumer:$eventuateMessagingRedisVersion"
     testCompile "io.eventuate.messaging.redis:eventuate-messaging-redis-common:$eventuateMessagingRedisVersion"
-    testCompile "io.eventuate.client.java:eventuate-client-java-tests-common:$eventuateClientVersion"
+    testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
     testCompile "junit:junit:4.11"
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 }

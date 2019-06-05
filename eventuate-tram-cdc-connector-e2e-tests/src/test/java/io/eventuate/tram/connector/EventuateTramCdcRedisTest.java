@@ -1,8 +1,8 @@
 package io.eventuate.tram.connector;
 
 import com.google.common.collect.ImmutableSet;
-import io.eventuate.messaging.partition.management.CoordinatorFactory;
-import io.eventuate.messaging.partition.management.CoordinatorFactoryImpl;
+import io.eventuate.messaging.partitionmanagement.CoordinatorFactory;
+import io.eventuate.messaging.partitionmanagement.CoordinatorFactoryImpl;
 import io.eventuate.messaging.redis.common.CommonRedisConfiguration;
 import io.eventuate.messaging.redis.common.RedissonClients;
 import io.eventuate.messaging.redis.consumer.*;

@@ -2,7 +2,7 @@ package io.eventuate.local.postgres.wal;
 
 import io.eventuate.local.common.CdcProcessingStatus;
 import io.eventuate.local.common.CdcProcessingStatusService;
-import io.eventuate.testutil.Eventually;
+import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

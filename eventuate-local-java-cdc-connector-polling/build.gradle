@@ -5,6 +5,7 @@ dependencies {
 
     testCompile project(":eventuate-local-java-test-util")
     testCompile project(":eventuate-local-java-cdc-connector-test-util")
+    testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
     testCompile "junit:junit:4.11"
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 }
