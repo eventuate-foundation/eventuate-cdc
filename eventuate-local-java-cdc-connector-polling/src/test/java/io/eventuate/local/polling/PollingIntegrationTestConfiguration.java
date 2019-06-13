@@ -1,6 +1,8 @@
 package io.eventuate.local.polling;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
+import io.eventuate.common.jdbc.sqldialect.SqlDialectConfiguration;
+import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.coordination.leadership.zookeeper.ZkLeaderSelector;
 import io.eventuate.common.jdbc.EventuateSchema;
@@ -11,8 +13,6 @@ import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties
 import io.eventuate.messaging.kafka.common.EventuateKafkaPropertiesConfiguration;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
-import io.eventuate.sql.dialect.SqlDialectConfiguration;
-import io.eventuate.sql.dialect.SqlDialectSelector;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
