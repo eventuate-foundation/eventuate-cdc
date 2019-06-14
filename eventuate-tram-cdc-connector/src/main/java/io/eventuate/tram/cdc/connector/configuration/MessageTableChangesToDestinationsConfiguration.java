@@ -1,10 +1,10 @@
 package io.eventuate.tram.cdc.connector.configuration;
 
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
+import io.eventuate.common.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.mysql.binlog.DebeziumBinlogOffsetKafkaStore;
 import io.eventuate.local.unified.cdc.pipeline.dblog.common.factory.OffsetStoreFactory;
 import io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.factory.DebeziumOffsetStoreFactory;
-import io.eventuate.sql.dialect.SqlDialectConfiguration;
 import io.eventuate.tram.cdc.connector.configuration.condition.ActiveMQOrRabbitMQOrRedisCondition;
 import io.eventuate.tram.cdc.connector.EventuateTramChannelProperties;
 import io.eventuate.tram.cdc.connector.JdbcOffsetStore;

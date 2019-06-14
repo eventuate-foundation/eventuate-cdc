@@ -3,7 +3,7 @@ package io.eventuate.tram.connector;
 import com.google.common.collect.ImmutableMap;
 import io.eventuate.cdc.e2e.common.AbstractEventuateCdcTest;
 import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.sql.dialect.SqlDialectSelector;
+import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 

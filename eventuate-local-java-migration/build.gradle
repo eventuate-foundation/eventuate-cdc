@@ -12,7 +12,6 @@ dependencies {
 
     compile project (":eventuate-local-java-cdc-connector-mysql-binlog")
     compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
-    compile project (":eventuate-local-java-jdbc")
 
     testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
     testCompile "junit:junit:4.11"

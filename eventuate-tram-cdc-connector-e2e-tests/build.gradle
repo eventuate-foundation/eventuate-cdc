@@ -1,6 +1,5 @@
 dependencies {
     compile project (":eventuate-local-java-cdc-connector-common")
-    compile project (":eventuate-local-java-jdbc")
     compile project (":eventuate-cdc-common-e2e-tests")
 
     testCompile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-consumer:$eventuateMessagingKafkaVersion"

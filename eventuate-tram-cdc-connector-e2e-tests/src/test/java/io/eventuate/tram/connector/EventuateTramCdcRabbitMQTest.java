@@ -1,11 +1,11 @@
 package io.eventuate.tram.connector;
 
 import com.google.common.collect.ImmutableSet;
+import io.eventuate.common.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.coordination.leadership.zookeeper.ZkLeaderSelector;
 import io.eventuate.messaging.partitionmanagement.CoordinatorFactory;
 import io.eventuate.messaging.partitionmanagement.CoordinatorFactoryImpl;
 import io.eventuate.messaging.rabbitmq.consumer.*;
-import io.eventuate.sql.dialect.SqlDialectConfiguration;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
