@@ -1,5 +1,6 @@
 package io.eventuate.local.unified.cdc.pipeline.dblog.common.properties;
 
+import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineReaderProperties;
 
 public abstract class CommonDbLogCdcPipelineReaderProperties extends CdcPipelineReaderProperties {
@@ -7,6 +8,7 @@ public abstract class CommonDbLogCdcPipelineReaderProperties extends CdcPipeline
   private Integer binlogConnectionTimeoutInMilliseconds = 5000;
   private Integer maxAttemptsForBinlogConnection = 100;
   private Long replicationLagMeasuringIntervalInMilliseconds = 10000L;
+  private String monitoringSchema = EventuateSchema.DEFAULT_SCHEMA;
 
   public String getOffsetStorageTopicName() {
     return offsetStorageTopicName;
@@ -38,5 +40,13 @@ public abstract class CommonDbLogCdcPipelineReaderProperties extends CdcPipeline
 
   public void setReplicationLagMeasuringIntervalInMilliseconds(Long replicationLagMeasuringIntervalInMilliseconds) {
     this.replicationLagMeasuringIntervalInMilliseconds = replicationLagMeasuringIntervalInMilliseconds;
+  }
+
+  public String getMonitoringSchema() {
+    return monitoringSchema;
+  }
+
+  public void setMonitoringSchema(String monitoringSchema) {
+    this.monitoringSchema = monitoringSchema;
   }
 }

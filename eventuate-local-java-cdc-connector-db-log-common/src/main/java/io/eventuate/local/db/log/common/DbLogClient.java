@@ -31,7 +31,8 @@ public abstract class DbLogClient extends BinlogEntryReader {
                      String readerName,
                      long replicationLagMeasuringIntervalInMilliseconds,
                      int monitoringRetryIntervalInMilliseconds,
-                     int monitoringRetryAttempts) {
+                     int monitoringRetryAttempts,
+                     EventuateSchema monitoringSchema) {
 
     super(meterRegistry,
             leaderLockId,
@@ -41,7 +42,7 @@ public abstract class DbLogClient extends BinlogEntryReader {
             readerName);
 
     cdcMonitoringDao = new CdcMonitoringDao(dataSource,
-            new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA),
+            monitoringSchema,
             monitoringRetryIntervalInMilliseconds,
             monitoringRetryAttempts);
 

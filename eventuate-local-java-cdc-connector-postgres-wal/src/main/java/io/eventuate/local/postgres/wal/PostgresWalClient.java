@@ -1,5 +1,6 @@
 package io.eventuate.local.postgres.wal;
 
+import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.local.common.BinlogEntry;
@@ -53,7 +54,8 @@ public class PostgresWalClient extends DbLogClient {
                            int monitoringRetryIntervalInMilliseconds,
                            int monitoringRetryAttempts,
                            String additionalServiceReplicationSlotName,
-                           long waitForOffsetSyncTimeoutInMilliseconds) {
+                           long waitForOffsetSyncTimeoutInMilliseconds,
+                           EventuateSchema monitoringSchema) {
 
     super(meterRegistry,
             user,
@@ -65,7 +67,8 @@ public class PostgresWalClient extends DbLogClient {
             readerName,
             replicationLagMeasuringIntervalInMilliseconds,
             monitoringRetryIntervalInMilliseconds,
-            monitoringRetryAttempts);
+            monitoringRetryAttempts,
+            monitoringSchema);
 
     this.walIntervalInMilliseconds = walIntervalInMilliseconds;
     this.connectionTimeoutInMilliseconds = connectionTimeoutInMilliseconds;

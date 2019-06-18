@@ -70,6 +70,7 @@ public class MySqlBinlogCdcPipelineReaderFactory extends CommonCdcPipelineReader
             debeziumBinlogOffsetKafkaStore,
             readerProperties.getReplicationLagMeasuringIntervalInMilliseconds(),
             readerProperties.getMonitoringRetryIntervalInMilliseconds(),
-            readerProperties.getMonitoringRetryAttempts());
+            readerProperties.getMonitoringRetryAttempts(),
+            new EventuateSchema(readerProperties.getMonitoringSchema()));
   }
 }

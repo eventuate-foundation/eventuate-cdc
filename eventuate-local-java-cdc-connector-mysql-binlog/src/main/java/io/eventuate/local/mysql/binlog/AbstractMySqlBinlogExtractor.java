@@ -56,7 +56,7 @@ public abstract class AbstractMySqlBinlogExtractor {
     try (Connection connection = dataSource.getConnection()) {
       DatabaseMetaData metaData = connection.getMetaData();
 
-      try (ResultSet columnResultSet = metaData.getColumns(null, schemaAndTable.getSchema(), schemaAndTable.getTableName(), null)) {
+      try (ResultSet columnResultSet = metaData.getColumns(schemaAndTable.getSchema(), schemaAndTable.getSchema(), schemaAndTable.getTableName(), null)) {
 
         Map<String, Integer> order = new HashMap<>();
 
