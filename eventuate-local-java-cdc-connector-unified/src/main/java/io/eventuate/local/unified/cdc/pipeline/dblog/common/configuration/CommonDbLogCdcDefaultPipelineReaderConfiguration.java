@@ -11,5 +11,6 @@ public class CommonDbLogCdcDefaultPipelineReaderConfiguration extends CommonCdcD
     commonDbLogCdcPipelineReaderProperties.setBinlogConnectionTimeoutInMilliseconds(eventuateConfigurationProperties.getBinlogConnectionTimeoutInMilliseconds());
     commonDbLogCdcPipelineReaderProperties.setMaxAttemptsForBinlogConnection(eventuateConfigurationProperties.getMaxAttemptsForBinlogConnection());
     commonDbLogCdcPipelineReaderProperties.setOffsetStorageTopicName(eventuateConfigurationProperties.getOffsetStorageTopicName());
+    commonDbLogCdcPipelineReaderProperties.setMonitoringSchema(eventuateConfigurationProperties.getMonitoringSchema());
   }
 }

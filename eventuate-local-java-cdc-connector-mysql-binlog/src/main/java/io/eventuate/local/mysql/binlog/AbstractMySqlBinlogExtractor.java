@@ -6,26 +6,23 @@ import io.eventuate.local.common.SchemaAndTable;
 
 import javax.sql.DataSource;
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
 public abstract class AbstractMySqlBinlogExtractor {
 
-  private DataSource dataSource;
   private Map<SchemaAndTable, Map<String, Integer>> columnOrders = new HashMap<>();
+  private ColumnOrderExtractor columnOrderExtractor;
 
   public AbstractMySqlBinlogExtractor(DataSource dataSource) {
-    this.dataSource = dataSource;
+    this.columnOrderExtractor = new ColumnOrderExtractor(dataSource);
   }
 
   protected void updateColumnOrders(SchemaAndTable schemaAndTable) {
     if (!columnOrders.containsKey(schemaAndTable)) {
       try {
-        getColumnOrders(schemaAndTable);
+        columnOrders.put(schemaAndTable, columnOrderExtractor.extractColumnOrders(schemaAndTable));
       } catch (SQLException e) {
         throw new RuntimeException(e);
       }
@@ -50,25 +47,6 @@ public abstract class AbstractMySqlBinlogExtractor {
     }
 
     throw new RuntimeException("Column with name [" + columnName + "] not found");
-  }
-
-  private void getColumnOrders(SchemaAndTable schemaAndTable) throws SQLException {
-    try (Connection connection = dataSource.getConnection()) {
-      DatabaseMetaData metaData = connection.getMetaData();
-
-      try (ResultSet columnResultSet = metaData.getColumns(null, schemaAndTable.getSchema(), schemaAndTable.getTableName(), null)) {
-
-        Map<String, Integer> order = new HashMap<>();
-
-        while (columnResultSet.next()) {
-
-          order.put(columnResultSet.getString("COLUMN_NAME").toLowerCase(),
-                  columnResultSet.getInt("ORDINAL_POSITION"));
-        }
-
-        columnOrders.put(schemaAndTable, order);
-      }
-    }
   }
 
   private static class EventDataAdapter {

@@ -70,6 +70,9 @@ public class EventuateConfigurationProperties {
   @Value("${eventuatelocal.cdc.offset.store.key:#{null}}")
   private String offsetStoreKey;
 
+  @Value("${eventuate.monitoring.schema:#{\"eventuate\"}}")
+  private String monitoringSchema;
+
   public String getDbUserName() {
     return dbUserName;
   }
@@ -176,5 +179,9 @@ public class EventuateConfigurationProperties {
 
   public String getOffsetStoreKey() {
     return offsetStoreKey == null ? readerName : offsetStoreKey;
+  }
+
+  public String getMonitoringSchema() {
+    return monitoringSchema;
   }
 }

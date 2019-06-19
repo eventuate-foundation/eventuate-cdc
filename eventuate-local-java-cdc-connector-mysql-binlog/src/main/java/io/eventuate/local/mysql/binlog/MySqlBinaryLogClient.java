@@ -7,6 +7,7 @@ import com.github.shyiko.mysql.binlog.event.deserialization.EventDeserializer;
 import com.github.shyiko.mysql.binlog.event.deserialization.NullEventDataDeserializer;
 import com.google.common.collect.ImmutableSet;
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
+import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.local.common.*;
 import io.eventuate.local.db.log.common.DbLogClient;
@@ -60,7 +61,8 @@ public class MySqlBinaryLogClient extends DbLogClient {
                               Optional<DebeziumBinlogOffsetKafkaStore> debeziumBinlogOffsetKafkaStore,
                               long replicationLagMeasuringIntervalInMilliseconds,
                               int monitoringRetryIntervalInMilliseconds,
-                              int monitoringRetryAttempts) {
+                              int monitoringRetryAttempts,
+                              EventuateSchema monitoringSchema) {
 
     super(meterRegistry,
             dbUserName,
@@ -72,7 +74,8 @@ public class MySqlBinaryLogClient extends DbLogClient {
             readerName,
             replicationLagMeasuringIntervalInMilliseconds,
             monitoringRetryIntervalInMilliseconds,
-            monitoringRetryAttempts);
+            monitoringRetryAttempts,
+            monitoringSchema);
 
     this.extractor = new MySqlBinlogEntryExtractor(dataSource);
     this.timestampExtractor = new MySqlBinlogCdcMonitoringTimestampExtractor(dataSource);
