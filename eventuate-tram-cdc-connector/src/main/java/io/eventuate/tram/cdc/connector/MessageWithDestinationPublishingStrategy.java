@@ -8,8 +8,7 @@ public class MessageWithDestinationPublishingStrategy implements PublishingStrat
 
   @Override
   public String partitionKeyFor(MessageWithDestination messageWithDestination) {
-    String id = messageWithDestination.getId();
-    return messageWithDestination.getPartitionId().orElse(id);
+    return messageWithDestination.getPartitionId().orElseGet(messageWithDestination::getId);
   }
 
   @Override

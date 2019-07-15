@@ -70,7 +70,7 @@ public class CdcDataPublisher<EVENT extends BinLogEvent> {
 
     Objects.requireNonNull(publishedEvent);
 
-    logger.trace("Got record " + publishedEvent.toString());
+    logger.trace("Got record {}", publishedEvent.toString());
 
     String aggregateTopic = publishingStrategy.topicFor(publishedEvent);
     String json = publishingStrategy.toJson(publishedEvent);

@@ -2,6 +2,7 @@ package io.eventuate.local.common;
 
 import com.google.common.base.Objects;
 import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class SchemaAndTable {
   private String schema;
@@ -10,6 +11,11 @@ public class SchemaAndTable {
   public SchemaAndTable(String schema, String tableName) {
     this.schema = schema;
     this.tableName = tableName.toLowerCase();
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
   }
 
   public String getSchema() {

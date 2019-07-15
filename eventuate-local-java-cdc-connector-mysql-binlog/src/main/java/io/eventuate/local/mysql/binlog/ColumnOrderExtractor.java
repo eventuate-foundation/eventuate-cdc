@@ -1,6 +1,8 @@
 package io.eventuate.local.mysql.binlog;
 
 import io.eventuate.local.common.SchemaAndTable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -11,6 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ColumnOrderExtractor {
+
+  private Logger logger = LoggerFactory.getLogger(getClass());
 
   private DataSource dataSource;
 
@@ -34,6 +38,8 @@ public class ColumnOrderExtractor {
           order.put(columnResultSet.getString("COLUMN_NAME").toLowerCase(),
                   columnResultSet.getInt("ORDINAL_POSITION"));
         }
+
+        logger.info(String.format("Table %s has these columns %s", schemaAndTable, order));
 
         return order;
       }

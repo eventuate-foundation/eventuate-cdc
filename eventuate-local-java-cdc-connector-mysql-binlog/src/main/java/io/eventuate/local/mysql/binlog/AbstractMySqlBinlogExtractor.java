@@ -41,12 +41,13 @@ public abstract class AbstractMySqlBinlogExtractor {
     if (columnOrders.containsKey(schemaAndTable)) {
       Map<String, Integer> order = columnOrders.get(schemaAndTable);
 
-      if(order.containsKey(columnName)) {
+      if (order.containsKey(columnName)) {
         return eventDataAdapter.getValue(order, columnName);
       }
     }
 
-    throw new RuntimeException("Column with name [" + columnName + "] not found");
+    throw new RuntimeException(String.format("For table %s Column with name [%s] not found in %s",
+            schemaAndTable, columnName, columnOrders));
   }
 
   private static class EventDataAdapter {
