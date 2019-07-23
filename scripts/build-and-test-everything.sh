@@ -7,6 +7,7 @@ SCRIPTS="
 ./scripts/build-and-test-mysql-migration.sh
 ./scripts/build-and-test-mariadb.sh
 ./scripts/build-and-test-mssql-polling.sh
+./scripts/build-and-test-postgres-polling.sh
 ./scripts/build-and-test-postgres-wal.sh
 ./scripts/build-and-test-all-eventuate-local-cdc-mysql-binlog.sh
 ./scripts/build-and-test-all-eventuate-local-cdc-mariadb-binlog.sh

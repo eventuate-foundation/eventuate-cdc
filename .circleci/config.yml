@@ -105,6 +105,24 @@ jobs:
           path: ~/junit
       - store_artifacts:
           path: ~/junit
+  build-postgres-polling:
+    machine: true
+    working_directory: ~/eventuate-cdc
+    steps:
+      - checkout
+      - restore_cache:
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
+      - run: TERM=dumb ./scripts/build-and-test-postgres-polling.sh
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/junit/
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+          when: always
+      - store_test_results:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/junit
   build-eventuate-local-cdc-mysql:
     machine: true
     working_directory: ~/eventuate-cdc
@@ -295,6 +313,9 @@ workflows:
           requires:
             - build
       - build-mssql-polling:
+          requires:
+            - build
+      - build-postgres-polling:
           requires:
             - build
       - build-eventuate-local-cdc-mysql:

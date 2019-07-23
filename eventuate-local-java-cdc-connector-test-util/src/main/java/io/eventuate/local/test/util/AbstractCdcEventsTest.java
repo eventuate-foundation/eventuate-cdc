@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 public class AbstractCdcEventsTest extends AbstractConnectorTest {
   @Autowired
-  private JdbcTemplate jdbcTemplate;
+  protected JdbcTemplate jdbcTemplate;
 
   @Autowired
   private EventuateSchema eventuateSchema;

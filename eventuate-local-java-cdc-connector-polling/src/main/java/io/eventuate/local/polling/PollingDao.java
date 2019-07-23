@@ -135,6 +135,8 @@ public class PollingDao extends BinlogEntryReader {
       onEventReceived();
     }
 
+    handler.endPollingIteration();
+
     if (ids.isEmpty())
       onActivity();
     else {
