@@ -27,7 +27,6 @@ public class CdcDataPublisher<EVENT extends BinLogEvent> {
 
   private PublishingFilter publishingFilter;
   private volatile boolean lastMessagePublishingFailed;
-  private long pollingIterations;
 
   public CdcDataPublisher(DataProducerFactory dataProducerFactory,
                           PublishingFilter publishingFilter,
@@ -111,13 +110,5 @@ public class CdcDataPublisher<EVENT extends BinLogEvent> {
       }
     }
     throw new EventuateLocalPublishingException("error publishing to " + aggregateTopic, lastException);
-  }
-
-  public void endPollingIteration() {
-    pollingIterations++;
-  }
-
-  public long getPollingIterations() {
-    return pollingIterations;
   }
 }

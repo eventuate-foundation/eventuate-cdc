@@ -2,92 +2,117 @@ package io.eventuate.local.polling;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
+import io.eventuate.coordination.leadership.EventuateLeaderSelector;
+import io.eventuate.local.common.BinlogEntryHandler;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.common.exception.EventuateLocalPublishingException;
-import io.eventuate.local.test.util.AbstractCdcEventsTest;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
-import io.eventuate.util.test.async.Eventually;
+import io.eventuate.local.test.util.TestHelper;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 @ActiveProfiles("EventuatePolling")
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = PollingIntegrationTestConfiguration.class, properties= {"eventuatelocal.cdc.max.events.per.polling=3"})
+@SpringBootTest(classes = PollingIntegrationTestConfiguration.class)
 @EnableAutoConfiguration
-public class PollingDaoIntegrationTest extends AbstractCdcEventsTest {
+public class PollingDaoIntegrationTest {
+
+  private static final int EVENTS_PER_POLLING_ITERATION = 3;
+
+  @Value("${spring.datasource.url}")
+  private String dataSourceURL;
+
+  @Value("${spring.datasource.driver-class-name}")
+  private String driver;
 
   @Autowired
   private EventuateSchema eventuateSchema;
 
   @Autowired
-  private PollingDao pollingDao;
+  private SourceTableNameSupplier sourceTableNameSupplier;
 
   @Autowired
-  private SourceTableNameSupplier sourceTableNameSupplier;
+  private DataSource dataSource;
+
+  @Autowired
+  private JdbcTemplate jdbcTemplate;
+
+  @Autowired
+  private SqlDialectSelector sqlDialectSelector;
+
+  @Autowired
+  private TestHelper testHelper;
 
   private int processedEvents;
 
   private CdcDataPublisher<PublishedEvent> cdcDataPublisher;
 
+  private PollingDao pollingDao;
+
   @Before
   public void init() {
-    super.init();
     processedEvents = 0;
+    pollingDao = createPollingDao();
   }
 
   @Test
   public void testThatPollingEventCountAreLimited() {
     final int EVENTS = 10;
-    final int EVENTS_PER_POLLING_ITERATION = 3;
 
     clearEventsTable();
 
-    prepareBinlogEntryHandler(publishedEvent -> {
-      try {
-        Thread.sleep(50);
-      } catch (InterruptedException e) {
-        throw new RuntimeException(e);
-      }
+    BinlogEntryHandler binlogEntryHandler = prepareBinlogEntryHandler(publishedEvent -> {
       processedEvents++;
     });
 
     List<String> eventIds = new ArrayList<>();
 
     for (int i = 0; i < EVENTS; i++) {
-      eventIds.add(saveEvent(generateTestCreatedEvent()).getEventId());
+      eventIds.add(testHelper.saveEvent(testHelper.generateTestCreatedEvent()).getEventId());
     }
 
-    startEventProcessing();
+    pollingDao.processEvents(binlogEntryHandler);
 
-    for (int i = 1; i <= EVENTS / EVENTS_PER_POLLING_ITERATION; i++) {
-      assertEventsAreProcessed(EVENTS_PER_POLLING_ITERATION * i, i);
-    }
+    Assert.assertEquals(EVENTS_PER_POLLING_ITERATION, processedEvents);
 
-    assertEventsAreProcessed(EVENTS, EVENTS / EVENTS_PER_POLLING_ITERATION + EVENTS % EVENTS_PER_POLLING_ITERATION);
-    assertEventsArePublished(eventIds);
-
-    stopEventProcessing();
+    assertEventsArePublished(eventIds.subList(0, EVENTS_PER_POLLING_ITERATION));
   }
 
-  private void assertEventsAreProcessed(int events, int iteration) {
-    Eventually.eventually(1000, 10, TimeUnit.MILLISECONDS, () -> {
-      Assert.assertEquals(events, processedEvents);
-      Assert.assertEquals(iteration, cdcDataPublisher.getPollingIterations());
-    });
+  private PollingDao createPollingDao() {
+    MeterRegistry meterRegistry = Mockito.mock(MeterRegistry.class);
+    Mockito.when(meterRegistry.counter(Mockito.anyString(), Mockito.anyCollection())).thenReturn(Mockito.mock(Counter.class));
+
+    return new PollingDao(meterRegistry,
+            dataSourceURL,
+            dataSource,
+            EVENTS_PER_POLLING_ITERATION,
+            10,
+            100,
+            1000,
+            testHelper.generateId(),
+            (lockId, leaderId, leaderSelectedCallback, leaderRemovedCallback) -> Mockito.mock(EventuateLeaderSelector.class),
+            testHelper.generateId(),
+            sqlDialectSelector.getDialect(driver));
   }
 
   private void assertEventsArePublished(List<String> eventIds) {
@@ -99,7 +124,7 @@ public class PollingDaoIntegrationTest extends AbstractCdcEventsTest {
     Assert.assertEquals(1, ((Number)event.get("published")).intValue());
   }
 
-  protected void prepareBinlogEntryHandler(Consumer<PublishedEvent> consumer) {
+  protected BinlogEntryHandler prepareBinlogEntryHandler(Consumer<PublishedEvent> consumer) {
     cdcDataPublisher = new CdcDataPublisher<PublishedEvent>(null, null, null, null) {
       @Override
       public void handleEvent(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {
@@ -107,18 +132,10 @@ public class PollingDaoIntegrationTest extends AbstractCdcEventsTest {
       }
     };
 
-    pollingDao.addBinlogEntryHandler(eventuateSchema,
+    return pollingDao.addBinlogEntryHandler(eventuateSchema,
             sourceTableNameSupplier.getSourceTableName(),
             new BinlogEntryToPublishedEventConverter(),
             cdcDataPublisher);
-  }
-
-  private void startEventProcessing() {
-    pollingDao.start();
-  }
-
-  private void stopEventProcessing() {
-    pollingDao.stop();
   }
 
   private void clearEventsTable() {

@@ -1,10 +1,11 @@
 package io.eventuate.local.db.log.test.common;
 
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
+import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.EventuateConfigurationProperties;
 import io.eventuate.local.db.log.common.DatabaseOffsetKafkaStore;
 import io.eventuate.local.db.log.common.OffsetStore;
-import io.eventuate.local.test.util.AbstractConnectorTest;
+import io.eventuate.local.test.util.TestHelper;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
@@ -14,6 +15,8 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +29,8 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = DatabaseOffsetKafkaStoreTest.Config.class)
-public class DatabaseOffsetKafkaStoreTest extends AbstractConnectorTest {
+@EnableAutoConfiguration
+public class DatabaseOffsetKafkaStoreTest {
 
   @Configuration
   @EnableConfigurationProperties({EventuateKafkaProducerConfigurationProperties.class,
@@ -48,6 +52,16 @@ public class DatabaseOffsetKafkaStoreTest extends AbstractConnectorTest {
       return new EventuateKafkaProducer(eventuateKafkaConfigurationProperties.getBootstrapServers(),
               eventuateKafkaProducerConfigurationProperties);
     }
+
+    @Bean
+    public EventuateSchema eventuateSchema(@Value("${eventuate.database.schema:#{null}}") String eventuateDatabaseSchema) {
+      return new EventuateSchema(eventuateDatabaseSchema);
+    }
+
+    @Bean
+    public TestHelper testHelper() {
+      return new TestHelper();
+    }
   }
 
   @Autowired
@@ -59,6 +73,8 @@ public class DatabaseOffsetKafkaStoreTest extends AbstractConnectorTest {
   @Autowired
   EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties;
 
+  @Autowired
+  TestHelper testHelper;
 
   @Test
   public void shouldSendBinlogFilenameAndOffset() throws InterruptedException {
@@ -93,7 +109,7 @@ public class DatabaseOffsetKafkaStoreTest extends AbstractConnectorTest {
   }
 
   private void floodTopic(String topicName, String key) {
-    Producer<String, String> producer = createProducer(eventuateKafkaConfigurationProperties.getBootstrapServers());
+    Producer<String, String> producer = testHelper.createProducer(eventuateKafkaConfigurationProperties.getBootstrapServers());
     for (int i = 0; i < 10; i++)
       producer.send(new ProducerRecord<>(topicName, key, Integer.toString(i)));
 
@@ -109,7 +125,7 @@ public class DatabaseOffsetKafkaStoreTest extends AbstractConnectorTest {
   }
 
   private BinlogFileOffset generateAndSaveBinlogFileOffset() {
-    BinlogFileOffset bfo = generateBinlogFileOffset();
+    BinlogFileOffset bfo = testHelper.generateBinlogFileOffset();
     DatabaseOffsetKafkaStore offsetStore = getDatabaseOffsetKafkaStore(eventuateConfigurationProperties.getOffsetStorageTopicName(), "mySqlBinaryLogClientName");
     offsetStore.save(bfo);
 

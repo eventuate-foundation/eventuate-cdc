@@ -9,6 +9,7 @@ import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.*;
 import io.eventuate.local.db.log.common.OffsetStore;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
+import io.eventuate.local.test.util.TestHelper;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
 import io.eventuate.messaging.kafka.common.EventuateKafkaPropertiesConfiguration;
@@ -131,5 +132,10 @@ public class MySqlBinlogCdcIntegrationTestConfiguration {
             .build();
     client.start();
     return client;
+  }
+
+  @Bean
+  public TestHelper testHelper() {
+    return new TestHelper();
   }
 }

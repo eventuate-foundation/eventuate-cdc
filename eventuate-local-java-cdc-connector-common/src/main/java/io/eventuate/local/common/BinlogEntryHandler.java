@@ -31,8 +31,4 @@ public class BinlogEntryHandler<EVENT extends BinLogEvent> {
   public void publish(BinlogEntry binlogEntry) {
     cdcDataPublisher.handleEvent(binlogEntryToEventConverter.convert(binlogEntry));
   }
-
-  public void endPollingIteration() {
-    cdcDataPublisher.endPollingIteration();
-  }
 }

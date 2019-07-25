@@ -8,6 +8,7 @@ import io.eventuate.coordination.leadership.zookeeper.ZkLeaderSelector;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.*;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
+import io.eventuate.local.test.util.TestHelper;
 import io.eventuate.local.testutil.SqlScriptEditor;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
@@ -144,5 +145,10 @@ public class PostgresWalCdcIntegrationTestConfiguration {
             .build();
     client.start();
     return client;
+  }
+
+  @Bean
+  public TestHelper testHelper() {
+    return new TestHelper();
   }
 }
