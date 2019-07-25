@@ -86,14 +86,17 @@ public class PollingDao extends BinlogEntryReader {
     running.set(true);
 
     while (running.get()) {
+      int processedEvents = 0;
       try {
-        binlogEntryHandlers.forEach(this::processEvents);
+        processedEvents = binlogEntryHandlers.stream().map(this::processEvents).reduce(0, (a, b) -> a + b);
       } catch (Exception e) {
         handleProcessingFailException(e);
       }
 
       try {
-        Thread.sleep(pollingIntervalInMilliseconds);
+        if (processedEvents == 0) {
+          Thread.sleep(pollingIntervalInMilliseconds);
+        }
       } catch (InterruptedException e) {
         handleProcessingFailException(e);
       }
@@ -102,7 +105,7 @@ public class PollingDao extends BinlogEntryReader {
     stopCountDownLatch.countDown();
   }
 
-  public void processEvents(BinlogEntryHandler handler) {
+  public int processEvents(BinlogEntryHandler handler) {
 
     String pk = getPrimaryKey(handler);
 
@@ -148,6 +151,8 @@ public class PollingDao extends BinlogEntryReader {
               this::onInterrupted,
               running);
     }
+
+    return ids.size();
   }
 
   private String getPrimaryKey(BinlogEntryHandler handler) {
