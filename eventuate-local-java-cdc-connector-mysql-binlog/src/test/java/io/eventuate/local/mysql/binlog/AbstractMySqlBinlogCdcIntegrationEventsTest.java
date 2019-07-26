@@ -6,8 +6,8 @@ import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.common.EventuateConfigurationProperties;
 import io.eventuate.local.common.exception.EventuateLocalPublishingException;
-import io.eventuate.local.test.util.AbstractCdcEventsTest;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
+import io.eventuate.local.test.util.TestHelper;
 import io.eventuate.local.testutil.CustomDBCreator;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 
 import static org.junit.Assert.fail;
 
-public abstract class AbstractMySqlBinlogCdcIntegrationEventsTest extends AbstractCdcEventsTest {
+public abstract class AbstractMySqlBinlogCdcIntegrationEventsTest {
 
   @Value("${spring.datasource.url}")
   private String dataSourceUrl;
@@ -39,6 +39,9 @@ public abstract class AbstractMySqlBinlogCdcIntegrationEventsTest extends Abstra
   @Autowired
   private MySqlBinaryLogClient mySqlBinaryLogClient;
 
+  @Autowired
+  private TestHelper testHelper;
+
   private String dataFile = "../scripts/initialize-mysql.sql";
 
   @Value("${spring.datasource.driver.class.name}")
@@ -52,17 +55,17 @@ public abstract class AbstractMySqlBinlogCdcIntegrationEventsTest extends Abstra
       prepareBinlogEntryHandler(publishedEvents::add);
       mySqlBinaryLogClient.start();
 
-      String testCreatedEvent = generateTestCreatedEvent();
-      EventIdEntityId saveResult = saveEvent(testCreatedEvent);
+      String testCreatedEvent = testHelper.generateTestCreatedEvent();
+      TestHelper.EventIdEntityId saveResult = testHelper.saveEvent(testCreatedEvent);
 
-      String testUpdatedEvent = generateTestUpdatedEvent();
-      EventIdEntityId updateResult = updateEvent(saveResult.getEntityId(), testUpdatedEvent);
+      String testUpdatedEvent = testHelper.generateTestUpdatedEvent();
+      TestHelper.EventIdEntityId updateResult = testHelper.updateEvent(saveResult.getEntityId(), testUpdatedEvent);
 
       // Wait for 10 seconds
       LocalDateTime deadline = LocalDateTime.now().plusSeconds(40);
 
-      waitForEvent(publishedEvents, saveResult.getEventId(), deadline, testCreatedEvent);
-      waitForEvent(publishedEvents, updateResult.getEventId(), deadline, testUpdatedEvent);
+      testHelper.waitForEvent(publishedEvents, saveResult.getEventId(), deadline, testCreatedEvent);
+      testHelper.waitForEvent(publishedEvents, updateResult.getEventId(), deadline, testUpdatedEvent);
     } finally {
       mySqlBinaryLogClient.stop();
     }
@@ -75,7 +78,7 @@ public abstract class AbstractMySqlBinlogCdcIntegrationEventsTest extends Abstra
 
     createOtherSchema(otherSchemaName);
 
-    EventIdEntityId otherSaveResult = insertEventIntoOtherSchema(otherSchemaName);
+    TestHelper.EventIdEntityId otherSaveResult = insertEventIntoOtherSchema(otherSchemaName);
 
     try {
       BlockingQueue<PublishedEvent> publishedEvents = new LinkedBlockingDeque<>();
@@ -83,8 +86,8 @@ public abstract class AbstractMySqlBinlogCdcIntegrationEventsTest extends Abstra
       prepareBinlogEntryHandler(publishedEvents::add);
       mySqlBinaryLogClient.start();
 
-      String testCreatedEvent = generateTestCreatedEvent();
-      EventIdEntityId saveResult = saveEvent(testCreatedEvent);
+      String testCreatedEvent = testHelper.generateTestCreatedEvent();
+      TestHelper.EventIdEntityId saveResult = testHelper.saveEvent(testCreatedEvent);
 
       LocalDateTime deadline = LocalDateTime.now().plusSeconds(40);
 
@@ -113,8 +116,8 @@ public abstract class AbstractMySqlBinlogCdcIntegrationEventsTest extends Abstra
     }
   }
 
-  private EventIdEntityId insertEventIntoOtherSchema(String otherSchemaName) {
-    return saveEvent("Other", getTestCreatedEventType(), generateTestCreatedEvent(), new EventuateSchema(otherSchemaName));
+  private TestHelper.EventIdEntityId insertEventIntoOtherSchema(String otherSchemaName) {
+    return testHelper.saveEvent("Other", testHelper.getTestCreatedEventType(), testHelper.generateTestCreatedEvent(), new EventuateSchema(otherSchemaName));
   }
 
   private void createOtherSchema(String otherSchemaName) {

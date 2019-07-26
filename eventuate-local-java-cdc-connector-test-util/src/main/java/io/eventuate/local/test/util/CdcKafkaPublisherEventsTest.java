@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 
 
-public abstract class CdcKafkaPublisherEventsTest extends AbstractCdcEventsTest {
+public abstract class CdcKafkaPublisherEventsTest {
 
   @Autowired
   protected MeterRegistry meterRegistry;
@@ -34,22 +34,24 @@ public abstract class CdcKafkaPublisherEventsTest extends AbstractCdcEventsTest 
   @Autowired
   protected SourceTableNameSupplier sourceTableNameSupplier;
 
+  @Autowired
+  protected TestHelper testHelper;
+
   @Before
   public void init() {
-    super.init();
     cdcDataPublisher = createCdcKafkaPublisher();
     cdcDataPublisher.start();
   }
 
   @Test
   public void shouldSendPublishedEventsToKafka() {
-    EventIdEntityId entityIdVersionAndEventIds = saveEvent(generateTestCreatedEvent());
+    TestHelper.EventIdEntityId entityIdVersionAndEventIds = testHelper.saveEvent(testHelper.generateTestCreatedEvent());
 
-    KafkaConsumer<String, String> consumer = createConsumer(eventuateKafkaConfigurationProperties.getBootstrapServers());
-    consumer.partitionsFor(getEventTopicName());
-    consumer.subscribe(Collections.singletonList(getEventTopicName()));
+    KafkaConsumer<String, String> consumer = testHelper.createConsumer(eventuateKafkaConfigurationProperties.getBootstrapServers());
+    consumer.partitionsFor(testHelper.getEventTopicName());
+    consumer.subscribe(Collections.singletonList(testHelper.getEventTopicName()));
 
-    waitForEventInKafka(consumer, entityIdVersionAndEventIds.getEntityId(), LocalDateTime.now().plusSeconds(40));
+    testHelper.waitForEventInKafka(consumer, entityIdVersionAndEventIds.getEntityId(), LocalDateTime.now().plusSeconds(40));
     cdcDataPublisher.stop();
   }
 

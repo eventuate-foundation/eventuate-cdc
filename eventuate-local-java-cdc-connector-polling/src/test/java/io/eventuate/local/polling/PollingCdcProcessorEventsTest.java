@@ -29,9 +29,9 @@ public class PollingCdcProcessorEventsTest extends AbstractPollingCdcProcessorEv
 
     startEventProcessing();
 
-    saveEvent(generateTestCreatedEvent());
-    saveEvent(generateTestCreatedEvent());
-    saveEvent(generateTestCreatedEvent());
+    testHelper.saveEvent(testHelper.generateTestCreatedEvent());
+    testHelper.saveEvent(testHelper.generateTestCreatedEvent());
+    testHelper.saveEvent(testHelper.generateTestCreatedEvent());
 
     CdcProcessingStatusService pollingProcessingStatusService = pollingDao.getCdcProcessingStatusService();
 

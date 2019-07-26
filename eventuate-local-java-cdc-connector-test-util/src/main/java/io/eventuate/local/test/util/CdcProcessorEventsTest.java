@@ -2,6 +2,7 @@ package io.eventuate.local.test.util;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -12,7 +13,10 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-public abstract class CdcProcessorEventsTest extends AbstractCdcEventsTest implements CdcProcessorCommon{
+public abstract class CdcProcessorEventsTest implements CdcProcessorCommon {
+
+  @Autowired
+  protected TestHelper testHelper;
 
   @Test
   public void shouldReadNewEventsOnly() throws InterruptedException {
@@ -24,9 +28,9 @@ public abstract class CdcProcessorEventsTest extends AbstractCdcEventsTest imple
 
     startEventProcessing();
 
-    String testCreatedEvent = generateTestCreatedEvent();
-    EventIdEntityId eventIdEntityId = saveEvent(testCreatedEvent);
-    waitForEvent(publishedEvents, eventIdEntityId.getEventId(), LocalDateTime.now().plusSeconds(60), testCreatedEvent);
+    String testCreatedEvent = testHelper.generateTestCreatedEvent();
+    TestHelper.EventIdEntityId eventIdEntityId = testHelper.saveEvent(testCreatedEvent);
+    testHelper.waitForEvent(publishedEvents, eventIdEntityId.getEventId(), LocalDateTime.now().plusSeconds(60), testCreatedEvent);
     stopEventProcessing();
 
     publishedEvents.clear();
@@ -36,8 +40,8 @@ public abstract class CdcProcessorEventsTest extends AbstractCdcEventsTest imple
     });
     startEventProcessing();
 
-    testCreatedEvent = generateTestCreatedEvent();
-    eventIdEntityId = updateEvent(eventIdEntityId.getEntityId(), testCreatedEvent);
+    testCreatedEvent = testHelper.generateTestCreatedEvent();
+    eventIdEntityId = testHelper.updateEvent(eventIdEntityId.getEntityId(), testCreatedEvent);
     waitForEventExcluding(publishedEvents, eventIdEntityId.getEventId(), LocalDateTime.now().plusSeconds(60), testCreatedEvent, Collections.singletonList(eventIdEntityId.getEventId()));
     stopEventProcessing();
   }
@@ -46,13 +50,13 @@ public abstract class CdcProcessorEventsTest extends AbstractCdcEventsTest imple
   public void shouldReadUnprocessedEventsAfterStartup() throws InterruptedException {
     BlockingQueue<PublishedEvent> publishedEvents = new LinkedBlockingDeque<>();
 
-    String testCreatedEvent = generateTestCreatedEvent();
-    EventIdEntityId eventIdEntityId = saveEvent(testCreatedEvent);
+    String testCreatedEvent = testHelper.generateTestCreatedEvent();
+    TestHelper.EventIdEntityId eventIdEntityId = testHelper.saveEvent(testCreatedEvent);
 
     prepareBinlogEntryHandler(publishedEvents::add);
     startEventProcessing();
 
-    waitForEvent(publishedEvents, eventIdEntityId.getEventId(), LocalDateTime.now().plusSeconds(60), testCreatedEvent);
+    testHelper.waitForEvent(publishedEvents, eventIdEntityId.getEventId(), LocalDateTime.now().plusSeconds(60), testCreatedEvent);
     stopEventProcessing();
   }
 

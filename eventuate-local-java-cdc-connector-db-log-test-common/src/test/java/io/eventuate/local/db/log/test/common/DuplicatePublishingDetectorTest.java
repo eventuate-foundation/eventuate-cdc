@@ -2,9 +2,10 @@ package io.eventuate.local.db.log.test.common;
 
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.eventuate.local.PublishedEvent;
+import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.local.common.DuplicatePublishingDetector;
-import io.eventuate.local.test.util.AbstractConnectorTest;
+import io.eventuate.local.test.util.TestHelper;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
 import org.apache.kafka.clients.producer.Producer;
@@ -12,6 +13,8 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +27,8 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = DuplicatePublishingDetectorTest.Config.class)
-public class DuplicatePublishingDetectorTest extends AbstractConnectorTest {
+@EnableAutoConfiguration
+public class DuplicatePublishingDetectorTest {
 
   @Configuration
   public static class Config {
@@ -32,29 +36,42 @@ public class DuplicatePublishingDetectorTest extends AbstractConnectorTest {
     public EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties() {
       return new EventuateKafkaConfigurationProperties();
     }
+
+    @Bean
+    public EventuateSchema eventuateSchema(@Value("${eventuate.database.schema:#{null}}") String eventuateDatabaseSchema) {
+      return new EventuateSchema(eventuateDatabaseSchema);
+    }
+
+    @Bean
+    public TestHelper testHelper() {
+      return new TestHelper();
+    }
   }
 
   @Autowired
   EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties;
+
+  @Autowired
+  TestHelper testHelper;
 
   @Test
   public void emptyTopicTest() {
     DuplicatePublishingDetector duplicatePublishingDetector = new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(),
             EventuateKafkaConsumerConfigurationProperties.empty());
 
-    BinlogFileOffset bfo = generateBinlogFileOffset();
+    BinlogFileOffset bfo = testHelper.generateBinlogFileOffset();
 
-    assertTrue(duplicatePublishingDetector.shouldBePublished(bfo, generateUniqueTopicName()));
+    assertTrue(duplicatePublishingDetector.shouldBePublished(bfo, testHelper.generateUniqueTopicName()));
   }
 
   @Test
   public void shouldBePublishedTest() {
-    String topicName = generateUniqueTopicName();
+    String topicName = testHelper.generateUniqueTopicName();
     String binlogFilename = "binlog.file." + System.currentTimeMillis();
     DuplicatePublishingDetector duplicatePublishingDetector = new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(),
             EventuateKafkaConsumerConfigurationProperties.empty());
 
-    Producer<String, String> producer = createProducer(eventuateKafkaConfigurationProperties.getBootstrapServers());
+    Producer<String, String> producer = testHelper.createProducer(eventuateKafkaConfigurationProperties.getBootstrapServers());
     floodTopic(producer, binlogFilename, topicName);
     producer.close();
 
@@ -64,12 +81,12 @@ public class DuplicatePublishingDetectorTest extends AbstractConnectorTest {
 
   @Test
   public void shouldHandlePublishCheckForOldEntires() {
-    String topicName = generateUniqueTopicName();
+    String topicName = testHelper.generateUniqueTopicName();
     String binlogFilename = "binlog.file." + System.currentTimeMillis();
     DuplicatePublishingDetector duplicatePublishingDetector = new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(),
             EventuateKafkaConsumerConfigurationProperties.empty());
 
-    Producer<String, String> producer = createProducer(eventuateKafkaConfigurationProperties.getBootstrapServers());
+    Producer<String, String> producer = testHelper.createProducer(eventuateKafkaConfigurationProperties.getBootstrapServers());
     floodTopic(producer, binlogFilename, topicName);
     sendOldPublishedEvent(producer, topicName);
     producer.close();

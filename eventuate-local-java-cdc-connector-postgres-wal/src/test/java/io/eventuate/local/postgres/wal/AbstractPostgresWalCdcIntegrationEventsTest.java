@@ -5,8 +5,8 @@ import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.common.exception.EventuateLocalPublishingException;
-import io.eventuate.local.test.util.AbstractCdcEventsTest;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
+import io.eventuate.local.test.util.TestHelper;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
-public abstract class AbstractPostgresWalCdcIntegrationEventsTest extends AbstractCdcEventsTest {
+public abstract class AbstractPostgresWalCdcIntegrationEventsTest {
 
   @Value("${spring.datasource.url}")
   private String dataSourceURL;
@@ -35,6 +35,9 @@ public abstract class AbstractPostgresWalCdcIntegrationEventsTest extends Abstra
   @Autowired
   private EventuateSchema eventuateSchema;
 
+  @Autowired
+  private TestHelper testHelper;
+
   @Test
   public void shouldGetEvents() throws InterruptedException{
 
@@ -53,16 +56,16 @@ public abstract class AbstractPostgresWalCdcIntegrationEventsTest extends Abstra
 
     postgresWalClient.start();
 
-    String testCreatedEvent = generateTestCreatedEvent();
-    EventIdEntityId saveResult = saveEvent(testCreatedEvent);
+    String testCreatedEvent = testHelper.generateTestCreatedEvent();
+    TestHelper.EventIdEntityId saveResult = testHelper.saveEvent(testCreatedEvent);
 
-    String testUpdatedEvent = generateTestUpdatedEvent();
-    EventIdEntityId updateResult = updateEvent(saveResult.getEntityId(), testUpdatedEvent);
+    String testUpdatedEvent = testHelper.generateTestUpdatedEvent();
+    TestHelper.EventIdEntityId updateResult = testHelper.updateEvent(saveResult.getEntityId(), testUpdatedEvent);
 
     LocalDateTime deadline = LocalDateTime.now().plusSeconds(20);
 
-    waitForEvent(publishedEvents, saveResult.getEventId(), deadline, testCreatedEvent);
-    waitForEvent(publishedEvents, updateResult.getEventId(), deadline, testUpdatedEvent);
+    testHelper.waitForEvent(publishedEvents, saveResult.getEventId(), deadline, testCreatedEvent);
+    testHelper.waitForEvent(publishedEvents, updateResult.getEventId(), deadline, testUpdatedEvent);
     postgresWalClient.stop();
   }
 
