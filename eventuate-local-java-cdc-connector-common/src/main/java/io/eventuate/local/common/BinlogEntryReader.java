@@ -30,7 +30,7 @@ public abstract class BinlogEntryReader {
 
   private volatile boolean leader;
   private volatile long lastEventTime = System.currentTimeMillis();
-  private EventuateLeaderSelector leaderSelector;
+  protected EventuateLeaderSelector leaderSelector;
 
   public BinlogEntryReader(MeterRegistry meterRegistry,
                            String leaderLockId,

@@ -18,8 +18,4 @@ public class OffsetStoreMock implements OffsetStore {
   public synchronized void save(BinlogFileOffset binlogFileOffset) {
     this.binlogFileOffset = Optional.ofNullable(binlogFileOffset);
   }
-
-  @Override
-  public void stop() {
-  }
 }

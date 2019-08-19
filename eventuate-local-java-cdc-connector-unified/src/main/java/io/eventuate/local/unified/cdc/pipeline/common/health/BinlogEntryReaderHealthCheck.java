@@ -2,6 +2,7 @@ package io.eventuate.local.unified.cdc.pipeline.common.health;
 
 import io.eventuate.local.common.BinlogEntryReader;
 import io.eventuate.local.db.log.common.DbLogClient;
+import io.eventuate.local.mysql.binlog.MySqlBinaryLogClient;
 import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -22,6 +23,10 @@ public class BinlogEntryReaderHealthCheck extends AbstractHealthCheck {
     binlogEntryReaderProvider
             .getAllReaders()
             .forEach(binlogEntryReader -> {
+
+              if (binlogEntryReader instanceof MySqlBinaryLogClient) {
+                checkMySqlBinlogReaderHealth((MySqlBinaryLogClient) binlogEntryReader, builder);
+              }
 
               if (binlogEntryReader.isLeader()) {
                 checkBinlogEntryReaderHealth(binlogEntryReader, builder);
@@ -58,5 +63,12 @@ public class BinlogEntryReaderHealthCheck extends AbstractHealthCheck {
       builder.addDetail(String.format("Reader with id %s received message %s milliseconds ago",
               binlogEntryReader.getReaderName(),
               age));
+  }
+
+  private void checkMySqlBinlogReaderHealth(MySqlBinaryLogClient mySqlBinaryLogClient, HealthBuilder builder) {
+    mySqlBinaryLogClient.getPublishingException().ifPresent(e ->
+      builder.addError(String.format("Reader with id %s failed to publish event, exception: %s",
+              mySqlBinaryLogClient.getReaderName(),
+              e.getMessage())));
   }
 }
