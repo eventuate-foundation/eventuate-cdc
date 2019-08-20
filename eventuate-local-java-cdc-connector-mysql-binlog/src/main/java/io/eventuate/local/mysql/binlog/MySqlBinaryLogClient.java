@@ -47,6 +47,8 @@ public class MySqlBinaryLogClient extends DbLogClient {
   private MySqlCdcProcessingStatusService mySqlCdcProcessingStatusService;
   private Optional<Exception> publishingException = Optional.empty();
 
+  private Optional<Runnable> callbackOnStop = Optional.empty();
+
   public MySqlBinaryLogClient(MeterRegistry meterRegistry,
                               String dbUserName,
                               String dbPassword,
@@ -161,8 +163,10 @@ public class MySqlBinaryLogClient extends DbLogClient {
     logger.error(e.getMessage(), e.getMessage());
     publishingException = Optional.of(e);
     leaderSelector.stop();
-    leaderStop();
-    start();
+    callbackOnStop = Optional.of(() -> {
+      callbackOnStop = Optional.empty();
+      start();
+    });
   }
 
   private void listenBinlogEvents(Event event, Optional<BinlogFileOffset> binlogFileOffset) {
@@ -379,6 +383,8 @@ public class MySqlBinaryLogClient extends DbLogClient {
     stopMetrics();
 
     stopCountDownLatch.countDown();
+
+    callbackOnStop.ifPresent(Runnable::run);
   }
 
   private void saveEndingOffsetOfLastProcessedEvent(Event event) {
