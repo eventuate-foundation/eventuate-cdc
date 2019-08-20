@@ -85,7 +85,6 @@ public class DatabaseOffsetKafkaStoreTest {
   public void shouldGetEmptyOptionalFromEmptyTopic() {
     OffsetStore offsetStore = getDatabaseOffsetKafkaStore(UUID.randomUUID().toString(), "mySqlBinaryLogClientName");
     offsetStore.getLastBinlogFileOffset().isPresent();
-    offsetStore.stop();
   }
 
   @Test
@@ -129,11 +128,8 @@ public class DatabaseOffsetKafkaStoreTest {
     DatabaseOffsetKafkaStore offsetStore = getDatabaseOffsetKafkaStore(eventuateConfigurationProperties.getOffsetStorageTopicName(), "mySqlBinaryLogClientName");
     offsetStore.save(bfo);
 
-    offsetStore.scheduledBinlogFilenameAndOffsetUpdate();
-
     BinlogFileOffset savedBfo = offsetStore.getLastBinlogFileOffset().get();
     assertEquals(bfo, savedBfo);
-    offsetStore.stop();
     return savedBfo;
   }
 
@@ -142,6 +138,5 @@ public class DatabaseOffsetKafkaStoreTest {
 
     BinlogFileOffset lastRecord = offsetStore.getLastBinlogFileOffset().get();
     assertEquals(binlogFileOffset, lastRecord);
-    offsetStore.stop();
   }
 }
