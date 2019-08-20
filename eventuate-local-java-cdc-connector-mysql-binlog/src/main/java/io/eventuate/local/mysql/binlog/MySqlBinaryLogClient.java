@@ -118,6 +118,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
     stopCountDownLatch = new CountDownLatch(1);
     running.set(true);
+    publishingException = Optional.empty();
 
     client = new BinaryLogClient(host, port, dbUserName, dbPassword);
     client.setServerId(uniqueId);
@@ -140,7 +141,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
     client.setBinlogPosition(bfo.getOffset());
 
     client.setEventDeserializer(getEventDeserializer());
-    client.registerEventListener(event -> listenBinlogEventsHandleErrors(event, binlogFileOffset));
+    client.registerEventListener(event -> handleBinlogEventWithErrorHandling(event, binlogFileOffset));
 
     connectWithRetriesOnFail();
 
@@ -151,16 +152,20 @@ public class MySqlBinaryLogClient extends DbLogClient {
     }
   }
 
-  private void listenBinlogEventsHandleErrors(Event event, Optional<BinlogFileOffset> binlogFileOffset) {
+  private void handleBinlogEventWithErrorHandling(Event event, Optional<BinlogFileOffset> binlogFileOffset) {
+    if (publishingException.isPresent()) {
+      return;
+    }
+
     try {
-      listenBinlogEvents(event, binlogFileOffset);
+      handleBinlogEvent(event, binlogFileOffset);
     } catch (Exception e) {
       handleRestart(e);
     }
   }
 
   private void handleRestart(Exception e) {
-    logger.error(e.getMessage(), e.getMessage());
+    logger.error("Restarting due to exception", e);
     publishingException = Optional.of(e);
     leaderSelector.stop();
     callbackOnStop = Optional.of(() -> {
@@ -169,7 +174,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
     });
   }
 
-  private void listenBinlogEvents(Event event, Optional<BinlogFileOffset> binlogFileOffset) {
+  private void handleBinlogEvent(Event event, Optional<BinlogFileOffset> binlogFileOffset) {
     switch (event.getHeader().getEventType()) {
       case TABLE_MAP: {
         TableMapEventData tableMapEvent = event.getData();
@@ -274,7 +279,6 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
     onEventReceived();
     saveOffset(event);
-    publishingException = Optional.empty();
   }
 
   private void onLagMeasurementEventReceived(WriteRowsEventData eventData) {
