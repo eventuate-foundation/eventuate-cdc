@@ -3,7 +3,7 @@ package io.eventuate.local.unified.cdc.pipeline.common.factory;
 import com.zaxxer.hikari.HikariDataSource;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.local.common.BinlogEntryReader;
-import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
+import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderLeadershipProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineReaderProperties;
 import io.micrometer.core.instrument.MeterRegistry;
 
@@ -14,15 +14,15 @@ abstract public class CommonCdcPipelineReaderFactory<PROPERTIES extends CdcPipel
 
   protected MeterRegistry meterRegistry;
   protected LeaderSelectorFactory leaderSelectorFactory;
-  protected BinlogEntryReaderProvider binlogEntryReaderProvider;
+  protected BinlogEntryReaderLeadershipProvider binlogEntryReaderLeadershipProvider;
 
 
   public CommonCdcPipelineReaderFactory(MeterRegistry meterRegistry,
                                         LeaderSelectorFactory leaderSelectorFactory,
-                                        BinlogEntryReaderProvider binlogEntryReaderProvider) {
+                                        BinlogEntryReaderLeadershipProvider binlogEntryReaderLeadershipProvider) {
     this.meterRegistry = meterRegistry;
     this.leaderSelectorFactory = leaderSelectorFactory;
-    this.binlogEntryReaderProvider = binlogEntryReaderProvider;
+    this.binlogEntryReaderLeadershipProvider = binlogEntryReaderLeadershipProvider;
   }
 
   public abstract READER create(PROPERTIES cdcPipelineReaderProperties);

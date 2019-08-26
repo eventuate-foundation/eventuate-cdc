@@ -65,8 +65,7 @@ public class PostgresWalCdcIntegrationTestConfiguration {
                                              @Value("${spring.datasource.username}") String dbUserName,
                                              @Value("${spring.datasource.password}") String dbPassword,
                                              DataSource dataSource,
-                                             EventuateConfigurationProperties eventuateConfigurationProperties,
-                                             LeaderSelectorFactory leaderSelectorFactory) {
+                                             EventuateConfigurationProperties eventuateConfigurationProperties) {
 
     return new PostgresWalClient(meterRegistry,
             dbUrl,
@@ -77,8 +76,6 @@ public class PostgresWalCdcIntegrationTestConfiguration {
             eventuateConfigurationProperties.getMaxAttemptsForBinlogConnection(),
             eventuateConfigurationProperties.getPostgresReplicationStatusIntervalInMilliseconds(),
             eventuateConfigurationProperties.getPostgresReplicationSlotName(),
-            eventuateConfigurationProperties.getLeadershipLockPath(),
-            leaderSelectorFactory,
             dataSource,
             eventuateConfigurationProperties.getReaderName(),
             eventuateConfigurationProperties.getReplicationLagMeasuringIntervalInMilliseconds(),

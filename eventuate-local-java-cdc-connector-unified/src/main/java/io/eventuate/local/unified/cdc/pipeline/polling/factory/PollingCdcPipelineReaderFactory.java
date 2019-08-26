@@ -3,7 +3,7 @@ package io.eventuate.local.unified.cdc.pipeline.polling.factory;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.local.polling.PollingDao;
-import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
+import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderLeadershipProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.CommonCdcPipelineReaderFactory;
 import io.eventuate.local.unified.cdc.pipeline.polling.properties.PollingPipelineReaderProperties;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -16,10 +16,10 @@ public class PollingCdcPipelineReaderFactory extends CommonCdcPipelineReaderFact
 
   public PollingCdcPipelineReaderFactory(MeterRegistry meterRegistry,
                                          LeaderSelectorFactory leaderSelectorFactory,
-                                         BinlogEntryReaderProvider binlogEntryReaderProvider,
+                                         BinlogEntryReaderLeadershipProvider binlogEntryReaderLeadershipProvider,
                                          SqlDialectSelector sqlDialectSelector) {
 
-    super(meterRegistry, leaderSelectorFactory, binlogEntryReaderProvider);
+    super(meterRegistry, leaderSelectorFactory, binlogEntryReaderLeadershipProvider);
 
     this.sqlDialectSelector = sqlDialectSelector;
   }
@@ -39,8 +39,6 @@ public class PollingCdcPipelineReaderFactory extends CommonCdcPipelineReaderFact
             readerProperties.getMaxAttemptsForPolling(),
             readerProperties.getPollingRetryIntervalInMilliseconds(),
             readerProperties.getPollingIntervalInMilliseconds(),
-            readerProperties.getLeadershipLockPath(),
-            leaderSelectorFactory,
             readerProperties.getReaderName(),
             sqlDialectSelector.getDialect(readerProperties.getDataSourceDriverClassName()));
   }

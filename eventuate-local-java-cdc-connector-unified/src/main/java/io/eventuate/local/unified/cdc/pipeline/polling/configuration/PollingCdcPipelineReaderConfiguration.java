@@ -2,7 +2,7 @@ package io.eventuate.local.unified.cdc.pipeline.polling.configuration;
 
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
-import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
+import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderLeadershipProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.configuration.CommonCdcDefaultPipelineReaderConfiguration;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.CdcPipelineReaderFactory;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineReaderProperties;
@@ -19,12 +19,12 @@ public class PollingCdcPipelineReaderConfiguration extends CommonCdcDefaultPipel
   @Bean("eventuateLocalPollingCdcPipelineReaderFactory")
   public CdcPipelineReaderFactory pollingCdcPipelineReaderFactory(MeterRegistry meterRegistry,
                                                                   LeaderSelectorFactory leaderSelectorFactory,
-                                                                  BinlogEntryReaderProvider binlogEntryReaderProvider,
+                                                                  BinlogEntryReaderLeadershipProvider binlogEntryReaderLeadershipProvider,
                                                                   SqlDialectSelector sqlDialectSelector) {
 
     return new PollingCdcPipelineReaderFactory(meterRegistry,
             leaderSelectorFactory,
-            binlogEntryReaderProvider,
+            binlogEntryReaderLeadershipProvider,
             sqlDialectSelector);
   }
 
@@ -32,12 +32,12 @@ public class PollingCdcPipelineReaderConfiguration extends CommonCdcDefaultPipel
   @Bean("defaultCdcPipelineReaderFactory")
   public CdcPipelineReaderFactory defaultPollingCdcPipelineReaderFactory(MeterRegistry meterRegistry,
                                                                          LeaderSelectorFactory leaderSelectorFactory,
-                                                                         BinlogEntryReaderProvider binlogEntryReaderProvider,
+                                                                         BinlogEntryReaderLeadershipProvider binlogEntryReaderLeadershipProvider,
                                                                          SqlDialectSelector sqlDialectSelector) {
 
     return new PollingCdcPipelineReaderFactory(meterRegistry,
             leaderSelectorFactory,
-            binlogEntryReaderProvider,
+            binlogEntryReaderLeadershipProvider,
             sqlDialectSelector);
   }
 

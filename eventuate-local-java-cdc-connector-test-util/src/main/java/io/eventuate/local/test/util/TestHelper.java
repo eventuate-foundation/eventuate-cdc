@@ -60,6 +60,10 @@ public class TestHelper {
     return "test_topic_" + System.currentTimeMillis();
   }
 
+  public void runInSeparateThread(Runnable callback) {
+    new Thread(callback).start();
+  }
+
   public BinlogFileOffset generateBinlogFileOffset() {
     long now = System.currentTimeMillis();
     return new BinlogFileOffset("binlog.filename." + now, now);

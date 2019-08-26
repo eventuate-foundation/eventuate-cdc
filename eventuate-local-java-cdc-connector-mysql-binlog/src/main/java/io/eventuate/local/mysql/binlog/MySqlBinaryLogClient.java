@@ -8,7 +8,6 @@ import com.github.shyiko.mysql.binlog.event.deserialization.NullEventDataDeseria
 import com.google.common.collect.ImmutableSet;
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.local.common.*;
 import io.eventuate.local.db.log.common.DbLogClient;
 import io.eventuate.local.db.log.common.OffsetKafkaStore;
@@ -58,8 +57,6 @@ public class MySqlBinaryLogClient extends DbLogClient {
                               Long uniqueId,
                               int connectionTimeoutInMilliseconds,
                               int maxAttemptsForBinlogConnection,
-                              String leaderLockId,
-                              LeaderSelectorFactory leaderSelectorFactory,
                               OffsetStore offsetStore,
                               Optional<DebeziumBinlogOffsetKafkaStore> debeziumBinlogOffsetKafkaStore,
                               long replicationLagMeasuringIntervalInMilliseconds,
@@ -71,8 +68,6 @@ public class MySqlBinaryLogClient extends DbLogClient {
             dbUserName,
             dbPassword,
             dataSourceUrl,
-            leaderLockId,
-            leaderSelectorFactory,
             dataSource,
             readerName,
             replicationLagMeasuringIntervalInMilliseconds,
@@ -111,8 +106,8 @@ public class MySqlBinaryLogClient extends DbLogClient {
   }
 
   @Override
-  protected void leaderStart() {
-    super.leaderStart();
+  public void start() {
+    super.start();
 
     logger.info("mysql binlog client started");
 
@@ -167,11 +162,9 @@ public class MySqlBinaryLogClient extends DbLogClient {
   private void handleRestart(Exception e) {
     logger.error("Restarting due to exception", e);
     publishingException = Optional.of(e);
-    leaderSelector.stop();
-    callbackOnStop = Optional.of(() -> {
-      callbackOnStop = Optional.empty();
-      start();
-    });
+    restartCallback
+            .orElseThrow(() -> new IllegalArgumentException("Restart callback is not specified, but restart is requsted"))
+            .run();
   }
 
   private void handleBinlogEvent(Event event, Optional<BinlogFileOffset> binlogFileOffset) {
@@ -370,7 +363,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
   }
 
   @Override
-  protected void leaderStop() {
+  public void stop() {
     if (!running.compareAndSet(true, false)) {
       return;
     }

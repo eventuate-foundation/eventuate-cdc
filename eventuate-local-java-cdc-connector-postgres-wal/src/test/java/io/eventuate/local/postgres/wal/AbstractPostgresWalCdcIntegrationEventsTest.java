@@ -54,7 +54,7 @@ public abstract class AbstractPostgresWalCdcIntegrationEventsTest {
               }
             });
 
-    postgresWalClient.start();
+    testHelper.runInSeparateThread(postgresWalClient::start);
 
     String testCreatedEvent = testHelper.generateTestCreatedEvent();
     TestHelper.EventIdEntityId saveResult = testHelper.saveEvent(testCreatedEvent);

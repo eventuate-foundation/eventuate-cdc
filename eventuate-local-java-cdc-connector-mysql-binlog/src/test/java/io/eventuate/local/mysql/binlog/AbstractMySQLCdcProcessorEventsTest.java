@@ -50,11 +50,12 @@ public abstract class AbstractMySQLCdcProcessorEventsTest extends CdcProcessorEv
 
   @Override
   protected void startEventProcessing() {
-    mySqlBinaryLogClient.start();
+    testHelper.runInSeparateThread(mySqlBinaryLogClient::start);
   }
 
   @Override
   protected void stopEventProcessing() {
     mySqlBinaryLogClient.stop();
+    mySqlBinaryLogClient.clearBinlogEntryHandlers();
   }
 }

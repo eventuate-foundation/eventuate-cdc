@@ -2,6 +2,7 @@ package io.eventuate.local.mysql.binlog;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.local.common.BinlogEntryReaderLeadership;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.common.exception.EventuateLocalPublishingException;
@@ -24,6 +25,9 @@ public class AbstractMySqlBinaryLogClientTest {
 
   @Autowired
   protected TestHelper testHelper;
+
+  @Autowired
+  protected BinlogEntryReaderLeadership binlogEntryReaderLeadership;
 
   protected void prepareBinlogEntryHandler(Consumer<PublishedEvent> consumer) {
     mySqlBinaryLogClient.addBinlogEntryHandler(eventuateSchema,

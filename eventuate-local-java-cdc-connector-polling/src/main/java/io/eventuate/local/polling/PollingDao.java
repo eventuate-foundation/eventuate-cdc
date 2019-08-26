@@ -5,7 +5,6 @@ import io.eventuate.common.eventuate.local.BinLogEvent;
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.sqldialect.EventuateSqlDialect;
-import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.local.common.*;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -39,14 +38,10 @@ public class PollingDao extends BinlogEntryReader {
                     int maxAttemptsForPolling,
                     int pollingRetryIntervalInMilliseconds,
                     int pollingIntervalInMilliseconds,
-                    String leaderLockId,
-                    LeaderSelectorFactory leaderSelectorFactory,
                     String readerName,
                     EventuateSqlDialect eventuateSqlDialect) {
 
     super(meterRegistry,
-            leaderLockId,
-            leaderSelectorFactory,
             dataSourceUrl,
             dataSource,
             readerName);
@@ -79,8 +74,8 @@ public class PollingDao extends BinlogEntryReader {
   }
 
   @Override
-  protected void leaderStart() {
-    super.leaderStart();
+  public void start() {
+    super.start();
 
     stopCountDownLatch = new CountDownLatch(1);
     running.set(true);

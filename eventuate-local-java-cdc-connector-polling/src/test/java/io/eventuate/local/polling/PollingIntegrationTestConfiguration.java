@@ -82,7 +82,6 @@ public class PollingIntegrationTestConfiguration {
                                @Value("${spring.datasource.driver-class-name}") String driver,
                                EventuateConfigurationProperties eventuateConfigurationProperties,
                                DataSource dataSource,
-                               LeaderSelectorFactory leaderSelectorFactory,
                                SqlDialectSelector sqlDialectSelector) {
 
     return new PollingDao(meterRegistry,
@@ -92,8 +91,6 @@ public class PollingIntegrationTestConfiguration {
             eventuateConfigurationProperties.getMaxAttemptsForPolling(),
             eventuateConfigurationProperties.getPollingRetryIntervalInMilliseconds(),
             eventuateConfigurationProperties.getPollingIntervalInMilliseconds(),
-            eventuateConfigurationProperties.getLeadershipLockPath(),
-            leaderSelectorFactory,
             eventuateConfigurationProperties.getReaderName(),
             sqlDialectSelector.getDialect(driver));
   }

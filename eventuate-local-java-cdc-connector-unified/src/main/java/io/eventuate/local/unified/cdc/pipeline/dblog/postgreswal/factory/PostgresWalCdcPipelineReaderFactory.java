@@ -3,7 +3,7 @@ package io.eventuate.local.unified.cdc.pipeline.dblog.postgreswal.factory;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.local.postgres.wal.PostgresWalClient;
-import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
+import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderLeadershipProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.CommonCdcPipelineReaderFactory;
 import io.eventuate.local.unified.cdc.pipeline.dblog.postgreswal.properties.PostgresWalCdcPipelineReaderProperties;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -17,11 +17,11 @@ public class PostgresWalCdcPipelineReaderFactory
 
   public PostgresWalCdcPipelineReaderFactory(MeterRegistry meterRegistry,
                                              LeaderSelectorFactory leaderSelectorFactory,
-                                             BinlogEntryReaderProvider binlogEntryReaderProvider) {
+                                             BinlogEntryReaderLeadershipProvider binlogEntryReaderLeadershipProvider) {
 
     super(meterRegistry,
             leaderSelectorFactory,
-            binlogEntryReaderProvider);
+            binlogEntryReaderLeadershipProvider);
   }
 
   @Override
@@ -48,8 +48,6 @@ public class PostgresWalCdcPipelineReaderFactory
             readerProperties.getMaxAttemptsForBinlogConnection(),
             readerProperties.getPostgresReplicationStatusIntervalInMilliseconds(),
             readerProperties.getPostgresReplicationSlotName(),
-            readerProperties.getLeadershipLockPath(),
-            leaderSelectorFactory,
             dataSource,
             readerProperties.getReaderName(),
             readerProperties.getReplicationLagMeasuringIntervalInMilliseconds(),

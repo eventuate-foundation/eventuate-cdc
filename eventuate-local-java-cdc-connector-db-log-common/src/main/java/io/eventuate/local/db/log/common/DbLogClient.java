@@ -1,7 +1,6 @@
 package io.eventuate.local.db.log.common;
 
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
-import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.*;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -25,8 +24,6 @@ public abstract class DbLogClient extends BinlogEntryReader {
                      String dbUserName,
                      String dbPassword,
                      String dataSourceUrl,
-                     String leaderLockId,
-                     LeaderSelectorFactory leaderSelectorFactory,
                      DataSource dataSource,
                      String readerName,
                      long replicationLagMeasuringIntervalInMilliseconds,
@@ -35,8 +32,6 @@ public abstract class DbLogClient extends BinlogEntryReader {
                      EventuateSchema monitoringSchema) {
 
     super(meterRegistry,
-            leaderLockId,
-            leaderSelectorFactory,
             dataSourceUrl,
             dataSource,
             readerName);
@@ -65,12 +60,6 @@ public abstract class DbLogClient extends BinlogEntryReader {
     return connected;
   }
 
-  @Override
-  public void start() {
-    checkEntriesForDuplicates = true;
-    super.start();
-  }
-
   protected boolean shouldSkipEntry(Optional<BinlogFileOffset> startingBinlogFileOffset, BinlogFileOffset offset) {
     if (checkEntriesForDuplicates) {
       if (startingBinlogFileOffset.isPresent()) {
@@ -88,8 +77,9 @@ public abstract class DbLogClient extends BinlogEntryReader {
   }
 
   @Override
-  protected void leaderStart() {
-    super.leaderStart();
+  public void start() {
+    checkEntriesForDuplicates = true;
+    super.start();
     dbLogMetrics.start();
   }
 

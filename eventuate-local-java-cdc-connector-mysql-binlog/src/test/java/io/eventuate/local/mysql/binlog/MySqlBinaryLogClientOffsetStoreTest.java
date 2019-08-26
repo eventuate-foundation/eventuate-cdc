@@ -56,11 +56,11 @@ public class MySqlBinaryLogClientOffsetStoreTest extends AbstractMySqlBinaryLogC
     BlockingQueue<PublishedEvent> publishedEvents = new LinkedBlockingDeque<>();
     prepareBinlogEntryHandler(publishedEvents::add);
 
-    mySqlBinaryLogClient.start();
+    binlogEntryReaderLeadership.start();
 
     String testCreatedEvent = testHelper.generateTestCreatedEvent();
     TestHelper.EventIdEntityId eventIdEntityId = testHelper.saveEvent(testCreatedEvent);
     testHelper.waitForEvent(publishedEvents, eventIdEntityId.getEventId(), LocalDateTime.now().plusSeconds(60), testCreatedEvent);
-    mySqlBinaryLogClient.stop();
+    binlogEntryReaderLeadership.stop();
   }
 }

@@ -69,7 +69,6 @@ public class MySqlBinlogCdcIntegrationTestConfiguration {
                                                    @Value("${spring.datasource.url}") String dataSourceURL,
                                                    DataSource dataSource,
                                                    EventuateConfigurationProperties eventuateConfigurationProperties,
-                                                   LeaderSelectorFactory leaderSelectorFactory,
                                                    OffsetStore offsetStore) {
 
     return new MySqlBinaryLogClient(
@@ -82,14 +81,22 @@ public class MySqlBinlogCdcIntegrationTestConfiguration {
             eventuateConfigurationProperties.getMySqlBinlogClientUniqueId(),
             eventuateConfigurationProperties.getBinlogConnectionTimeoutInMilliseconds(),
             eventuateConfigurationProperties.getMaxAttemptsForBinlogConnection(),
-            eventuateConfigurationProperties.getLeadershipLockPath(),
-            leaderSelectorFactory,
             offsetStore,
             Optional.empty(),
             eventuateConfigurationProperties.getReplicationLagMeasuringIntervalInMilliseconds(),
             eventuateConfigurationProperties.getMonitoringRetryIntervalInMilliseconds(),
             eventuateConfigurationProperties.getMonitoringRetryAttempts(),
             new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
+  }
+
+  @Bean
+  public BinlogEntryReaderLeadership binlogEntryReaderLeadership(EventuateConfigurationProperties eventuateConfigurationProperties,
+                                                                 LeaderSelectorFactory leaderSelectorFactory,
+                                                                 MySqlBinaryLogClient mySqlBinaryLogClient) {
+
+    return new BinlogEntryReaderLeadership(eventuateConfigurationProperties.getLeadershipLockPath(),
+            leaderSelectorFactory,
+            mySqlBinaryLogClient);
   }
 
   @Bean

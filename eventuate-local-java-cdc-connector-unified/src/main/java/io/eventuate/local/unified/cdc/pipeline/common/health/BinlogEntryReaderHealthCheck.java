@@ -3,7 +3,7 @@ package io.eventuate.local.unified.cdc.pipeline.common.health;
 import io.eventuate.local.common.BinlogEntryReader;
 import io.eventuate.local.db.log.common.DbLogClient;
 import io.eventuate.local.mysql.binlog.MySqlBinaryLogClient;
-import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
+import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderLeadershipProvider;
 import org.springframework.beans.factory.annotation.Value;
 
 public class BinlogEntryReaderHealthCheck extends AbstractHealthCheck {
@@ -11,24 +11,25 @@ public class BinlogEntryReaderHealthCheck extends AbstractHealthCheck {
   @Value("${eventuatelocal.cdc.max.event.interval.to.assume.reader.healthy:#{60000}}")
   private long maxEventIntervalToAssumeReaderHealthy;
 
-  private BinlogEntryReaderProvider binlogEntryReaderProvider;
+  private BinlogEntryReaderLeadershipProvider binlogEntryReaderLeadershipProvider;
 
-  public BinlogEntryReaderHealthCheck(BinlogEntryReaderProvider binlogEntryReaderProvider) {
-    this.binlogEntryReaderProvider = binlogEntryReaderProvider;
+  public BinlogEntryReaderHealthCheck(BinlogEntryReaderLeadershipProvider binlogEntryReaderLeadershipProvider) {
+    this.binlogEntryReaderLeadershipProvider = binlogEntryReaderLeadershipProvider;
   }
 
   @Override
   protected void determineHealth(HealthBuilder builder) {
 
-    binlogEntryReaderProvider
-            .getAllReaders()
-            .forEach(binlogEntryReader -> {
+    binlogEntryReaderLeadershipProvider
+            .getAllBinlogEntryReaderLeadershipInstances()
+            .forEach(binlogEntryReaderLeadership -> {
+              BinlogEntryReader binlogEntryReader = binlogEntryReaderLeadership.getBinlogEntryReader();
 
               if (binlogEntryReader instanceof MySqlBinaryLogClient) {
                 checkMySqlBinlogReaderHealth((MySqlBinaryLogClient) binlogEntryReader, builder);
               }
 
-              if (binlogEntryReader.isLeader()) {
+              if (binlogEntryReaderLeadership.isLeader()) {
                 checkBinlogEntryReaderHealth(binlogEntryReader, builder);
                 if (binlogEntryReader instanceof DbLogClient) {
                   checkDbLogReaderHealth((DbLogClient) binlogEntryReader, builder);

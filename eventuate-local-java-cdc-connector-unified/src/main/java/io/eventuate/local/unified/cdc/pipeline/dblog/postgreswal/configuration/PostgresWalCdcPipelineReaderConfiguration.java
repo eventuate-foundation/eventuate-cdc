@@ -1,7 +1,7 @@
 package io.eventuate.local.unified.cdc.pipeline.dblog.postgreswal.configuration;
 
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
-import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
+import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderLeadershipProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.CdcPipelineReaderFactory;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineReaderProperties;
 import io.eventuate.local.unified.cdc.pipeline.dblog.common.configuration.CommonDbLogCdcDefaultPipelineReaderConfiguration;
@@ -18,22 +18,22 @@ public class PostgresWalCdcPipelineReaderConfiguration extends CommonDbLogCdcDef
   @Bean("eventuateLocalPostgresWalCdcPipelineReaderFactory")
   public CdcPipelineReaderFactory postgresWalCdcPipelineReaderFactory(MeterRegistry meterRegistry,
                                                                       LeaderSelectorFactory leaderSelectorFactory,
-                                                                      BinlogEntryReaderProvider binlogEntryReaderProvider) {
+                                                                      BinlogEntryReaderLeadershipProvider binlogEntryReaderLeadershipProvider) {
 
     return new PostgresWalCdcPipelineReaderFactory(meterRegistry,
             leaderSelectorFactory,
-            binlogEntryReaderProvider);
+            binlogEntryReaderLeadershipProvider);
   }
 
   @Profile("PostgresWal")
   @Bean("defaultCdcPipelineReaderFactory")
   public CdcPipelineReaderFactory defaultPostgresWalCdcPipelineReaderFactory(MeterRegistry meterRegistry,
                                                                              LeaderSelectorFactory leaderSelectorFactory,
-                                                                             BinlogEntryReaderProvider binlogEntryReaderProvider) {
+                                                                             BinlogEntryReaderLeadershipProvider binlogEntryReaderLeadershipProvider) {
 
     return new PostgresWalCdcPipelineReaderFactory(meterRegistry,
             leaderSelectorFactory,
-            binlogEntryReaderProvider);
+            binlogEntryReaderLeadershipProvider);
   }
 
   @Profile("PostgresWal")

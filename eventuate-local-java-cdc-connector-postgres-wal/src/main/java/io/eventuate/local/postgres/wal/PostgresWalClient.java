@@ -2,7 +2,6 @@ package io.eventuate.local.postgres.wal;
 
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.json.mapper.JSonMapper;
-import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.local.common.BinlogEntry;
 import io.eventuate.local.common.CdcProcessingStatusService;
 import io.eventuate.local.common.SchemaAndTable;
@@ -46,8 +45,6 @@ public class PostgresWalClient extends DbLogClient {
                            int maxAttemptsForBinlogConnection,
                            int replicationStatusIntervalInMilliseconds,
                            String replicationSlotName,
-                           String leaderLockId,
-                           LeaderSelectorFactory leaderSelectorFactory,
                            DataSource dataSource,
                            String readerName,
                            long replicationLagMeasuringIntervalInMilliseconds,
@@ -61,8 +58,6 @@ public class PostgresWalClient extends DbLogClient {
             user,
             password,
             url,
-            leaderLockId,
-            leaderSelectorFactory,
             dataSource,
             readerName,
             replicationLagMeasuringIntervalInMilliseconds,
@@ -89,8 +84,8 @@ public class PostgresWalClient extends DbLogClient {
 
 
   @Override
-  protected void leaderStart() {
-    super.leaderStart();
+  public void start() {
+    super.start();
 
     stopCountDownLatch = new CountDownLatch(1);
     running.set(true);
@@ -215,8 +210,8 @@ public class PostgresWalClient extends DbLogClient {
   }
 
   @Override
-  protected void leaderStop() {
-    super.leaderStop();
+  public void stop() {
+    super.stop();
 
     try {
       stream.close();

@@ -3,7 +3,7 @@ package io.eventuate.tram.cdc.connector.configuration;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.common.EventuateConfigurationProperties;
 import io.eventuate.local.common.PublishingStrategy;
-import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
+import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderLeadershipProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.DefaultSourceTableNameResolver;
 import io.eventuate.local.unified.cdc.pipeline.common.health.BinlogEntryReaderHealthCheck;
 import io.eventuate.local.unified.cdc.pipeline.common.health.CdcDataPublisherHealthCheck;
@@ -20,13 +20,13 @@ import org.springframework.context.annotation.Configuration;
 public class CommonMessageTableChangesToDestinationsConfiguration {
 
   @Bean
-  public CdcProcessingStatusController cdcProcessingStatusController(BinlogEntryReaderProvider binlogEntryReaderProvider) {
-    return new CdcProcessingStatusController(binlogEntryReaderProvider);
+  public CdcProcessingStatusController cdcProcessingStatusController(BinlogEntryReaderLeadershipProvider binlogEntryReaderLeadershipProvider) {
+    return new CdcProcessingStatusController(binlogEntryReaderLeadershipProvider);
   }
 
   @Bean
-  public BinlogEntryReaderHealthCheck binlogEntryReaderHealthCheck(BinlogEntryReaderProvider binlogEntryReaderProvider) {
-    return new BinlogEntryReaderHealthCheck(binlogEntryReaderProvider);
+  public BinlogEntryReaderHealthCheck binlogEntryReaderHealthCheck(BinlogEntryReaderLeadershipProvider binlogEntryReaderLeadershipProvider) {
+    return new BinlogEntryReaderHealthCheck(binlogEntryReaderLeadershipProvider);
   }
 
   @Bean
@@ -57,8 +57,8 @@ public class CommonMessageTableChangesToDestinationsConfiguration {
   }
 
   @Bean
-  public BinlogEntryReaderProvider dbClientProvider() {
-    return new BinlogEntryReaderProvider();
+  public BinlogEntryReaderLeadershipProvider dbClientProvider() {
+    return new BinlogEntryReaderLeadershipProvider();
   }
 
   @Bean
