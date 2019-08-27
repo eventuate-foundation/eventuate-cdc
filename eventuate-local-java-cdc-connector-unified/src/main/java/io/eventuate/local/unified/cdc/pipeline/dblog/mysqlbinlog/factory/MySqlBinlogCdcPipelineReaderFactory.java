@@ -4,7 +4,7 @@ import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.mysql.binlog.DebeziumBinlogOffsetKafkaStore;
 import io.eventuate.local.mysql.binlog.MySqlBinaryLogClient;
-import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderLeadershipProvider;
+import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.CommonCdcPipelineReaderFactory;
 import io.eventuate.local.unified.cdc.pipeline.dblog.common.factory.OffsetStoreFactory;
 import io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.properties.MySqlBinlogCdcPipelineReaderProperties;
@@ -21,13 +21,13 @@ public class MySqlBinlogCdcPipelineReaderFactory extends CommonCdcPipelineReader
 
   public MySqlBinlogCdcPipelineReaderFactory(MeterRegistry meterRegistry,
                                              LeaderSelectorFactory leaderSelectorFactory,
-                                             BinlogEntryReaderLeadershipProvider binlogEntryReaderLeadershipProvider,
+                                             BinlogEntryReaderProvider binlogEntryReaderProvider,
                                              OffsetStoreFactory offsetStoreFactory,
                                              DebeziumOffsetStoreFactory debeziumOffsetStoreFactory) {
 
     super(meterRegistry,
             leaderSelectorFactory,
-            binlogEntryReaderLeadershipProvider);
+            binlogEntryReaderProvider);
 
     this.debeziumOffsetStoreFactory = debeziumOffsetStoreFactory;
     this.offsetStoreFactory = offsetStoreFactory;

@@ -363,7 +363,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
   }
 
   @Override
-  public void stop() {
+  public void stop(boolean removeHandlers) {
     if (!running.compareAndSet(true, false)) {
       return;
     }
@@ -377,8 +377,10 @@ public class MySqlBinaryLogClient extends DbLogClient {
       logger.error("Cannot stop the MySqlBinaryLogClient", e);
     }
 
+    if (removeHandlers) {
+      binlogEntryHandlers.clear();
+    }
     stopMetrics();
-
     stopCountDownLatch.countDown();
 
     callbackOnStop.ifPresent(Runnable::run);

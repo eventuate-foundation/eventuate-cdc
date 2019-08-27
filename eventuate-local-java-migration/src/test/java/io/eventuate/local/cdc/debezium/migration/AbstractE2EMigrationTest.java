@@ -5,6 +5,7 @@ import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumer;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerMessageHandler;
+import io.eventuate.messaging.kafka.basic.consumer.MessageConsumerBacklog;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.Assert;
@@ -76,9 +77,10 @@ public abstract class AbstractE2EMigrationTest {
     private BlockingQueue<String> events = new LinkedBlockingQueue<>();
 
     @Override
-    public void accept(ConsumerRecord<String, String> consumerRecord, BiConsumer<Void, Throwable> callback) {
-      events.add(consumerRecord.value());
-      callback.accept(null, null);
+    public MessageConsumerBacklog apply(ConsumerRecord<String, String> record, BiConsumer<Void, Throwable> consumer) {
+      events.add(record.value());
+      consumer.accept(null, null);
+      return null;
     }
 
     public void assertContainsEvent() throws InterruptedException {

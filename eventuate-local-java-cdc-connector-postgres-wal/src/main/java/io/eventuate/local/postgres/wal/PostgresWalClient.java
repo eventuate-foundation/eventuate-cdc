@@ -210,8 +210,8 @@ public class PostgresWalClient extends DbLogClient {
   }
 
   @Override
-  public void stop() {
-    super.stop();
+  public void stop(boolean removeHandlers) {
+    super.stop(removeHandlers);
 
     try {
       stream.close();

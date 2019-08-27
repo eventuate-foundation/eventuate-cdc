@@ -3,7 +3,7 @@ package io.eventuate.local.unified.cdc.pipeline.polling.factory;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.local.polling.PollingDao;
-import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderLeadershipProvider;
+import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.CommonCdcPipelineReaderFactory;
 import io.eventuate.local.unified.cdc.pipeline.polling.properties.PollingPipelineReaderProperties;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -16,10 +16,10 @@ public class PollingCdcPipelineReaderFactory extends CommonCdcPipelineReaderFact
 
   public PollingCdcPipelineReaderFactory(MeterRegistry meterRegistry,
                                          LeaderSelectorFactory leaderSelectorFactory,
-                                         BinlogEntryReaderLeadershipProvider binlogEntryReaderLeadershipProvider,
+                                         BinlogEntryReaderProvider binlogEntryReaderProvider,
                                          SqlDialectSelector sqlDialectSelector) {
 
-    super(meterRegistry, leaderSelectorFactory, binlogEntryReaderLeadershipProvider);
+    super(meterRegistry, leaderSelectorFactory, binlogEntryReaderProvider);
 
     this.sqlDialectSelector = sqlDialectSelector;
   }

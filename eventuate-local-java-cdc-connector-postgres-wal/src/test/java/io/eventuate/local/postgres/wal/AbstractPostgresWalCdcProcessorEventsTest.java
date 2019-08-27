@@ -53,6 +53,5 @@ public abstract class AbstractPostgresWalCdcProcessorEventsTest extends CdcProce
   @Override
   protected void stopEventProcessing() {
     postgresWalClient.stop();
-    postgresWalClient.clearBinlogEntryHandlers();
   }
 }

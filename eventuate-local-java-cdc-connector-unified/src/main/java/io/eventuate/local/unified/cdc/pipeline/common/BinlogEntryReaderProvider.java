@@ -6,15 +6,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BinlogEntryReaderLeadershipProvider {
+public class BinlogEntryReaderProvider {
 
   private Map<String, BinlogEntryReaderLeadership> clients = new HashMap<>();
 
-  public void addBinlogEntryReaderLeadership(String name, BinlogEntryReaderLeadership binlogEntryReaderLeadership) {
+  public void add(String name, BinlogEntryReaderLeadership binlogEntryReaderLeadership) {
     clients.put(name.toLowerCase(), binlogEntryReaderLeadership);
   }
 
-  public BinlogEntryReaderLeadership getBinlogEntryReaderLeadership(String name) {
+  public BinlogEntryReaderLeadership get(String name) {
     return clients.get(name.toLowerCase());
   }
 
@@ -22,7 +22,7 @@ public class BinlogEntryReaderLeadershipProvider {
     clients.values().forEach(BinlogEntryReaderLeadership::start);
   }
 
-  public Collection<BinlogEntryReaderLeadership> getAllBinlogEntryReaderLeadershipInstances() {
+  public Collection<BinlogEntryReaderLeadership> getAll() {
     return clients.values();
   }
 

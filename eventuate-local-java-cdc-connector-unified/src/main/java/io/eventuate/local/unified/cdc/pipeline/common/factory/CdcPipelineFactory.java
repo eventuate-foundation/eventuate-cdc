@@ -5,23 +5,23 @@ import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogEntryReader;
 import io.eventuate.local.common.BinlogEntryToEventConverter;
 import io.eventuate.local.common.CdcDataPublisher;
-import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderLeadershipProvider;
+import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.CdcPipeline;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineProperties;
 
 public class CdcPipelineFactory<EVENT extends BinLogEvent> {
 
   private String type;
-  private BinlogEntryReaderLeadershipProvider binlogEntryReaderLeadershipProvider;
+  private BinlogEntryReaderProvider binlogEntryReaderProvider;
   private CdcDataPublisher<EVENT> cdcDataPublisher;
   private BinlogEntryToEventConverter<EVENT> binlogEntryToEventConverter;
 
   public CdcPipelineFactory(String type,
-                            BinlogEntryReaderLeadershipProvider binlogEntryReaderLeadershipProvider,
+                            BinlogEntryReaderProvider binlogEntryReaderProvider,
                             CdcDataPublisher<EVENT> cdcDataPublisher,
                             BinlogEntryToEventConverter<EVENT> binlogEntryToEventConverter) {
     this.type = type;
-    this.binlogEntryReaderLeadershipProvider = binlogEntryReaderLeadershipProvider;
+    this.binlogEntryReaderProvider = binlogEntryReaderProvider;
     this.cdcDataPublisher = cdcDataPublisher;
     this.binlogEntryToEventConverter = binlogEntryToEventConverter;
   }
@@ -31,8 +31,8 @@ public class CdcPipelineFactory<EVENT extends BinLogEvent> {
   }
 
   public CdcPipeline<EVENT> create(CdcPipelineProperties cdcPipelineProperties) {
-    BinlogEntryReader binlogEntryReader = binlogEntryReaderLeadershipProvider
-            .getBinlogEntryReaderLeadership(cdcPipelineProperties.getReader())
+    BinlogEntryReader binlogEntryReader = binlogEntryReaderProvider
+            .get(cdcPipelineProperties.getReader())
             .getBinlogEntryReader();
 
     binlogEntryReader.addBinlogEntryHandler(new EventuateSchema(cdcPipelineProperties.getEventuateDatabaseSchema()),

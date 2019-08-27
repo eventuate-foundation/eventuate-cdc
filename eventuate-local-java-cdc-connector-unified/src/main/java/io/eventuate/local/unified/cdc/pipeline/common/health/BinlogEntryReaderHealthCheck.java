@@ -3,7 +3,7 @@ package io.eventuate.local.unified.cdc.pipeline.common.health;
 import io.eventuate.local.common.BinlogEntryReader;
 import io.eventuate.local.db.log.common.DbLogClient;
 import io.eventuate.local.mysql.binlog.MySqlBinaryLogClient;
-import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderLeadershipProvider;
+import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
 import org.springframework.beans.factory.annotation.Value;
 
 public class BinlogEntryReaderHealthCheck extends AbstractHealthCheck {
@@ -11,17 +11,17 @@ public class BinlogEntryReaderHealthCheck extends AbstractHealthCheck {
   @Value("${eventuatelocal.cdc.max.event.interval.to.assume.reader.healthy:#{60000}}")
   private long maxEventIntervalToAssumeReaderHealthy;
 
-  private BinlogEntryReaderLeadershipProvider binlogEntryReaderLeadershipProvider;
+  private BinlogEntryReaderProvider binlogEntryReaderProvider;
 
-  public BinlogEntryReaderHealthCheck(BinlogEntryReaderLeadershipProvider binlogEntryReaderLeadershipProvider) {
-    this.binlogEntryReaderLeadershipProvider = binlogEntryReaderLeadershipProvider;
+  public BinlogEntryReaderHealthCheck(BinlogEntryReaderProvider binlogEntryReaderProvider) {
+    this.binlogEntryReaderProvider = binlogEntryReaderProvider;
   }
 
   @Override
   protected void determineHealth(HealthBuilder builder) {
 
-    binlogEntryReaderLeadershipProvider
-            .getAllBinlogEntryReaderLeadershipInstances()
+    binlogEntryReaderProvider
+            .getAll()
             .forEach(binlogEntryReaderLeadership -> {
               BinlogEntryReader binlogEntryReader = binlogEntryReaderLeadership.getBinlogEntryReader();
 

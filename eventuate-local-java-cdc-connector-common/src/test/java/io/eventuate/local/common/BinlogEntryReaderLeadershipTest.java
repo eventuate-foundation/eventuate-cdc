@@ -15,7 +15,7 @@ public class BinlogEntryReaderLeadershipTest {
     LeaderSelectorFactory leaderSelectorFactory = (lockId, leaderId, leaderSelected, leaderRemoved) -> new EventuateLeaderSelector() {
       @Override
       public void start() {
-        leaderSelected.run();
+        leaderSelected.run(null);
       }
 
       @Override

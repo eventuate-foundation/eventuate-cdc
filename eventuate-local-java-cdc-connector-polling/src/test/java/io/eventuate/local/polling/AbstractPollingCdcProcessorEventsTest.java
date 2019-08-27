@@ -50,6 +50,5 @@ public abstract class AbstractPollingCdcProcessorEventsTest extends CdcProcessor
   @Override
   protected void stopEventProcessing() {
     pollingDao.stop();
-    pollingDao.clearBinlogEntryHandlers();
   }
 }

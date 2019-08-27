@@ -2,8 +2,8 @@ package io.eventuate.local.common;
 
 import io.eventuate.coordination.leadership.EventuateLeaderSelector;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
+import io.eventuate.coordination.leadership.LeadershipController;
 
-import java.util.Optional;
 import java.util.UUID;
 
 public class BinlogEntryReaderLeadership {
@@ -12,8 +12,8 @@ public class BinlogEntryReaderLeadership {
   private BinlogEntryReader binlogEntryReader;
 
   private EventuateLeaderSelector eventuateLeaderSelector;
-  private Optional<Runnable> actionOnStop = Optional.empty();
   private volatile boolean leader;
+  private LeadershipController leadershipController;
 
   public BinlogEntryReaderLeadership(String leaderLockId,
                                      LeaderSelectorFactory leaderSelectorFactory,
@@ -29,23 +29,22 @@ public class BinlogEntryReaderLeadership {
   public void start() {
     eventuateLeaderSelector = leaderSelectorFactory.create(leaderLockId,
             UUID.randomUUID().toString(),
-            () -> {
-              leader = false;
-              binlogEntryReader.start();
+            (leadershipController) -> {
+              this.leadershipController = leadershipController;
+              leader = true;
+              new Thread(binlogEntryReader::start).start();
             },
             () -> {
-              leader = true;
-              binlogEntryReader.stop();
-              actionOnStop.ifPresent(Runnable::run);
+              leader = false;
+              binlogEntryReader.stop(false);
             });
 
     eventuateLeaderSelector.start();
   }
 
   public void stop() {
-    eventuateLeaderSelector.stop();
     binlogEntryReader.stop();
-    binlogEntryReader.clearBinlogEntryHandlers();
+    eventuateLeaderSelector.stop();
   }
 
   public BinlogEntryReader getBinlogEntryReader() {
@@ -57,10 +56,6 @@ public class BinlogEntryReaderLeadership {
   }
 
   private void restart() {
-    eventuateLeaderSelector.stop();
-    actionOnStop = Optional.of(() -> {
-      actionOnStop = Optional.empty();
-      start();
-    });
+    leadershipController.stop();
   }
 }

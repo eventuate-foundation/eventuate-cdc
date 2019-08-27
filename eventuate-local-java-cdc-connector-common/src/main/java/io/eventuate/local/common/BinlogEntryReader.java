@@ -69,15 +69,15 @@ public abstract class BinlogEntryReader {
     return binlogEntryHandler;
   }
 
-  public void clearBinlogEntryHandlers() {
-    binlogEntryHandlers.clear();
-  }
-
   public void start() {
     commonCdcMetrics.setLeader(true);
   }
 
   public void stop() {
+    stop(true);
+  }
+
+  public void stop(boolean removeHandlers) {
     if (!running.compareAndSet(true, false)) {
       return;
     }
@@ -88,6 +88,9 @@ public abstract class BinlogEntryReader {
       logger.error(e.getMessage(), e);
     }
 
+    if (removeHandlers) {
+      binlogEntryHandlers.clear();
+    }
     stopMetrics();
   }
 
