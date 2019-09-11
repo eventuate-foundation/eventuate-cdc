@@ -33,7 +33,7 @@ abstract public class CommonCdcPipelineReaderFactory<PROPERTIES extends CdcPipel
     hikariDataSource.setPassword(properties.getDataSourcePassword());
     hikariDataSource.setJdbcUrl(properties.getDataSourceUrl());
     hikariDataSource.setDriverClassName(properties.getDataSourceDriverClassName());
-
+    hikariDataSource.setInitializationFailTimeout(Long.MAX_VALUE);
     hikariDataSource.setConnectionTestQuery("select 1");
 
     return hikariDataSource;
