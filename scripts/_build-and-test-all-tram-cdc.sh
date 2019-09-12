@@ -38,9 +38,6 @@ if [[ "${DATABASE}" != "mssql" ]]; then
         #Testing cdc start with stopped database
         $DOCKER_COMPOSE stop mysql
         $DOCKER_COMPOSE rm --force mysql
-        export start_db_expression="$DOCKER_COMPOSE up -d mysql"
-        ./scripts/delay-database-startup.sh&
-
 
         if [ -z "$SPRING_PROFILES_ACTIVE" ] ; then
           export SPRING_PROFILES_ACTIVE=ActiveMQ
@@ -48,7 +45,7 @@ if [[ "${DATABASE}" != "mssql" ]]; then
           export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE},ActiveMQ
         fi
 
-        $DOCKER_COMPOSE up -d cdcservice
+        $DOCKER_COMPOSE up  -d cdcservice
         ./scripts/wait-for-services.sh $DOCKER_HOST_IP "actuator/health" 8099
 
 
