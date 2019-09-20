@@ -2,12 +2,15 @@ package io.eventuate.local.common;
 
 import io.eventuate.coordination.leadership.EventuateLeaderSelector;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
+import io.eventuate.util.test.async.Eventually;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+import static io.eventuate.util.test.async.Eventually.eventually;
+import static org.mockito.Mockito.*;
+
 public class BinlogEntryReaderLeadershipTest {
 
   @Test
@@ -24,7 +27,7 @@ public class BinlogEntryReaderLeadershipTest {
       }
     };
 
-    BinlogEntryReader binlogEntryReader = Mockito.mock(BinlogEntryReader.class);
+    BinlogEntryReader binlogEntryReader = mock(BinlogEntryReader.class);
 
     BinlogEntryReaderLeadership binlogEntryReaderLeadership = new BinlogEntryReaderLeadership(null,
             leaderSelectorFactory,
@@ -32,12 +35,14 @@ public class BinlogEntryReaderLeadershipTest {
 
     binlogEntryReaderLeadership.start();
 
-    Mockito.verify(binlogEntryReader).start();
-    Mockito.verify(binlogEntryReader, Mockito.never()).stop();
+    eventually(() -> {
+      verify(binlogEntryReader).start();
+      verify(binlogEntryReader, never()).stop();
+    });
 
     binlogEntryReaderLeadership.stop();
 
-    Mockito.verify(binlogEntryReader).start();
-    Mockito.verify(binlogEntryReader, Mockito.atLeastOnce()).stop();
+    verify(binlogEntryReader).start();
+    verify(binlogEntryReader, atLeastOnce()).stop();
   }
 }

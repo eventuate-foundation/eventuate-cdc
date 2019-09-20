@@ -22,6 +22,7 @@ dependencies {
     compile 'com.microsoft.sqlserver:mssql-jdbc:7.2.1.jre8'
     testCompile "junit:junit:4.11"
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
 }
 
 test {
