@@ -1,5 +1,6 @@
 package io.eventuate.local.cdc.debezium.migration;
 
+import io.eventuate.messaging.kafka.basic.consumer.MessageConsumerBacklog;
 import io.eventuate.util.test.async.Eventually;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.Assert;
@@ -28,13 +29,14 @@ public class MigrationOldCdcPhaseE2ETest extends AbstractE2EMigrationTest {
       private boolean secondEventFailed;
 
       @Override
-      public void accept(ConsumerRecord<String, String> consumerRecord, BiConsumer<Void, Throwable> callback) {
+      public MessageConsumerBacklog apply(ConsumerRecord<String, String> record, BiConsumer<Void, Throwable> consumer) {
         if (!received) {
           received = true;
-          super.accept(consumerRecord, callback);
+          return super.apply(record, consumer);
         } else {
           secondEventFailed = true;
-          callback.accept(null, new IllegalStateException());
+          consumer.accept(null, new IllegalStateException());
+          return null;
         }
       }
 

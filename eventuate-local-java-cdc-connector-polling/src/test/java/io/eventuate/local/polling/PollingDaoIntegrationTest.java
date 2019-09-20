@@ -110,8 +110,6 @@ public class PollingDaoIntegrationTest {
             100,
             1000,
             testHelper.generateId(),
-            (lockId, leaderId, leaderSelectedCallback, leaderRemovedCallback) -> Mockito.mock(EventuateLeaderSelector.class),
-            testHelper.generateId(),
             sqlDialectSelector.getDialect(driver));
   }
 

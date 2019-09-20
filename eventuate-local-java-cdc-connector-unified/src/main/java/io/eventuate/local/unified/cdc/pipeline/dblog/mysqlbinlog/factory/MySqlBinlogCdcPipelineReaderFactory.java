@@ -61,8 +61,6 @@ public class MySqlBinlogCdcPipelineReaderFactory extends CommonCdcPipelineReader
             readerProperties.getMySqlBinlogClientUniqueId(),
             readerProperties.getBinlogConnectionTimeoutInMilliseconds(),
             readerProperties.getMaxAttemptsForBinlogConnection(),
-            readerProperties.getLeadershipLockPath(),
-            leaderSelectorFactory,
             offsetStoreFactory.create(readerProperties,
                     dataSource,
                     new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA),

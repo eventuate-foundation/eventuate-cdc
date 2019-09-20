@@ -1,7 +1,9 @@
 package io.eventuate.local.unified.cdc.pipeline;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
+import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.local.common.BinlogEntryReader;
+import io.eventuate.local.common.BinlogEntryReaderLeadership;
 import io.eventuate.local.mysql.binlog.MySqlBinaryLogClient;
 import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.CdcPipeline;
@@ -62,6 +64,9 @@ public class CdcPipelineConfigurator {
   @Autowired
   private RawUnifiedCdcProperties rawUnifiedCdcProperties;
 
+  @Autowired
+  private LeaderSelectorFactory leaderSelectorFactory;
+
   @PostConstruct
   public void initialize() {
     logger.info("Starting unified cdc pipelines");
@@ -104,8 +109,9 @@ public class CdcPipelineConfigurator {
     logger.warn("Unified cdc pipelines are not started, 'dry run' option is used");
 
     List<MySqlBinaryLogClient> clients = binlogEntryReaderProvider
-            .getAllReaders()
+            .getAll()
             .stream()
+            .map(BinlogEntryReaderLeadership::getBinlogEntryReader)
             .filter(binlogEntryReader -> binlogEntryReader instanceof MySqlBinaryLogClient)
             .map(binlogEntryReader -> (MySqlBinaryLogClient)binlogEntryReader)
             .collect(Collectors.toList());
@@ -160,7 +166,11 @@ public class CdcPipelineConfigurator {
 
     BinlogEntryReader binlogEntryReader = defaultCdcPipelineReaderFactory.create(cdcDefaultPipelineReaderProperties);
 
-    binlogEntryReaderProvider.addReader(cdcDefaultPipelineReaderProperties.getReaderName(), binlogEntryReader);
+    BinlogEntryReaderLeadership binlogEntryReaderLeadership = new BinlogEntryReaderLeadership(cdcDefaultPipelineReaderProperties.getLeadershipLockPath(),
+            leaderSelectorFactory,
+            binlogEntryReader);
+
+    binlogEntryReaderProvider.add(cdcDefaultPipelineReaderProperties.getReaderName(), binlogEntryReaderLeadership);
   }
 
   private CdcPipeline<?> createCdcPipeline(CdcPipelineProperties properties) {
@@ -186,8 +196,13 @@ public class CdcPipelineConfigurator {
     exactCdcPipelineReaderProperties.setReaderName(name);
     exactCdcPipelineReaderProperties.validate();
 
-    binlogEntryReaderProvider.addReader(name,
-            ((CdcPipelineReaderFactory)cdcPipelineReaderFactory).create(exactCdcPipelineReaderProperties));
+    BinlogEntryReader binlogEntryReader = ((CdcPipelineReaderFactory)cdcPipelineReaderFactory).create(exactCdcPipelineReaderProperties);
+
+    BinlogEntryReaderLeadership binlogEntryReaderLeadership = new BinlogEntryReaderLeadership(exactCdcPipelineReaderProperties.getLeadershipLockPath(),
+            leaderSelectorFactory,
+            binlogEntryReader);
+
+    binlogEntryReaderProvider.add(name, binlogEntryReaderLeadership);
   }
 
   private CdcPipelineFactory<PublishedEvent> findCdcPipelineFactory(String type) {

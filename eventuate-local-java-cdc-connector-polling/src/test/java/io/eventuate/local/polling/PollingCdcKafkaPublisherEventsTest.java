@@ -36,7 +36,7 @@ public class PollingCdcKafkaPublisherEventsTest extends CdcKafkaPublisherEventsT
             new BinlogEntryToPublishedEventConverter(),
             cdcDataPublisher);
 
-    pollingDao.start();
+    testHelper.runInSeparateThread(pollingDao::start);
   }
 
   @Override

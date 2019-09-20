@@ -53,7 +53,7 @@ public abstract class AbstractMySqlBinlogCdcIntegrationEventsTest {
       BlockingQueue<PublishedEvent> publishedEvents = new LinkedBlockingDeque<>();
 
       prepareBinlogEntryHandler(publishedEvents::add);
-      mySqlBinaryLogClient.start();
+      testHelper.runInSeparateThread(mySqlBinaryLogClient::start);
 
       String testCreatedEvent = testHelper.generateTestCreatedEvent();
       TestHelper.EventIdEntityId saveResult = testHelper.saveEvent(testCreatedEvent);
@@ -84,7 +84,7 @@ public abstract class AbstractMySqlBinlogCdcIntegrationEventsTest {
       BlockingQueue<PublishedEvent> publishedEvents = new LinkedBlockingDeque<>();
 
       prepareBinlogEntryHandler(publishedEvents::add);
-      mySqlBinaryLogClient.start();
+      testHelper.runInSeparateThread(mySqlBinaryLogClient::start);
 
       String testCreatedEvent = testHelper.generateTestCreatedEvent();
       TestHelper.EventIdEntityId saveResult = testHelper.saveEvent(testCreatedEvent);

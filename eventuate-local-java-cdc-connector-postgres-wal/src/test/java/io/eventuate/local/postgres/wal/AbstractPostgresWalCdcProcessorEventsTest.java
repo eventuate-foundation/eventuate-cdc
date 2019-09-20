@@ -47,7 +47,7 @@ public abstract class AbstractPostgresWalCdcProcessorEventsTest extends CdcProce
 
   @Override
   protected void startEventProcessing() {
-    postgresWalClient.start();
+    testHelper.runInSeparateThread(postgresWalClient::start);
   }
 
   @Override

@@ -44,7 +44,7 @@ public abstract class AbstractPollingCdcProcessorEventsTest extends CdcProcessor
 
   @Override
   protected void startEventProcessing() {
-    pollingDao.start();
+    testHelper.runInSeparateThread(pollingDao::start);
   }
 
   @Override

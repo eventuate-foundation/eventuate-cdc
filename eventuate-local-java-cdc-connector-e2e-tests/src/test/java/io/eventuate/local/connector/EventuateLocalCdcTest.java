@@ -37,6 +37,7 @@ public class EventuateLocalCdcTest extends AbstractEventuateCdcTest {
             (record, callback) -> {
               consumer.accept(record.value());
               callback.accept(null, null);
+              return null;
             },
             Collections.singletonList(topic),
             eventuateKafkaConfigurationProperties.getBootstrapServers(),

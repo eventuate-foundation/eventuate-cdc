@@ -48,8 +48,6 @@ public class PostgresWalCdcPipelineReaderFactory
             readerProperties.getMaxAttemptsForBinlogConnection(),
             readerProperties.getPostgresReplicationStatusIntervalInMilliseconds(),
             readerProperties.getPostgresReplicationSlotName(),
-            readerProperties.getLeadershipLockPath(),
-            leaderSelectorFactory,
             dataSource,
             readerProperties.getReaderName(),
             readerProperties.getReplicationLagMeasuringIntervalInMilliseconds(),

@@ -2,35 +2,33 @@ package io.eventuate.local.mysql.binlog;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.local.common.BinlogEntryReaderLeadership;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.common.exception.EventuateLocalPublishingException;
-import io.eventuate.local.db.log.common.OffsetStore;
-import io.eventuate.local.test.util.CdcProcessorEventsTest;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
+import io.eventuate.local.test.util.TestHelper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.function.Consumer;
 
-public abstract class AbstractMySQLCdcProcessorEventsTest extends CdcProcessorEventsTest {
+public class AbstractMySqlBinaryLogClientTest {
 
   @Autowired
   protected MySqlBinaryLogClient mySqlBinaryLogClient;
 
-  @Value("${spring.datasource.url}")
-  private String dataSourceUrl;
+  @Autowired
+  protected SourceTableNameSupplier sourceTableNameSupplier;
 
   @Autowired
-  private EventuateSchema eventuateSchema;
+  protected EventuateSchema eventuateSchema;
 
   @Autowired
-  private SourceTableNameSupplier sourceTableNameSupplier;
+  protected TestHelper testHelper;
 
   @Autowired
-  private OffsetStore offsetStore;
+  protected BinlogEntryReaderLeadership binlogEntryReaderLeadership;
 
-  @Override
   protected void prepareBinlogEntryHandler(Consumer<PublishedEvent> consumer) {
     mySqlBinaryLogClient.addBinlogEntryHandler(eventuateSchema,
             sourceTableNameSupplier.getSourceTableName(),
@@ -41,20 +39,5 @@ public abstract class AbstractMySQLCdcProcessorEventsTest extends CdcProcessorEv
                 consumer.accept(publishedEvent);
               }
             });
-  }
-
-  @Override
-  public void onEventSent(PublishedEvent publishedEvent) {
-    offsetStore.save(publishedEvent.getBinlogFileOffset().get());
-  }
-
-  @Override
-  protected void startEventProcessing() {
-    testHelper.runInSeparateThread(mySqlBinaryLogClient::start);
-  }
-
-  @Override
-  protected void stopEventProcessing() {
-    mySqlBinaryLogClient.stop();
   }
 }

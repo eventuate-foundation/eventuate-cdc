@@ -50,8 +50,4 @@ public class JdbcOffsetStore implements OffsetStore {
     String updateOffsetByClientNameQuery = String.format("update %s set serialized_offset = ?", tableName);
     jdbcTemplate.update(updateOffsetByClientNameQuery, JSonMapper.toJson(binlogFileOffset));
   }
-
-  @Override
-  public void stop() {
-  }
 }

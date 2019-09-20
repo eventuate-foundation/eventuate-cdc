@@ -26,7 +26,7 @@ public class MySQLCdcKafkaPublisherEventsTest extends AbstractDbLogBasedCdcKafka
             new BinlogEntryToPublishedEventConverter(),
             cdcDataPublisher);
 
-    mySqlBinaryLogClient.start();
+    testHelper.runInSeparateThread(mySqlBinaryLogClient::start);
   }
 
   @After
