@@ -15,14 +15,14 @@ jobs:
       - run: TERM=dumb ./scripts/build-and-test-mysql.sh
       - run:
           name: Save test results
-          command: |
-            mkdir -p ~/junit/
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+          command: ./scripts/save-containers-and-tests.sh
           when: always
       - store_test_results:
           path: ~/junit
       - store_artifacts:
           path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
   build-and-test-mysql-migration:
     machine: true
     working_directory: ~/eventuate-cdc
@@ -38,14 +38,14 @@ jobs:
       - run: TERM=dumb ./scripts/build-and-test-mysql-migration.sh
       - run:
           name: Save test results
-          command: |
-            mkdir -p ~/junit/
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+          command: ./scripts/save-containers-and-tests.sh
           when: always
       - store_test_results:
           path: ~/junit
       - store_artifacts:
           path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
   build-mariadb:
     machine: true
     working_directory: ~/eventuate-cdc
@@ -61,14 +61,14 @@ jobs:
       - run: TERM=dumb ./scripts/build-and-test-mariadb.sh
       - run:
           name: Save test results
-          command: |
-            mkdir -p ~/junit/
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+          command: ./scripts/save-containers-and-tests.sh
           when: always
       - store_test_results:
           path: ~/junit
       - store_artifacts:
           path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
   build-postgres-wal:
     machine: true
     working_directory: ~/eventuate-cdc
@@ -79,14 +79,14 @@ jobs:
       - run: TERM=dumb ./scripts/build-and-test-postgres-wal.sh
       - run:
           name: Save test results
-          command: |
-            mkdir -p ~/junit/
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+          command: ./scripts/save-containers-and-tests.sh
           when: always
       - store_test_results:
           path: ~/junit
       - store_artifacts:
           path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
   build-mssql-polling:
     machine: true
     working_directory: ~/eventuate-cdc
@@ -97,14 +97,14 @@ jobs:
       - run: TERM=dumb ./scripts/build-and-test-mssql-polling.sh
       - run:
           name: Save test results
-          command: |
-            mkdir -p ~/junit/
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+          command: ./scripts/save-containers-and-tests.sh
           when: always
       - store_test_results:
           path: ~/junit
       - store_artifacts:
           path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
   build-postgres-polling:
     machine: true
     working_directory: ~/eventuate-cdc
@@ -115,14 +115,14 @@ jobs:
       - run: TERM=dumb ./scripts/build-and-test-postgres-polling.sh
       - run:
           name: Save test results
-          command: |
-            mkdir -p ~/junit/
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+          command: ./scripts/save-containers-and-tests.sh
           when: always
       - store_test_results:
           path: ~/junit
       - store_artifacts:
           path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
   build-eventuate-local-cdc-mysql:
     machine: true
     working_directory: ~/eventuate-cdc
@@ -133,14 +133,14 @@ jobs:
       - run: TERM=dumb ./scripts/build-and-test-all-eventuate-local-cdc-mysql-binlog.sh
       - run:
           name: Save test results
-          command: |
-            mkdir -p ~/junit/
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+          command: ./scripts/save-containers-and-tests.sh
           when: always
       - store_test_results:
           path: ~/junit
       - store_artifacts:
           path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
   build-eventuate-local-cdc-mariadb:
     machine: true
     working_directory: ~/eventuate-cdc
@@ -151,14 +151,14 @@ jobs:
       - run: TERM=dumb ./scripts/build-and-test-all-eventuate-local-cdc-mariadb-binlog.sh
       - run:
           name: Save test results
-          command: |
-            mkdir -p ~/junit/
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+          command: ./scripts/save-containers-and-tests.sh
           when: always
       - store_test_results:
           path: ~/junit
       - store_artifacts:
           path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
   build-eventuate-local-cdc-postgres-polling:
     machine: true
     working_directory: ~/eventuate-cdc
@@ -169,14 +169,14 @@ jobs:
       - run: TERM=dumb ./scripts/build-and-test-all-eventuate-local-cdc-postgres-polling.sh
       - run:
           name: Save test results
-          command: |
-            mkdir -p ~/junit/
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+          command: ./scripts/save-containers-and-tests.sh
           when: always
       - store_test_results:
           path: ~/junit
       - store_artifacts:
           path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
   build-eventuate-local-cdc-postgres-wal:
     machine: true
     working_directory: ~/eventuate-cdc
@@ -187,14 +187,14 @@ jobs:
       - run: TERM=dumb ./scripts/build-and-test-all-eventuate-local-cdc-postgres-wal.sh
       - run:
           name: Save test results
-          command: |
-            mkdir -p ~/junit/
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+          command: ./scripts/save-containers-and-tests.sh
           when: always
       - store_test_results:
           path: ~/junit
       - store_artifacts:
           path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
   build-eventuate-tram-cdc-mysql:
     machine: true
     working_directory: ~/eventuate-cdc
@@ -205,14 +205,14 @@ jobs:
       - run: TERM=dumb ./scripts/build-and-test-all-tram-cdc-mysql-binlog.sh
       - run:
           name: Save test results
-          command: |
-            mkdir -p ~/junit/
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+          command: ./scripts/save-containers-and-tests.sh
           when: always
       - store_test_results:
           path: ~/junit
       - store_artifacts:
           path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
   build-eventuate-tram-cdc-postgres-polling:
     machine: true
     working_directory: ~/eventuate-cdc
@@ -223,14 +223,14 @@ jobs:
       - run: TERM=dumb ./scripts/build-and-test-all-tram-cdc-postgres-polling.sh
       - run:
           name: Save test results
-          command: |
-            mkdir -p ~/junit/
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+          command: ./scripts/save-containers-and-tests.sh
           when: always
       - store_test_results:
           path: ~/junit
       - store_artifacts:
           path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
   build-eventuate-tram-cdc-postgres-wal:
     machine: true
     working_directory: ~/eventuate-cdc
@@ -241,14 +241,14 @@ jobs:
       - run: TERM=dumb ./scripts/build-and-test-all-tram-cdc-postgres-wal.sh
       - run:
           name: Save test results
-          command: |
-            mkdir -p ~/junit/
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+          command: ./scripts/save-containers-and-tests.sh
           when: always
       - store_test_results:
           path: ~/junit
       - store_artifacts:
           path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
   build-eventuate-tram-cdc-mssql-polling:
     machine: true
     working_directory: ~/eventuate-cdc
@@ -259,14 +259,14 @@ jobs:
       - run: TERM=dumb ./scripts/build-and-test-all-tram-cdc-mssql-polling.sh
       - run:
           name: Save test results
-          command: |
-            mkdir -p ~/junit/
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+          command: ./scripts/save-containers-and-tests.sh
           when: always
       - store_test_results:
           path: ~/junit
       - store_artifacts:
           path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
   build-cdc-unified:
     machine: true
     working_directory: ~/eventuate-cdc
@@ -277,14 +277,14 @@ jobs:
       - run: TERM=dumb ./scripts/build-and-test-all-cdc-unified.sh
       - run:
           name: Save test results
-          command: |
-            mkdir -p ~/junit/
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+          command: ./scripts/save-containers-and-tests.sh
           when: always
       - store_test_results:
           path: ~/junit
       - store_artifacts:
           path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
   publish:
     machine: true
     working_directory: ~/eventuate-cdc

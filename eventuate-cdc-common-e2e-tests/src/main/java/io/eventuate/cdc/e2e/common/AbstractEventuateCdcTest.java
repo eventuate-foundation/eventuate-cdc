@@ -15,6 +15,9 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 public abstract class AbstractEventuateCdcTest {
 
   protected String subscriberId = generateId();
@@ -41,7 +44,9 @@ public abstract class AbstractEventuateCdcTest {
 
     Eventually.eventually(120, 500, TimeUnit.MILLISECONDS, () -> {
       try {
-        Assert.assertTrue(blockingQueue.poll(100, TimeUnit.MILLISECONDS).contains(data));
+        String m = blockingQueue.poll(100, TimeUnit.MILLISECONDS);
+        assertNotNull(m);
+        assertTrue(m.contains(data));
       } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
