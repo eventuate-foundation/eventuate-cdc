@@ -35,7 +35,7 @@ public abstract class AbstractEventuateCdcTest {
   @Test
   public void insertToEventTableAndWaitEventInBroker() throws Exception {
     String destination = generateId();
-    String data = generateId();
+    String data = generateId() + getClass().getName();
 
     BlockingQueue<String> blockingQueue = new LinkedBlockingDeque<>();
 
