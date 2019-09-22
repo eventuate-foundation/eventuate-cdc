@@ -48,6 +48,10 @@ if [[ "${DATABASE}" != "mssql" ]]; then
         $DOCKER_COMPOSE up  -d cdcservice
         ./scripts/wait-for-services.sh $DOCKER_HOST_IP "actuator/health" 8099
 
+        # See whether waiting fixes CircleCI test failure
+
+        sleep 30
+
         ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-e2e-tests:cleanTest :eventuate-tram-cdc-connector-e2e-tests:test -Dtest.single=EventuateTramCdcActiveMQTest
 
         $DOCKER_COMPOSE stop activemq
