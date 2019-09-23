@@ -70,22 +70,25 @@ public class CdcDataPublisher<EVENT extends BinLogEvent> {
 
     Objects.requireNonNull(publishedEvent);
 
-    logger.trace("Got record {}", publishedEvent.toString());
+    String json = publishingStrategy.toJson(publishedEvent);
+
+    logger.info("Got record: {}", json);
 
     String aggregateTopic = publishingStrategy.topicFor(publishedEvent);
-    String json = publishingStrategy.toJson(publishedEvent);
 
     Exception lastException = null;
 
     for (int i = 0; i < 5; i++) {
       try {
         if (publishedEvent.getBinlogFileOffset().map(o -> publishingFilter.shouldBePublished(o, aggregateTopic)).orElse(true)) {
+          logger.info("sending record: {}", json);
           producer.send(
                   aggregateTopic,
                   publishingStrategy.partitionKeyFor(publishedEvent),
                   json
           ).get(10, TimeUnit.SECONDS);
 
+          logger.info("record sent: {}", json);
           lastMessagePublishingFailed = false;
 
           publishingStrategy.getCreateTime(publishedEvent).ifPresent(time -> distributionSummaryEventAge.record(System.currentTimeMillis() - time));
