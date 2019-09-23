@@ -39,8 +39,8 @@ public abstract class AbstractEventuateCdcTest {
 
     BlockingQueue<String> blockingQueue = new LinkedBlockingDeque<>();
 
-    saveEvent(data, destination, new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
     createConsumer(destination, blockingQueue::add);
+    saveEvent(data, destination, new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
 
     Eventually.eventually(120, 500, TimeUnit.MILLISECONDS, () -> {
       try {
