@@ -2,6 +2,7 @@ package io.eventuate.local.unified.cdc.pipeline.polling.factory;
 
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
+import io.eventuate.local.common.ConnectionPoolConfigurationProperties;
 import io.eventuate.local.polling.PollingDao;
 import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.CommonCdcPipelineReaderFactory;
@@ -17,9 +18,10 @@ public class PollingCdcPipelineReaderFactory extends CommonCdcPipelineReaderFact
   public PollingCdcPipelineReaderFactory(MeterRegistry meterRegistry,
                                          LeaderSelectorFactory leaderSelectorFactory,
                                          BinlogEntryReaderProvider binlogEntryReaderProvider,
-                                         SqlDialectSelector sqlDialectSelector) {
+                                         SqlDialectSelector sqlDialectSelector,
+                                         ConnectionPoolConfigurationProperties connectionPoolConfigurationProperties) {
 
-    super(meterRegistry, leaderSelectorFactory, binlogEntryReaderProvider);
+    super(meterRegistry, leaderSelectorFactory, binlogEntryReaderProvider, connectionPoolConfigurationProperties);
 
     this.sqlDialectSelector = sqlDialectSelector;
   }

@@ -4,6 +4,7 @@ import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.local.common.BinlogEntryReader;
 import io.eventuate.local.common.BinlogEntryReaderLeadership;
+import io.eventuate.local.common.ConnectionPoolConfigurationProperties;
 import io.eventuate.local.mysql.binlog.MySqlBinaryLogClient;
 import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.CdcPipeline;
@@ -66,6 +67,9 @@ public class CdcPipelineConfigurator {
 
   @Autowired
   private LeaderSelectorFactory leaderSelectorFactory;
+
+  @Autowired
+  private ConnectionPoolConfigurationProperties connectionPoolConfigurationProperties;
 
   @PostConstruct
   public void initialize() {
