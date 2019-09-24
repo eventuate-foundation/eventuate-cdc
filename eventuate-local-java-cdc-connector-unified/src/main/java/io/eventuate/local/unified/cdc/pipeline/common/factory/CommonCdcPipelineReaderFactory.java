@@ -43,7 +43,7 @@ abstract public class CommonCdcPipelineReaderFactory<PROPERTIES extends CdcPipel
     config.setProperty("initializationFailTimeout", String.valueOf(Long.MAX_VALUE));
     config.setProperty("connectionTestQuery", "select 1");
 
-    connectionPoolConfigurationProperties.getPool().forEach(config::setProperty);
+    connectionPoolConfigurationProperties.getProperties().forEach(config::setProperty);
 
     HikariDataSource hikariDataSource = new HikariDataSource(new HikariConfig(config));
 

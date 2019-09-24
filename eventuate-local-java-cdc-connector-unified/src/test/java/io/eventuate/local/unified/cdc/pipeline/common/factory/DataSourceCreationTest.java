@@ -16,7 +16,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = DataSourceCreationTest.Config.class)
-@TestPropertySource(properties = {"connection.pool.maximumPoolSize = 100", "connection.pool.poolName = testPool"})
+@TestPropertySource(properties = {"eventuate.cdc.connection.properties.maximumPoolSize = 100",
+        "eventuate.cdc.connection.properties.poolName = testPool"})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class DataSourceCreationTest {
 
@@ -34,13 +35,14 @@ public class DataSourceCreationTest {
 
     Assert.assertEquals(100, dataSource.getMaximumPoolSize());
     Assert.assertEquals("testPool", dataSource.getPoolName());
+    Assert.assertEquals(ConnectionPoolConfigurationProperties.DEFAULT_MINIMUM_IDLE_CONNECTIONS, dataSource.getMinimumIdle());
   }
 
   @Test
   public void testUnknownProperty() {
     Exception exception = null;
     try {
-      connectionPoolConfigurationProperties.getPool().put("someUnknownProperty", "kg943=-5yjhgri[e");
+      connectionPoolConfigurationProperties.getProperties().put("someUnknownProperty", "kg943=-5yjhgri[e");
 
       CommonCdcPipelineReaderFactory commonCdcPipelineReaderFactory = createCdcPipelineReaderFactory();
       commonCdcPipelineReaderFactory.createDataSource(cdcPipelineReaderProperties());

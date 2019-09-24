@@ -3,17 +3,22 @@ package io.eventuate.local.common;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
-@ConfigurationProperties(prefix = "connection")
+@ConfigurationProperties(prefix = "eventuate.cdc.connection")
 public class ConnectionPoolConfigurationProperties {
-  private Map<String, String> pool = Collections.emptyMap();
+  public static final int DEFAULT_MINIMUM_IDLE_CONNECTIONS = 1;
 
-  public Map<String, String> getPool() {
-    return pool;
+  private Map<String, String> properties = new HashMap<>();
+
+  public Map<String, String> getProperties() {
+    properties.putIfAbsent("minimumIdle", String.valueOf(DEFAULT_MINIMUM_IDLE_CONNECTIONS));
+
+    return properties;
   }
 
-  public void setPool(Map<String, String> pool) {
-    this.pool = pool;
+  public void setProperties(Map<String, String> properties) {
+    this.properties = properties;
   }
 }
