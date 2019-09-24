@@ -2,6 +2,7 @@ package io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.factory;
 
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.local.common.ConnectionPoolConfigurationProperties;
 import io.eventuate.local.mysql.binlog.DebeziumBinlogOffsetKafkaStore;
 import io.eventuate.local.mysql.binlog.MySqlBinaryLogClient;
 import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
@@ -23,11 +24,13 @@ public class MySqlBinlogCdcPipelineReaderFactory extends CommonCdcPipelineReader
                                              LeaderSelectorFactory leaderSelectorFactory,
                                              BinlogEntryReaderProvider binlogEntryReaderProvider,
                                              OffsetStoreFactory offsetStoreFactory,
-                                             DebeziumOffsetStoreFactory debeziumOffsetStoreFactory) {
+                                             DebeziumOffsetStoreFactory debeziumOffsetStoreFactory,
+                                             ConnectionPoolConfigurationProperties connectionPoolConfigurationProperties) {
 
     super(meterRegistry,
             leaderSelectorFactory,
-            binlogEntryReaderProvider);
+            binlogEntryReaderProvider,
+            connectionPoolConfigurationProperties);
 
     this.debeziumOffsetStoreFactory = debeziumOffsetStoreFactory;
     this.offsetStoreFactory = offsetStoreFactory;

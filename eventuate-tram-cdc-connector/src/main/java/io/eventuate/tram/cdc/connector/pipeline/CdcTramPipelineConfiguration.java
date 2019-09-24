@@ -1,5 +1,6 @@
 package io.eventuate.tram.cdc.connector.pipeline;
 
+import io.eventuate.local.common.ConnectionPoolConfigurationProperties;
 import io.eventuate.local.unified.cdc.pipeline.CdcPipelineConfigurator;
 import io.eventuate.local.unified.cdc.pipeline.common.configuration.CdcDataPublisherConfiguration;
 import io.eventuate.local.unified.cdc.pipeline.common.configuration.CdcDefaultPipelinePropertiesConfiguration;
@@ -28,7 +29,7 @@ import org.springframework.context.annotation.Import;
         MySqlBinlogCdcPipelineReaderConfiguration.class,
         PollingCdcPipelineReaderConfiguration.class,
         PostgresWalCdcPipelineReaderConfiguration.class})
-@EnableConfigurationProperties(RawUnifiedCdcProperties.class)
+@EnableConfigurationProperties({RawUnifiedCdcProperties.class, ConnectionPoolConfigurationProperties.class})
 public class CdcTramPipelineConfiguration {
   @Bean
   public CdcPipelineConfigurator cdcPipelineConfigurator() {

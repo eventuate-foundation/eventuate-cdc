@@ -8,6 +8,7 @@ dependencies {
     compile 'com.zaxxer:HikariCP:3.2.0'
 
     testCompile "junit:junit:4.11"
+    testCompile "com.h2database:h2:1.4.199"
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 }
 
