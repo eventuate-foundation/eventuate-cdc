@@ -7,6 +7,7 @@ import io.eventuate.local.common.exception.EventuateLocalPublishingException;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,14 +17,14 @@ import java.util.concurrent.TimeUnit;
 public class CdcDataPublisher<EVENT extends BinLogEvent> {
   private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-  protected MeterRegistry meterRegistry;
+//  protected MeterRegistry meterRegistry;
   protected PublishingStrategy<EVENT> publishingStrategy;
   protected DataProducerFactory dataProducerFactory;
   protected DataProducer producer;
-  protected Counter meterEventsPublished;
-  protected Counter meterEventsDuplicates;
-  protected Counter meterEventsRetries;
-  protected DistributionSummary distributionSummaryEventAge;
+//  protected Counter meterEventsPublished;
+//  protected Counter meterEventsDuplicates;
+//  protected Counter meterEventsRetries;
+//  protected DistributionSummary distributionSummaryEventAge;
 
   private PublishingFilter publishingFilter;
   private volatile boolean lastMessagePublishingFailed;
@@ -36,23 +37,23 @@ public class CdcDataPublisher<EVENT extends BinLogEvent> {
     this.dataProducerFactory = dataProducerFactory;
     this.publishingStrategy = publishingStrategy;
     this.publishingFilter = publishingFilter;
-    this.meterRegistry = meterRegistry;
+//    this.meterRegistry = meterRegistry;
 
-    initMetrics();
+//    initMetrics();
   }
 
   public boolean isLastMessagePublishingFailed() {
     return lastMessagePublishingFailed;
   }
 
-  private void initMetrics() {
-    if (meterRegistry != null) {
-      distributionSummaryEventAge = meterRegistry.summary("eventuate.cdc.event.age");
-      meterEventsPublished = meterRegistry.counter("eventuate.cdc.events.published");
-      meterEventsDuplicates = meterRegistry.counter("eventuate.cdc.events.duplicates");
-      meterEventsRetries = meterRegistry.counter("eventuate.cdc.events.retries");
-    }
-  }
+//  private void initMetrics() {
+//    if (meterRegistry != null) {
+//      distributionSummaryEventAge = meterRegistry.summary("eventuate.cdc.event.age");
+//      meterEventsPublished = meterRegistry.counter("eventuate.cdc.events.published");
+//      meterEventsDuplicates = meterRegistry.counter("eventuate.cdc.events.duplicates");
+//      meterEventsRetries = meterRegistry.counter("eventuate.cdc.events.retries");
+//    }
+//  }
 
   public void start() {
     logger.debug("Starting CdcDataPublisher");
@@ -86,23 +87,23 @@ public class CdcDataPublisher<EVENT extends BinLogEvent> {
                   aggregateTopic,
                   publishingStrategy.partitionKeyFor(publishedEvent),
                   json
-          ).get(10, TimeUnit.SECONDS);
+          )/*.get(10, TimeUnit.SECONDS)*/;
 
           logger.info("record sent: {}", json);
           lastMessagePublishingFailed = false;
 
-          publishingStrategy.getCreateTime(publishedEvent).ifPresent(time -> distributionSummaryEventAge.record(System.currentTimeMillis() - time));
-          meterEventsPublished.increment();
+//          publishingStrategy.getCreateTime(publishedEvent).ifPresent(time -> distributionSummaryEventAge.record(System.currentTimeMillis() - time));
+//          meterEventsPublished.increment();
         } else {
           logger.debug("Duplicate event {}", publishedEvent);
-          meterEventsDuplicates.increment();
+//          meterEventsDuplicates.increment();
         }
         return;
       } catch (Exception e) {
 
         lastMessagePublishingFailed = true;
         logger.warn("error publishing to " + aggregateTopic, e);
-        meterEventsRetries.increment();
+//        meterEventsRetries.increment();
         lastException = e;
 
         try {
