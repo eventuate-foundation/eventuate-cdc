@@ -60,7 +60,9 @@ public class PerformanceTest {
   public void test() throws Exception {
     cdcDataPublisher.start();
 
-    for (int i = 0; i < 1000; i++) testHelper.saveEvent(testHelper.generateTestCreatedEvent());
+    final int nEvents = 1000;
+
+    for (int i = 0; i < nEvents; i++) testHelper.saveEvent(testHelper.generateTestCreatedEvent());
 
     mySqlBinaryLogClientForPerformanceTesting.addBinlogEntryHandler(new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA),
             sourceTableNameSupplier.getSourceTableName(),
@@ -70,7 +72,7 @@ public class PerformanceTest {
     testHelper.runInSeparateThread(mySqlBinaryLogClientForPerformanceTesting::start);
 
     Eventually.eventually(() -> {
-      Assert.assertEquals(1000, mySqlBinaryLogClientForPerformanceTesting.measurements.size());
+      Assert.assertEquals(nEvents, mySqlBinaryLogClientForPerformanceTesting.measurements.size());
 
       System.out.println("--------------");
       System.out.println("--------------");
@@ -79,12 +81,12 @@ public class PerformanceTest {
       mySqlBinaryLogClientForPerformanceTesting.measurements.stream().min(Double::compareTo).ifPresent(m -> System.out.println("min: " + m));
       mySqlBinaryLogClientForPerformanceTesting.measurements.stream().reduce((a, b) -> a + b).ifPresent(s -> {
         System.out.println("sum: " + s);
-        System.out.println("average: " + s/1000d);
+        System.out.println("average: " + s/((double)nEvents));
       });
 
       try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("performance.csv")));) {
         for (int i = 0; i < mySqlBinaryLogClientForPerformanceTesting.measurements.size(); i++) {
-          bw.append(String.format("%s; %s", i, mySqlBinaryLogClientForPerformanceTesting.measurements.get(i)));
+          bw.append(String.format("%s", mySqlBinaryLogClientForPerformanceTesting.measurements.get(i)));
           bw.newLine();
         }
       } catch (IOException e) {
