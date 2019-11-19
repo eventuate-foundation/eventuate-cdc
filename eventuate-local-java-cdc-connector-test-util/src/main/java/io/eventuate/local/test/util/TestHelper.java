@@ -105,6 +105,10 @@ public class TestHelper {
     String eventId = generateId();
     String entityId = generateId();
 
+    return saveEvent(entityType, eventType, eventData, eventId, entityId, eventuateSchema);
+  }
+
+  public EventIdEntityId saveEvent(String entityType, String eventType, String eventData, String eventId, String entityId, EventuateSchema eventuateSchema) {
     eventuateCommonJdbcOperations.insertIntoEventsTable(eventId,
             entityId,
             eventData,

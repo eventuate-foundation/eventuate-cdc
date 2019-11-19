@@ -35,7 +35,7 @@ public class MySqlBinaryLogClientForPerformanceTesting {
   private MySqlBinlogEntryExtractor extractor;
   private int connectionTimeoutInMilliseconds;
   private int rowsToSkip;
-  protected List<BinlogEntryHandler> binlogEntryHandlers = new CopyOnWriteArrayList<>();
+  private List<BinlogEntryHandler> binlogEntryHandlers = new CopyOnWriteArrayList<>();
 
   private Optional<Exception> publishingException = Optional.empty();
   private CountDownLatch stopCountDownLatch;
@@ -44,8 +44,7 @@ public class MySqlBinaryLogClientForPerformanceTesting {
   private String dbPassword;
   private String host;
   private int port;
-
-  public List<Double> measurements = new ArrayList<>();
+  private Long eventProcessingStartTime;
 
   public MySqlBinaryLogClientForPerformanceTesting(String dbUserName,
                                                    String dbPassword,
@@ -64,6 +63,10 @@ public class MySqlBinaryLogClientForPerformanceTesting {
     this.extractor = new MySqlBinlogEntryExtractor(dataSource);
     this.uniqueId = uniqueId;
     this.connectionTimeoutInMilliseconds = connectionTimeoutInMilliseconds;
+  }
+
+  public long getEventProcessingStartTime() {
+    return eventProcessingStartTime;
   }
 
   public <EVENT extends BinLogEvent> BinlogEntryHandler addBinlogEntryHandler(EventuateSchema eventuateSchema,
@@ -167,12 +170,20 @@ public class MySqlBinaryLogClientForPerformanceTesting {
         break;
       }
       case EXT_WRITE_ROWS: {
-        long t = System.nanoTime();
+
+        if (eventProcessingStartTime == null) {
+          eventProcessingStartTime = System.nanoTime();
+        }
+
         handleWriteRowsEvent(event);
-        measurements.add((System.nanoTime() - t)/1000000d);
         break;
       }
       case WRITE_ROWS: {
+
+        if (eventProcessingStartTime == null) {
+          eventProcessingStartTime = System.nanoTime();
+        }
+
         handleWriteRowsEvent(event);
         break;
       }

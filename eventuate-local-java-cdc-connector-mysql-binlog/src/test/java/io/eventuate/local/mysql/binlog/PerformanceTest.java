@@ -22,7 +22,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
-import java.io.*;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {PerformanceTest.Config.class})
@@ -56,13 +57,80 @@ public class PerformanceTest {
   @Autowired
   private CdcDataPublisher<PublishedEvent> cdcDataPublisher;
 
+  private final int nEvents = 1000;
+
   @Test
-  public void test() throws Exception {
+  public void testAllEventsSameTopic() throws Exception {
+    testPerformance(() -> {
+      String entityType = generateId();
+      String entityId = generateId();
+
+      for (int i = 0; i < nEvents; i++) {
+        testHelper.saveEvent(entityType,
+                generateId(),
+                generateId(),
+                generateId(),
+                entityId,
+                new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
+      }
+    });
+  }
+
+  @Test
+  public void testAllEventsDifferentTopics() throws Exception {
+    testPerformance(() -> {
+
+      String entityId = generateId();
+
+      for (int i = 0; i < nEvents; i++) {
+        testHelper.saveEvent(generateId(),
+                generateId(),
+                generateId(),
+                generateId(),
+                entityId,
+                new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
+      }
+    });
+  }
+
+  @Test
+  public void test10Topics() throws Exception {
+    testPerformance(() -> {
+      String entityType = generateId();
+      String entityId = generateId();
+
+      for (int i = 0; i < nEvents; i++) {
+        testHelper.saveEvent(entityType + (i % 10),
+                generateId(),
+                generateId(),
+                generateId(),
+                entityId,
+                new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
+      }
+    });
+  }
+
+  @Test
+  public void test100Topics() throws Exception {
+    testPerformance(() -> {
+      String entityType = generateId();
+      String entityId = generateId();
+
+      for (int i = 0; i < nEvents; i++) {
+        testHelper.saveEvent(entityType + (i % 100),
+                generateId(),
+                generateId(),
+                generateId(),
+                entityId,
+                new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
+      }
+    });
+  }
+
+  private void testPerformance(Runnable eventCreator) throws Exception {
     cdcDataPublisher.start();
 
-    final int nEvents = 1000;
-
-    for (int i = 0; i < nEvents; i++) testHelper.saveEvent(testHelper.generateTestCreatedEvent());
+    eventCreator.run();
 
     mySqlBinaryLogClientForPerformanceTesting.addBinlogEntryHandler(new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA),
             sourceTableNameSupplier.getSourceTableName(),
@@ -71,32 +139,26 @@ public class PerformanceTest {
 
     testHelper.runInSeparateThread(mySqlBinaryLogClientForPerformanceTesting::start);
 
-    Eventually.eventually(() -> {
-      Assert.assertEquals(nEvents, mySqlBinaryLogClientForPerformanceTesting.measurements.size());
+    Eventually.eventually(1000, 500, TimeUnit.MILLISECONDS, () -> {
 
       System.out.println("--------------");
       System.out.println("--------------");
       System.out.println("--------------");
-      mySqlBinaryLogClientForPerformanceTesting.measurements.stream().max(Double::compareTo).ifPresent(m -> System.out.println("max: " + m));
-      mySqlBinaryLogClientForPerformanceTesting.measurements.stream().min(Double::compareTo).ifPresent(m -> System.out.println("min: " + m));
-      mySqlBinaryLogClientForPerformanceTesting.measurements.stream().reduce((a, b) -> a + b).ifPresent(s -> {
-        System.out.println("sum: " + s);
-        System.out.println("average: " + s/((double)nEvents));
-      });
 
-      try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("performance.csv")));) {
-        for (int i = 0; i < mySqlBinaryLogClientForPerformanceTesting.measurements.size(); i++) {
-          bw.append(String.format("%s", mySqlBinaryLogClientForPerformanceTesting.measurements.get(i)));
-          bw.newLine();
-        }
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+      Assert.assertEquals(nEvents, cdcDataPublisher.getTotallyProcessedEventCount());
+      System.out.println(String.format("%s event processing took %s ms",
+              nEvents,
+              (cdcDataPublisher.getTimeOfLastPrcessedEvent() - mySqlBinaryLogClientForPerformanceTesting.getEventProcessingStartTime()) / 1000000d));
+
 
       System.out.println("--------------");
       System.out.println("--------------");
       System.out.println("--------------");
     });
+  }
+
+  private String generateId() {
+    return UUID.randomUUID().toString();
   }
 
 }

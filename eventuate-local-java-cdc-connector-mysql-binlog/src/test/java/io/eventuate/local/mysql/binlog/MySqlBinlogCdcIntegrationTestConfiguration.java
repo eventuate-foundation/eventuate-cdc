@@ -16,6 +16,7 @@ import io.eventuate.messaging.kafka.common.EventuateKafkaPropertiesConfiguration
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -127,7 +128,7 @@ public class MySqlBinlogCdcIntegrationTestConfiguration {
     return new CdcDataPublisher<>(dataProducerFactory,
             new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(), eventuateKafkaConsumerConfigurationProperties),
             publishingStrategy,
-            null);
+            new SimpleMeterRegistry());
   }
 
   @Bean
