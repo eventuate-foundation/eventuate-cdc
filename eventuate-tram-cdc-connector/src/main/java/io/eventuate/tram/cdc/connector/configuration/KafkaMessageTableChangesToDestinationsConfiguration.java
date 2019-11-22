@@ -1,7 +1,7 @@
 package io.eventuate.tram.cdc.connector.configuration;
 
 import io.eventuate.cdc.producer.wrappers.DataProducerFactory;
-import io.eventuate.cdc.producer.wrappers.EventuateKafkaDataProducerWrapper;
+import io.eventuate.cdc.producer.wrappers.kafka.EventuateKafkaDataProducerWrapper;
 import io.eventuate.local.common.DuplicatePublishingDetector;
 import io.eventuate.local.common.PublishingFilter;
 import io.eventuate.local.db.log.common.DatabaseOffsetKafkaStore;

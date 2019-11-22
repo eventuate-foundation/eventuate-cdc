@@ -10,6 +10,8 @@ import io.eventuate.local.test.util.SourceTableNameSupplier;
 import io.eventuate.local.test.util.TestHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 public class AbstractMySqlBinaryLogClientTest {
@@ -35,8 +37,9 @@ public class AbstractMySqlBinaryLogClientTest {
             new BinlogEntryToPublishedEventConverter(),
             new CdcDataPublisher<PublishedEvent>(null, null, null, null) {
               @Override
-              public void handleEvent(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {
+              public Optional<CompletableFuture<?>> handleEvent(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {
                 consumer.accept(publishedEvent);
+                return Optional.empty();
               }
             });
   }

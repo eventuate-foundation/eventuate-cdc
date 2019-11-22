@@ -1,7 +1,7 @@
 package io.eventuate.local.mysql.binlog;
 
 import io.eventuate.cdc.producer.wrappers.DataProducerFactory;
-import io.eventuate.cdc.producer.wrappers.EventuateKafkaDataProducerWrapper;
+import io.eventuate.cdc.producer.wrappers.kafka.EventuateKafkaDataProducerWrapper;
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.coordination.leadership.zookeeper.ZkLeaderSelector;
@@ -121,14 +121,19 @@ public class MySqlBinlogCdcIntegrationTestConfiguration {
 
   @Bean
   public CdcDataPublisher<PublishedEvent> cdcKafkaPublisher(DataProducerFactory dataProducerFactory,
-                                                            EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
-                                                            EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties,
-                                                            PublishingStrategy<PublishedEvent> publishingStrategy) {
+                                                            PublishingStrategy<PublishedEvent> publishingStrategy,
+                                                            PublishingFilter publishingFilter) {
 
     return new CdcDataPublisher<>(dataProducerFactory,
-            new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(), eventuateKafkaConsumerConfigurationProperties),
+            publishingFilter,
             publishingStrategy,
             new SimpleMeterRegistry());
+  }
+
+  @Bean
+  public PublishingFilter publishingFilter(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
+                                           EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties) {
+    return new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(), eventuateKafkaConsumerConfigurationProperties);
   }
 
   @Bean

@@ -9,6 +9,9 @@ import io.eventuate.local.test.util.CdcProcessorEventsTest;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 public abstract class AbstractPostgresWalCdcProcessorEventsTest extends CdcProcessorEventsTest {
@@ -39,8 +42,9 @@ public abstract class AbstractPostgresWalCdcProcessorEventsTest extends CdcProce
             new BinlogEntryToPublishedEventConverter(),
             new CdcDataPublisher<PublishedEvent>(null, null, null, null) {
               @Override
-              public void handleEvent(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {
+              public Optional<CompletableFuture<?>> handleEvent(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {
                 consumer.accept(publishedEvent);
+                return Optional.empty();
               }
             });
   }

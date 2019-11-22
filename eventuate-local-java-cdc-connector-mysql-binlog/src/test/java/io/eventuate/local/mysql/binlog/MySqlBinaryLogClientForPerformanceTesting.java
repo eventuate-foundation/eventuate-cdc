@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 
 import javax.sql.DataSource;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -220,9 +221,9 @@ public class MySqlBinaryLogClientForPerformanceTesting {
       BinlogEntry entry = extractor.extract(schemaAndTable, eventData, binlogFilename, -1);
 
       binlogEntryHandlers
-            .stream()
-            .filter(bh -> bh.isFor(schemaAndTable))
-            .forEach(binlogEntryHandler -> binlogEntryHandler.publish(entry));
+              .stream()
+              .filter(bh -> bh.isFor(schemaAndTable))
+              .forEach(binlogEntryHandler -> binlogEntryHandler.publish(entry));
     }
   }
 

@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -195,7 +196,16 @@ public class PostgresWalClient extends DbLogClient {
                   .filter(entry -> handler.isFor(entry.getSchemaAndTable()))
                   .map(BinlogEntryWithSchemaAndTable::getBinlogEntry)
                   .forEach(e -> {
-                    handler.publish(e);
+                    Optional<CompletableFuture<?>> future = handler.publish(e);
+
+                    future.ifPresent(f -> {
+                      try {
+                        f.get();
+                      } catch (Exception ex) {
+                        throw new RuntimeException(ex);
+                      }
+                    });
+
                     onEventReceived();
                   }));
 

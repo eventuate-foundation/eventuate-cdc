@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 
 public class PollingDao extends BinlogEntryReader {
@@ -118,7 +119,7 @@ public class PollingDao extends BinlogEntryReader {
     while (sqlRowSet.next()) {
       ids.add(sqlRowSet.getObject(pk));
 
-      handler.publish(new BinlogEntry() {
+      Optional<CompletableFuture<?>> future = handler.publish(new BinlogEntry() {
         @Override
         public Object getColumn(String name) {
           return sqlRowSet.getObject(name);
@@ -127,6 +128,14 @@ public class PollingDao extends BinlogEntryReader {
         @Override
         public BinlogFileOffset getBinlogFileOffset() {
           return null;
+        }
+      });
+
+      future.ifPresent(f -> {
+        try {
+          f.get();
+        } catch (Exception e) {
+          throw new RuntimeException(e);
         }
       });
 

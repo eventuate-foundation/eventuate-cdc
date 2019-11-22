@@ -17,8 +17,8 @@ import io.micrometer.core.instrument.MeterRegistry;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MySqlBinaryLogClient extends DbLogClient {
 
@@ -47,6 +47,8 @@ public class MySqlBinaryLogClient extends DbLogClient {
   private Optional<Exception> publishingException = Optional.empty();
 
   private Optional<Runnable> callbackOnStop = Optional.empty();
+  private ConcurrentLinkedQueue<FutureOffset> futureOffsets = new ConcurrentLinkedQueue<>();
+  private AtomicBoolean processingOffsets = new AtomicBoolean(false);
 
   public MySqlBinaryLogClient(MeterRegistry meterRegistry,
                               String dbUserName,
@@ -261,17 +263,34 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
       BinlogEntry entry = extractor.extract(schemaAndTable, eventData, binlogFilename, offset);
 
-
       if (!shouldSkipEntry(startingBinlogFileOffset, entry.getBinlogFileOffset())) {
         binlogEntryHandlers
-              .stream()
-              .filter(bh -> bh.isFor(schemaAndTable))
-              .forEach(binlogEntryHandler -> binlogEntryHandler.publish(entry));
+                .stream()
+                .filter(bh -> bh.isFor(schemaAndTable))
+                .forEach(binlogEntryHandler -> publish(entry, binlogEntryHandler, event));
       }
     }
 
     onEventReceived();
-    saveOffset(event);
+  }
+
+  private void publish(BinlogEntry entry, BinlogEntryHandler binlogEntryHandler, Event event) {
+    Optional<CompletableFuture<?>> future = binlogEntryHandler.publish(entry);
+
+    FutureOffset futureOffset = new FutureOffset(future, extractBinlogFileOffset(event));
+
+    futureOffsets.add(futureOffset);
+
+    if (future.isPresent()) {
+      future.get().whenComplete((o, throwable) -> saveOffset());
+    } else {
+      saveOffset();
+    }
+  }
+
+  private BinlogFileOffset extractBinlogFileOffset(Event event) {
+    offset = extractOffset(event);
+    return new BinlogFileOffset(binlogFilename, offset);
   }
 
   private void onLagMeasurementEventReceived(WriteRowsEventData eventData) {
@@ -290,7 +309,8 @@ public class MySqlBinaryLogClient extends DbLogClient {
     }
 
     onEventReceived();
-    saveOffset(event);
+
+    futureOffsets.add(new FutureOffset(Optional.empty(), extractBinlogFileOffset(event)));
   }
 
   private void onLagMeasurementEventReceived(UpdateRowsEventData eventData) {
@@ -301,10 +321,64 @@ public class MySqlBinaryLogClient extends DbLogClient {
     return ((EventHeaderV4) event.getHeader()).getPosition();
   }
 
-  private void saveOffset(Event event) {
-    offset = extractOffset(event);
-    BinlogFileOffset binlogFileOffset = new BinlogFileOffset(binlogFilename, offset);
-    offsetStore.save(binlogFileOffset);
+
+  private void saveOffset() {
+    if (!running.get()) {
+      return;
+    }
+
+    if (!processingOffsets.compareAndSet(false, true)) {
+      return;
+    }
+
+    FutureOffset previousFutureOffset = null;
+
+    while (true) {
+      FutureOffset futureOffset = futureOffsets.poll();
+
+      if (previousFutureOffset == null) {
+        if (!isFutureOffsetReadyToSave(futureOffset)) {
+          break;
+        }
+
+        previousFutureOffset = futureOffset;
+
+        continue;
+      }
+
+      if (!isFutureOffsetReadyToSave(futureOffset)) {
+
+        if (previousFutureOffset.getFuture().isPresent()) {
+          try {
+            previousFutureOffset.getFuture().get().get();
+          } catch (Throwable t) {
+            logger.error("Event publishing failed", t);
+            stop();
+            return;
+          }
+        }
+
+        offsetStore.save(previousFutureOffset.getBinlogFileOffset());
+        break;
+      }
+
+      previousFutureOffset = futureOffset;
+    }
+
+    processingOffsets.set(false);
+
+    //Double check in case if new future offsets become ready to save,
+    // but procissing was not started, because there is other one was finishing
+    if (isFutureOffsetReadyToSave(futureOffsets.poll())) {
+      if (processingOffsets.compareAndSet(false, true)) {
+        //To prevent stack overflow
+        CompletableFuture.runAsync(this::saveOffset);
+      }
+    }
+  }
+
+  private boolean isFutureOffsetReadyToSave(FutureOffset futureOffset) {
+    return futureOffset != null && futureOffset.getFuture().map(CompletableFuture::isDone).orElse(true);
   }
 
   private boolean isCdcMonitoringTableId(Long id) {
@@ -399,6 +473,24 @@ public class MySqlBinaryLogClient extends DbLogClient {
     public MigrationInfo(BinlogFileOffset binlogFileOffset) {
 
       this.binlogFileOffset = binlogFileOffset;
+    }
+
+    public BinlogFileOffset getBinlogFileOffset() {
+      return binlogFileOffset;
+    }
+  }
+
+  private static class FutureOffset {
+    private Optional<CompletableFuture<?>> future;
+    private BinlogFileOffset binlogFileOffset;
+
+    public FutureOffset(Optional<CompletableFuture<?>> future, BinlogFileOffset binlogFileOffset) {
+      this.future = future;
+      this.binlogFileOffset = binlogFileOffset;
+    }
+
+    public Optional<CompletableFuture<?>> getFuture() {
+      return future;
     }
 
     public BinlogFileOffset getBinlogFileOffset() {

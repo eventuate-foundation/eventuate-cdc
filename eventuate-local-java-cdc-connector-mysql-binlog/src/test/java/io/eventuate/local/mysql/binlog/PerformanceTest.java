@@ -1,11 +1,14 @@
 package io.eventuate.local.mysql.binlog;
 
+import io.eventuate.cdc.producer.wrappers.DataProducer;
+import io.eventuate.cdc.producer.wrappers.DataProducerFactory;
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.*;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
 import io.eventuate.local.test.util.TestHelper;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
+import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
@@ -19,11 +22,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {PerformanceTest.Config.class})
@@ -43,6 +50,12 @@ public class PerformanceTest {
               "root", "rootpassword", dataSourceURL, dataSource, System.nanoTime(), 3000);
     }
 
+    @Bean
+    @Primary
+    public PublishingFilter publishingFilter() {
+      return (sourceBinlogFileOffset, destinationTopic) -> true;
+    }
+
   }
 
   @Autowired
@@ -57,73 +70,246 @@ public class PerformanceTest {
   @Autowired
   private CdcDataPublisher<PublishedEvent> cdcDataPublisher;
 
+  @Autowired
+  private DataProducerFactory dataProducerFactory;
+
+  @Autowired
+  private EventuateKafkaProducer eventuateKafkaProducer;
+
   private final int nEvents = 1000;
 
   @Test
-  public void testAllEventsSameTopic() throws Exception {
+  public void testAllEventsSameTopicSameId() throws Exception {
+
     testPerformance(() -> {
+      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
+
       String entityType = generateId();
       String entityId = generateId();
 
       for (int i = 0; i < nEvents; i++) {
-        testHelper.saveEvent(entityType,
-                generateId(),
-                generateId(),
-                generateId(),
-                entityId,
-                new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
+        entityTypesAndIds.add(new EntityTypeAndId(entityType, entityId));
       }
+
+      prepareTopics(entityTypesAndIds);
+      generateEvents(entityTypesAndIds);
     });
   }
 
   @Test
-  public void testAllEventsDifferentTopics() throws Exception {
+  public void testAllEventsDifferentTopicsSameId() throws Exception {
     testPerformance(() -> {
+
+      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
 
       String entityId = generateId();
 
       for (int i = 0; i < nEvents; i++) {
-        testHelper.saveEvent(generateId(),
-                generateId(),
-                generateId(),
-                generateId(),
-                entityId,
-                new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
+        entityTypesAndIds.add(new EntityTypeAndId(generateId(), entityId));
       }
+
+      prepareTopics(entityTypesAndIds);
+      generateEvents(entityTypesAndIds);
     });
   }
 
   @Test
-  public void test10Topics() throws Exception {
+  public void test2TopicsSameId() throws Exception {
     testPerformance(() -> {
+
+      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
+
       String entityType = generateId();
       String entityId = generateId();
 
       for (int i = 0; i < nEvents; i++) {
-        testHelper.saveEvent(entityType + (i % 10),
-                generateId(),
-                generateId(),
-                generateId(),
-                entityId,
-                new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
+        entityTypesAndIds.add(new EntityTypeAndId(entityType + (i % 2), entityId));
       }
+
+      prepareTopics(entityTypesAndIds);
+      generateEvents(entityTypesAndIds);
     });
   }
 
   @Test
-  public void test100Topics() throws Exception {
+  public void test4TopicsSameId() throws Exception {
     testPerformance(() -> {
+
+      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
+
       String entityType = generateId();
       String entityId = generateId();
 
       for (int i = 0; i < nEvents; i++) {
-        testHelper.saveEvent(entityType + (i % 100),
-                generateId(),
-                generateId(),
-                generateId(),
-                entityId,
-                new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
+        entityTypesAndIds.add(new EntityTypeAndId(entityType + (i % 4), entityId));
       }
+
+      prepareTopics(entityTypesAndIds);
+      generateEvents(entityTypesAndIds);
+    });
+  }
+
+  @Test
+  public void test10TopicsSameId() throws Exception {
+    testPerformance(() -> {
+
+      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
+
+      String entityType = generateId();
+      String entityId = generateId();
+
+      for (int i = 0; i < nEvents; i++) {
+        entityTypesAndIds.add(new EntityTypeAndId(entityType + (i % 10), entityId));
+      }
+
+      prepareTopics(entityTypesAndIds);
+      generateEvents(entityTypesAndIds);
+    });
+  }
+
+  @Test
+  public void test100TopicsSameId() throws Exception {
+    testPerformance(() -> {
+      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
+
+      String entityType = generateId();
+      String entityId = generateId();
+
+      for (int i = 0; i < nEvents; i++) {
+        entityTypesAndIds.add(new EntityTypeAndId(entityType + (i % 100), entityId));
+      }
+
+      prepareTopics(entityTypesAndIds);
+      generateEvents(entityTypesAndIds);
+    });
+  }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  @Test
+  public void testAllEventsSameTopicDifferentIds() throws Exception {
+
+    testPerformance(() -> {
+      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
+
+      String entityType = generateId();
+
+      for (int i = 0; i < nEvents; i++) {
+        entityTypesAndIds.add(new EntityTypeAndId(entityType, generateId()));
+      }
+
+      prepareTopics(entityTypesAndIds);
+      generateEvents(entityTypesAndIds);
+    });
+  }
+
+  @Test
+  public void testAllEventsDifferentTopicsDifferentIds() throws Exception {
+    testPerformance(() -> {
+
+      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
+
+      for (int i = 0; i < nEvents; i++) {
+        entityTypesAndIds.add(new EntityTypeAndId(generateId(), generateId()));
+      }
+
+      prepareTopics(entityTypesAndIds);
+      generateEvents(entityTypesAndIds);
+    });
+  }
+
+  @Test
+  public void test2TopicsDifferentIds() throws Exception {
+    testPerformance(() -> {
+
+      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
+
+      String entityType = generateId();
+
+      for (int i = 0; i < nEvents; i++) {
+        entityTypesAndIds.add(new EntityTypeAndId(entityType + (i % 2), generateId()));
+      }
+
+      prepareTopics(entityTypesAndIds);
+      generateEvents(entityTypesAndIds);
+    });
+  }
+
+  @Test
+  public void test4TopicsDifferentIds() throws Exception {
+    testPerformance(() -> {
+
+      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
+
+      String entityType = generateId();
+
+      for (int i = 0; i < nEvents; i++) {
+        entityTypesAndIds.add(new EntityTypeAndId(entityType + (i % 4), generateId()));
+      }
+
+      prepareTopics(entityTypesAndIds);
+      generateEvents(entityTypesAndIds);
+    });
+  }
+
+  @Test
+  public void test10TopicsDifferentIds() throws Exception {
+    testPerformance(() -> {
+
+      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
+
+      String entityType = generateId();
+
+      for (int i = 0; i < nEvents; i++) {
+        entityTypesAndIds.add(new EntityTypeAndId(entityType + (i % 10), generateId()));
+      }
+
+      prepareTopics(entityTypesAndIds);
+      generateEvents(entityTypesAndIds);
+    });
+  }
+
+  @Test
+  public void test100TopicsDifferentIds() throws Exception {
+    testPerformance(() -> {
+      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
+
+      String entityType = generateId();
+
+      for (int i = 0; i < nEvents; i++) {
+        entityTypesAndIds.add(new EntityTypeAndId(entityType + (i % 100), generateId()));
+      }
+
+      prepareTopics(entityTypesAndIds);
+      generateEvents(entityTypesAndIds);
+    });
+  }
+
+  private void prepareTopics(List<EntityTypeAndId> entityTypesAndIds) {
+    DataProducer dataProducer = dataProducerFactory.create();
+
+    entityTypesAndIds
+            .stream()
+            .map(EntityTypeAndId::getType)
+            .collect(Collectors.toSet())
+            .forEach(eventType -> {
+              try {
+                eventuateKafkaProducer.partitionsFor(eventType);
+                eventuateKafkaProducer.send(eventType, generateId(), generateId());
+              } catch (Exception e) {
+                throw new RuntimeException(e);
+              }
+            });
+  }
+
+  private void generateEvents(List<EntityTypeAndId> entityTypesAndIds) {
+    entityTypesAndIds.forEach(entityTypeAndId -> {
+      testHelper.saveEvent(entityTypeAndId.getType(),
+              generateId(),
+              generateId(),
+              generateId(),
+              entityTypeAndId.getId(),
+              new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
     });
   }
 
@@ -139,7 +325,7 @@ public class PerformanceTest {
 
     testHelper.runInSeparateThread(mySqlBinaryLogClientForPerformanceTesting::start);
 
-    Eventually.eventually(1000, 500, TimeUnit.MILLISECONDS, () -> {
+    Eventually.eventually(1000, 5000, TimeUnit.MILLISECONDS, () -> {
 
       System.out.println("--------------");
       System.out.println("--------------");
@@ -161,4 +347,21 @@ public class PerformanceTest {
     return UUID.randomUUID().toString();
   }
 
+  private static class EntityTypeAndId {
+    private String type;
+    private String id;
+
+    public EntityTypeAndId(String type, String id) {
+      this.type = type;
+      this.id = id;
+    }
+
+    public String getType() {
+      return type;
+    }
+
+    public String getId() {
+      return id;
+    }
+  }
 }

@@ -1,6 +1,6 @@
 package io.eventuate.local.db.log.test.common;
 
-import io.eventuate.cdc.producer.wrappers.EventuateKafkaDataProducerWrapper;
+import io.eventuate.cdc.producer.wrappers.kafka.EventuateKafkaDataProducerWrapper;
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.common.DuplicatePublishingDetector;
