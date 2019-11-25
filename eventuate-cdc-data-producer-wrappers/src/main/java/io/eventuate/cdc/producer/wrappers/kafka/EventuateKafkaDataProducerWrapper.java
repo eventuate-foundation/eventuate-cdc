@@ -2,6 +2,7 @@ package io.eventuate.cdc.producer.wrappers.kafka;
 
 import io.eventuate.cdc.producer.wrappers.DataProducer;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
+import org.apache.kafka.common.TopicPartition;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,18 +30,6 @@ public class EventuateKafkaDataProducerWrapper implements DataProducer {
 
     TopicPartition topicPartition = new TopicPartition(topic, eventuateKafkaProducer.partitionFor(topic, key));
 
-    TopicPartitionSender topicPartitionSender = topicPartitionSenders.get(topicPartition);
-
-    if (topicPartitionSender == null) {
-      synchronized (topicPartitionSenders) { // can be multithreaded because of retry
-        topicPartitionSender = topicPartitionSenders.get(topicPartition);
-        if (topicPartitionSender == null) {
-          topicPartitionSender = new TopicPartitionSender(eventuateKafkaProducer);
-          topicPartitionSenders.put(topicPartition, topicPartitionSender);
-        }
-      }
-    }
-
-    return topicPartitionSender;
+    return topicPartitionSenders.computeIfAbsent(topicPartition, tp -> new TopicPartitionSender(eventuateKafkaProducer));
   }
 }

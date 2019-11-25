@@ -119,7 +119,7 @@ public class PollingDao extends BinlogEntryReader {
     while (sqlRowSet.next()) {
       ids.add(sqlRowSet.getObject(pk));
 
-      Optional<CompletableFuture<?>> future = handler.publish(new BinlogEntry() {
+      CompletableFuture<?> future = handler.publish(new BinlogEntry() {
         @Override
         public Object getColumn(String name) {
           return sqlRowSet.getObject(name);
@@ -131,13 +131,11 @@ public class PollingDao extends BinlogEntryReader {
         }
       });
 
-      future.ifPresent(f -> {
-        try {
-          f.get();
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
-      });
+      try {
+        future.get();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
 
       onEventReceived();
     }

@@ -137,9 +137,12 @@ public abstract class AbstractMySqlBinlogCdcIntegrationEventsTest {
             new BinlogEntryToPublishedEventConverter(),
             new CdcDataPublisher<PublishedEvent>(null, null, null, null) {
               @Override
-              public Optional<CompletableFuture<?>> handleEvent(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {
+              public CompletableFuture<?> handleEvent(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {
                 consumer.accept(publishedEvent);
-                return Optional.empty();
+
+                CompletableFuture<?> future = new CompletableFuture<>();
+                future.complete(null);
+                return future;
               }
             });
   }

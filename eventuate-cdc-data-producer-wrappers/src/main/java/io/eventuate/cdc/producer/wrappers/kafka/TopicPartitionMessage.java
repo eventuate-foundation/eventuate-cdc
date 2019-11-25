@@ -1,7 +1,5 @@
 package io.eventuate.cdc.producer.wrappers.kafka;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
@@ -36,11 +34,15 @@ public class TopicPartitionMessage {
 
   @Override
   public boolean equals(Object o) {
-    return EqualsBuilder.reflectionEquals(this, o);
+    if (o == null) return false;
+    if (!(o instanceof TopicPartitionMessage)) return false;
+    TopicPartitionMessage tpm = (TopicPartitionMessage) o;
+
+    return Objects.equals(topic, tpm.getTopic()) && Objects.equals(key, tpm.getKey()) && Objects.equals(body, tpm.getBody());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(topic, key, body, future);
+    return Objects.hash(topic, key, body);
   }
 }

@@ -196,15 +196,13 @@ public class PostgresWalClient extends DbLogClient {
                   .filter(entry -> handler.isFor(entry.getSchemaAndTable()))
                   .map(BinlogEntryWithSchemaAndTable::getBinlogEntry)
                   .forEach(e -> {
-                    Optional<CompletableFuture<?>> future = handler.publish(e);
+                    CompletableFuture<?> future = handler.publish(e);
 
-                    future.ifPresent(f -> {
-                      try {
-                        f.get();
-                      } catch (Exception ex) {
-                        throw new RuntimeException(ex);
-                      }
-                    });
+                    try {
+                      future.get();
+                    } catch (Exception ex) {
+                      throw new RuntimeException(ex);
+                    }
 
                     onEventReceived();
                   }));

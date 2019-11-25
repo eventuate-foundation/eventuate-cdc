@@ -51,9 +51,12 @@ public abstract class AbstractPostgresWalCdcIntegrationEventsTest {
             new BinlogEntryToPublishedEventConverter(),
             new CdcDataPublisher<PublishedEvent>(null, null, null, null) {
               @Override
-              public Optional<CompletableFuture<?>> handleEvent(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {
+              public CompletableFuture<?> handleEvent(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {
                 publishedEvents.add(publishedEvent);
-                return Optional.empty();
+
+                CompletableFuture<?> future = new CompletableFuture<>();
+                future.complete(null);
+                return future;
               }
             });
 

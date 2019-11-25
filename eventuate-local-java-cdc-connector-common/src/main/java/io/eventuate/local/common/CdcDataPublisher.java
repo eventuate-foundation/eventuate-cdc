@@ -4,17 +4,12 @@ import io.eventuate.cdc.producer.wrappers.DataProducer;
 import io.eventuate.cdc.producer.wrappers.DataProducerFactory;
 import io.eventuate.common.eventuate.local.BinLogEvent;
 import io.eventuate.local.common.exception.EventuateLocalPublishingException;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -80,7 +75,7 @@ public class CdcDataPublisher<EVENT extends BinLogEvent> {
       producer.close();
   }
 
-  public Optional<CompletableFuture<?>> handleEvent(EVENT publishedEvent) throws EventuateLocalPublishingException {
+  public CompletableFuture<?> handleEvent(EVENT publishedEvent) throws EventuateLocalPublishingException {
 
     Objects.requireNonNull(publishedEvent);
 
@@ -90,17 +85,18 @@ public class CdcDataPublisher<EVENT extends BinLogEvent> {
 
     String aggregateTopic = publishingStrategy.topicFor(publishedEvent);
 
+    CompletableFuture<Object> result = new CompletableFuture<>();
+
     if (publishedEvent.getBinlogFileOffset().map(o -> publishingFilter.shouldBePublished(o, aggregateTopic)).orElse(true)) {
       logger.info("sending record: {}", json);
 
-      CompletableFuture<Object> result = new CompletableFuture<>();
-
       send(publishedEvent, aggregateTopic, json, new AtomicInteger(0), result);
 
-      return Optional.of(result);
+      return result;
     } else {
       logger.debug("Duplicate event {}", publishedEvent);
-      return Optional.empty();
+      result.complete(null);
+      return result;
     }
   }
 

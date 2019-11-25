@@ -47,8 +47,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
   private Optional<Exception> publishingException = Optional.empty();
 
   private Optional<Runnable> callbackOnStop = Optional.empty();
-  private ConcurrentLinkedQueue<FutureOffset> futureOffsets = new ConcurrentLinkedQueue<>();
-  private AtomicBoolean processingOffsets = new AtomicBoolean(false);
+  private OffsetProcessor offsetProcessor;
 
   public MySqlBinaryLogClient(MeterRegistry meterRegistry,
                               String dbUserName,
@@ -85,6 +84,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
     this.offsetStore = offsetStore;
     this.debeziumBinlogOffsetKafkaStore = debeziumBinlogOffsetKafkaStore;
 
+    offsetProcessor = new OffsetProcessor(offsetStore);
     mySqlCdcProcessingStatusService = new MySqlCdcProcessingStatusService(dataSourceUrl, dbUserName, dbPassword);
   }
 
@@ -275,17 +275,9 @@ public class MySqlBinaryLogClient extends DbLogClient {
   }
 
   private void publish(BinlogEntry entry, BinlogEntryHandler binlogEntryHandler, Event event) {
-    Optional<CompletableFuture<?>> future = binlogEntryHandler.publish(entry);
+    CompletableFuture<?> future = binlogEntryHandler.publish(entry);
 
-    FutureOffset futureOffset = new FutureOffset(future, extractBinlogFileOffset(event));
-
-    futureOffsets.add(futureOffset);
-
-    if (future.isPresent()) {
-      future.get().whenComplete((o, throwable) -> saveOffset());
-    } else {
-      saveOffset();
-    }
+    offsetProcessor.saveOffset(future, extractBinlogFileOffset(event));
   }
 
   private BinlogFileOffset extractBinlogFileOffset(Event event) {
@@ -310,7 +302,11 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
     onEventReceived();
 
-    futureOffsets.add(new FutureOffset(Optional.empty(), extractBinlogFileOffset(event)));
+    CompletableFuture<?> completableFuture = new CompletableFuture<>();
+
+    completableFuture.complete(null);
+
+    offsetProcessor.saveOffset(completableFuture, extractBinlogFileOffset(event));
   }
 
   private void onLagMeasurementEventReceived(UpdateRowsEventData eventData) {
@@ -321,65 +317,6 @@ public class MySqlBinaryLogClient extends DbLogClient {
     return ((EventHeaderV4) event.getHeader()).getPosition();
   }
 
-
-  private void saveOffset() {
-    if (!running.get()) {
-      return;
-    }
-
-    if (!processingOffsets.compareAndSet(false, true)) {
-      return;
-    }
-
-    FutureOffset previousFutureOffset = null;
-
-    while (true) {
-      FutureOffset futureOffset = futureOffsets.poll();
-
-      if (previousFutureOffset == null) {
-        if (!isFutureOffsetReadyToSave(futureOffset)) {
-          break;
-        }
-
-        previousFutureOffset = futureOffset;
-
-        continue;
-      }
-
-      if (!isFutureOffsetReadyToSave(futureOffset)) {
-
-        if (previousFutureOffset.getFuture().isPresent()) {
-          try {
-            previousFutureOffset.getFuture().get().get();
-          } catch (Throwable t) {
-            logger.error("Event publishing failed", t);
-            stop();
-            return;
-          }
-        }
-
-        offsetStore.save(previousFutureOffset.getBinlogFileOffset());
-        break;
-      }
-
-      previousFutureOffset = futureOffset;
-    }
-
-    processingOffsets.set(false);
-
-    //Double check in case if new future offsets become ready to save,
-    // but procissing was not started, because there is other one was finishing
-    if (isFutureOffsetReadyToSave(futureOffsets.poll())) {
-      if (processingOffsets.compareAndSet(false, true)) {
-        //To prevent stack overflow
-        CompletableFuture.runAsync(this::saveOffset);
-      }
-    }
-  }
-
-  private boolean isFutureOffsetReadyToSave(FutureOffset futureOffset) {
-    return futureOffset != null && futureOffset.getFuture().map(CompletableFuture::isDone).orElse(true);
-  }
 
   private boolean isCdcMonitoringTableId(Long id) {
     return cdcMonitoringTableId.map(id::equals).orElse(false);
@@ -480,21 +417,4 @@ public class MySqlBinaryLogClient extends DbLogClient {
     }
   }
 
-  private static class FutureOffset {
-    private Optional<CompletableFuture<?>> future;
-    private BinlogFileOffset binlogFileOffset;
-
-    public FutureOffset(Optional<CompletableFuture<?>> future, BinlogFileOffset binlogFileOffset) {
-      this.future = future;
-      this.binlogFileOffset = binlogFileOffset;
-    }
-
-    public Optional<CompletableFuture<?>> getFuture() {
-      return future;
-    }
-
-    public BinlogFileOffset getBinlogFileOffset() {
-      return binlogFileOffset;
-    }
-  }
 }
