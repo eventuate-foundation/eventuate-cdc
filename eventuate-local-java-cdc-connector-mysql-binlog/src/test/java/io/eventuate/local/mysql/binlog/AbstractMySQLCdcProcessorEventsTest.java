@@ -41,10 +41,7 @@ public abstract class AbstractMySQLCdcProcessorEventsTest extends CdcProcessorEv
               @Override
               public CompletableFuture<?> handleEvent(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {
                 consumer.accept(publishedEvent);
-
-                CompletableFuture<?> future = new CompletableFuture<>();
-                future.complete(null);
-                return future;
+                return CompletableFuture.completedFuture(null);
               }
             });
   }

@@ -33,7 +33,6 @@ public class MySqlBinaryLogClient extends DbLogClient {
   private BinaryLogClient client;
   private final Map<Long, TableMapEventData> tableMapEventByTableId = new HashMap<>();
   private String binlogFilename;
-  private long offset;
   private MySqlBinlogEntryExtractor extractor;
   private MySqlBinlogCdcMonitoringTimestampExtractor timestampExtractor;
   private int connectionTimeoutInMilliseconds;
@@ -251,8 +250,13 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
     WriteRowsEventData eventData = event.getData();
 
-    offset = extractOffset(event);
+    BinlogFileOffset binlogFileOffset = extractBinlogFileOffset(event);
+
+    long offset = binlogFileOffset.getOffset();
+
     logger.info("mysql binlog client got event with offset {}/{}", binlogFilename, offset);
+
+    AtomicBoolean eventPublished = new AtomicBoolean(false);
 
     if (isCdcMonitoringTableId(eventData.getTableId())) {
       onLagMeasurementEventReceived(eventData);
@@ -267,22 +271,39 @@ public class MySqlBinaryLogClient extends DbLogClient {
         binlogEntryHandlers
                 .stream()
                 .filter(bh -> bh.isFor(schemaAndTable))
-                .forEach(binlogEntryHandler -> publish(entry, binlogEntryHandler, event));
+                .forEach(binlogEntryHandler -> {
+                  publish(entry, binlogEntryHandler, binlogFileOffset);
+                  eventPublished.set(true);
+                });
       }
     }
 
     onEventReceived();
+
+    if (!eventPublished.get()) {
+      offsetProcessor.saveOffset(CompletableFuture.completedFuture(binlogFileOffset));
+    }
   }
 
-  private void publish(BinlogEntry entry, BinlogEntryHandler binlogEntryHandler, Event event) {
-    CompletableFuture<?> future = binlogEntryHandler.publish(entry);
+  private void publish(BinlogEntry entry, BinlogEntryHandler binlogEntryHandler, BinlogFileOffset binlogFileOffset) {
+    CompletableFuture<?> publishingFuture = binlogEntryHandler.publish(entry);
 
-    offsetProcessor.saveOffset(future, extractBinlogFileOffset(event));
+    CompletableFuture<BinlogFileOffset> futureWithOffset = new CompletableFuture<>();
+
+    publishingFuture.whenComplete((o, throwable) -> {
+      if (throwable == null) {
+        futureWithOffset.complete(binlogFileOffset);
+      }
+      else {
+        futureWithOffset.completeExceptionally(throwable);
+      }
+    });
+
+    offsetProcessor.saveOffset(futureWithOffset);
   }
 
   private BinlogFileOffset extractBinlogFileOffset(Event event) {
-    offset = extractOffset(event);
-    return new BinlogFileOffset(binlogFilename, offset);
+    return new BinlogFileOffset(binlogFilename, extractOffset(event));
   }
 
   private void onLagMeasurementEventReceived(WriteRowsEventData eventData) {
@@ -302,11 +323,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
     onEventReceived();
 
-    CompletableFuture<?> completableFuture = new CompletableFuture<>();
-
-    completableFuture.complete(null);
-
-    offsetProcessor.saveOffset(completableFuture, extractBinlogFileOffset(event));
+    offsetProcessor.saveOffset(CompletableFuture.completedFuture(extractBinlogFileOffset(event)));
   }
 
   private void onLagMeasurementEventReceived(UpdateRowsEventData eventData) {

@@ -53,10 +53,7 @@ public abstract class AbstractPostgresWalCdcIntegrationEventsTest {
               @Override
               public CompletableFuture<?> handleEvent(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {
                 publishedEvents.add(publishedEvent);
-
-                CompletableFuture<?> future = new CompletableFuture<>();
-                future.complete(null);
-                return future;
+                return CompletableFuture.completedFuture(null);
               }
             });
 

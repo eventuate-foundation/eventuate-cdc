@@ -5,6 +5,7 @@ import io.eventuate.local.db.log.common.OffsetStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -12,7 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class OffsetProcessor {
   protected Logger logger = LoggerFactory.getLogger(getClass());
 
-  private ConcurrentLinkedQueue<FutureOffset> futureOffsets = new ConcurrentLinkedQueue<>();
+  private ConcurrentLinkedQueue<CompletableFuture<BinlogFileOffset>> futuresWithOffset = new ConcurrentLinkedQueue<>();
   private AtomicBoolean processingOffsets = new AtomicBoolean(false);
   private OffsetStore offsetStore;
 
@@ -20,69 +21,51 @@ public class OffsetProcessor {
     this.offsetStore = offsetStore;
   }
 
-  public void saveOffset(CompletableFuture<?> future, BinlogFileOffset binlogFileOffset) {
-    futureOffsets.add(new FutureOffset(future, binlogFileOffset));
+  public void saveOffset(CompletableFuture<BinlogFileOffset> futureWithOffset) {
+    futuresWithOffset.add(futureWithOffset);
 
-    future.whenComplete((o, throwable) -> processOffsets());
+    futureWithOffset.whenComplete((o, throwable) -> processOffsets());
   }
 
   private void processOffsets() {
-    if (!processingOffsets.compareAndSet(false, true)) {
-      return;
-    }
-
-    FutureOffset previousFutureOffset = null;
-
     while (true) {
-      FutureOffset futureOffset = futureOffsets.peek();
+      if (!processingOffsets.compareAndSet(false, true)) {
+        return;
+      }
 
-      if (previousFutureOffset == null) {
-        if (!isFutureOffsetReadyToSave(futureOffset)) {
+      Optional<BinlogFileOffset> offset = Optional.empty();
+
+      while (true) {
+        if (isFutureWithOffsetReady(futuresWithOffset.peek())) {
+          offset = Optional.of(getOffset(futuresWithOffset.poll()));
+        }
+        else {
           break;
         }
-
-        previousFutureOffset = checkFutureForException(futureOffsets.poll());
-
-        continue;
       }
 
-      if (!isFutureOffsetReadyToSave(futureOffset)) {
-        offsetStore.save(previousFutureOffset.getBinlogFileOffset());
-        break;
-      }
+      offset.ifPresent(offsetStore::save);
 
-      previousFutureOffset = checkFutureForException(futureOffsets.poll());
-    }
+      processingOffsets.set(false);
 
-    processingOffsets.set(false);
-
-    restartProcessingIfNeccary();
-  }
-
-
-  private void restartProcessingIfNeccary() {
-    //Double check in case if new future offsets become ready to save,
-    // but procissing was not started, because there is other one was finishing
-    if (isFutureOffsetReadyToSave(futureOffsets.peek())) {
-      if (processingOffsets.compareAndSet(false, true)) {
-        //To prevent stack overflow
-        CompletableFuture.runAsync(this::processOffsets);
+      //Double check in case if new future offsets become ready to save,
+      // but processing was not started, because there is other one was finishing
+      if (!isFutureWithOffsetReady(futuresWithOffset.peek())) {
+        return;
       }
     }
   }
 
-  private FutureOffset checkFutureForException(FutureOffset futureOffset) {
+  private BinlogFileOffset getOffset(CompletableFuture<BinlogFileOffset> futureWithOffset) {
     try {
-      futureOffset.getFuture().get();
+      return futureWithOffset.get();
     } catch (Throwable t) {
       logger.error("Event publishing failed", t);
       throw new RuntimeException(t);
     }
-
-    return futureOffset;
   }
 
-  private boolean isFutureOffsetReadyToSave(FutureOffset futureOffset) {
-    return futureOffset != null && futureOffset.getFuture().isDone();
+  private boolean isFutureWithOffsetReady(CompletableFuture<BinlogFileOffset> future) {
+    return future != null && future.isDone();
   }
 }

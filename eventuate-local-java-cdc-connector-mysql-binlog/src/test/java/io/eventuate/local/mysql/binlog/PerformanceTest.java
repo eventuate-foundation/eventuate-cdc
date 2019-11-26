@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -79,16 +81,72 @@ public class PerformanceTest {
   private final int nEvents = 1000;
 
   @Test
-  public void testAllEventsSameTopicSameId() throws Exception {
+  public void testAllEventsSameTopicSameId() {
+    runTest(nEvents, makeFixedEntityTypeGenerator(), makeFixedEntityIdSupplier());
+  }
 
+  @Test
+  public void testAllEventsDifferentTopicsSameId() {
+    runTest(nEvents, makeUniqueEntityTypeGenerator(), makeFixedEntityIdSupplier());
+  }
+
+  @Test
+  public void test2TopicsSameId() {
+    runTest(nEvents, makeNEntityTypeGenerator(2), makeFixedEntityIdSupplier());
+  }
+
+  @Test
+  public void test4TopicsSameId() {
+    runTest(nEvents, makeNEntityTypeGenerator(4), makeFixedEntityIdSupplier());
+  }
+
+  @Test
+  public void test10TopicsSameId() {
+    runTest(nEvents, makeNEntityTypeGenerator(10), makeFixedEntityIdSupplier());
+  }
+
+  @Test
+  public void test100TopicsSameId() {
+    runTest(nEvents, makeNEntityTypeGenerator(100), makeFixedEntityIdSupplier());
+  }
+
+  @Test
+  public void testAllEventsSameTopicDifferentIds()  {
+    runTest(nEvents, makeFixedEntityTypeGenerator(), makeUniqueEntityIdSupplier());
+  }
+
+  @Test
+  public void testAllEventsDifferentTopicsDifferentIds()  {
+    runTest(nEvents, makeUniqueEntityTypeGenerator(), makeUniqueEntityIdSupplier());
+  }
+
+  @Test
+  public void test2TopicsDifferentIds() {
+    runTest(nEvents, makeNEntityTypeGenerator(2), makeUniqueEntityIdSupplier());
+  }
+
+  @Test
+  public void test4TopicsDifferentIds() {
+    runTest(nEvents, makeNEntityTypeGenerator(4), makeUniqueEntityIdSupplier());
+  }
+
+  @Test
+  public void test10TopicsDifferentIds() {
+    runTest(nEvents, makeNEntityTypeGenerator(10), makeUniqueEntityIdSupplier());
+  }
+
+  @Test
+  public void test100TopicsDifferentIds() {
+    runTest(nEvents, makeNEntityTypeGenerator(100), makeUniqueEntityIdSupplier());
+  }
+
+  private void runTest(int nEvents, Function<Integer, String> entityTypeGenerator, Supplier<String> entityIdGenerator) {
     testPerformance(() -> {
+
       List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
 
-      String entityType = generateId();
-      String entityId = generateId();
-
       for (int i = 0; i < nEvents; i++) {
-        entityTypesAndIds.add(new EntityTypeAndId(entityType, entityId));
+        entityTypesAndIds.add(new EntityTypeAndId(entityTypeGenerator.apply(i), entityIdGenerator.get()));
       }
 
       prepareTopics(entityTypesAndIds);
@@ -96,193 +154,28 @@ public class PerformanceTest {
     });
   }
 
-  @Test
-  public void testAllEventsDifferentTopicsSameId() throws Exception {
-    testPerformance(() -> {
-
-      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
-
-      String entityId = generateId();
-
-      for (int i = 0; i < nEvents; i++) {
-        entityTypesAndIds.add(new EntityTypeAndId(generateId(), entityId));
-      }
-
-      prepareTopics(entityTypesAndIds);
-      generateEvents(entityTypesAndIds);
-    });
+  private Function<Integer, String> makeFixedEntityTypeGenerator() {
+    String entityType = generateId();
+    return (i) -> entityType;
   }
 
-  @Test
-  public void test2TopicsSameId() throws Exception {
-    testPerformance(() -> {
-
-      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
-
-      String entityType = generateId();
-      String entityId = generateId();
-
-      for (int i = 0; i < nEvents; i++) {
-        entityTypesAndIds.add(new EntityTypeAndId(entityType + (i % 2), entityId));
-      }
-
-      prepareTopics(entityTypesAndIds);
-      generateEvents(entityTypesAndIds);
-    });
+  private Function<Integer, String> makeUniqueEntityTypeGenerator() {
+    return (i) -> generateId();
   }
 
-  @Test
-  public void test4TopicsSameId() throws Exception {
-    testPerformance(() -> {
-
-      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
-
-      String entityType = generateId();
-      String entityId = generateId();
-
-      for (int i = 0; i < nEvents; i++) {
-        entityTypesAndIds.add(new EntityTypeAndId(entityType + (i % 4), entityId));
-      }
-
-      prepareTopics(entityTypesAndIds);
-      generateEvents(entityTypesAndIds);
-    });
+  private Function<Integer, String> makeNEntityTypeGenerator(int n) {
+    String entityType = generateId();
+    return (i) -> entityType + (i % n);
   }
 
-  @Test
-  public void test10TopicsSameId() throws Exception {
-    testPerformance(() -> {
-
-      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
-
-      String entityType = generateId();
-      String entityId = generateId();
-
-      for (int i = 0; i < nEvents; i++) {
-        entityTypesAndIds.add(new EntityTypeAndId(entityType + (i % 10), entityId));
-      }
-
-      prepareTopics(entityTypesAndIds);
-      generateEvents(entityTypesAndIds);
-    });
+  private Supplier<String> makeUniqueEntityIdSupplier() {
+    return this::generateId;
   }
 
-  @Test
-  public void test100TopicsSameId() throws Exception {
-    testPerformance(() -> {
-      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
+  private Supplier<String> makeFixedEntityIdSupplier() {
+    String id = generateId();
 
-      String entityType = generateId();
-      String entityId = generateId();
-
-      for (int i = 0; i < nEvents; i++) {
-        entityTypesAndIds.add(new EntityTypeAndId(entityType + (i % 100), entityId));
-      }
-
-      prepareTopics(entityTypesAndIds);
-      generateEvents(entityTypesAndIds);
-    });
-  }
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  @Test
-  public void testAllEventsSameTopicDifferentIds() throws Exception {
-
-    testPerformance(() -> {
-      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
-
-      String entityType = generateId();
-
-      for (int i = 0; i < nEvents; i++) {
-        entityTypesAndIds.add(new EntityTypeAndId(entityType, generateId()));
-      }
-
-      prepareTopics(entityTypesAndIds);
-      generateEvents(entityTypesAndIds);
-    });
-  }
-
-  @Test
-  public void testAllEventsDifferentTopicsDifferentIds() throws Exception {
-    testPerformance(() -> {
-
-      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
-
-      for (int i = 0; i < nEvents; i++) {
-        entityTypesAndIds.add(new EntityTypeAndId(generateId(), generateId()));
-      }
-
-      prepareTopics(entityTypesAndIds);
-      generateEvents(entityTypesAndIds);
-    });
-  }
-
-  @Test
-  public void test2TopicsDifferentIds() throws Exception {
-    testPerformance(() -> {
-
-      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
-
-      String entityType = generateId();
-
-      for (int i = 0; i < nEvents; i++) {
-        entityTypesAndIds.add(new EntityTypeAndId(entityType + (i % 2), generateId()));
-      }
-
-      prepareTopics(entityTypesAndIds);
-      generateEvents(entityTypesAndIds);
-    });
-  }
-
-  @Test
-  public void test4TopicsDifferentIds() throws Exception {
-    testPerformance(() -> {
-
-      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
-
-      String entityType = generateId();
-
-      for (int i = 0; i < nEvents; i++) {
-        entityTypesAndIds.add(new EntityTypeAndId(entityType + (i % 4), generateId()));
-      }
-
-      prepareTopics(entityTypesAndIds);
-      generateEvents(entityTypesAndIds);
-    });
-  }
-
-  @Test
-  public void test10TopicsDifferentIds() throws Exception {
-    testPerformance(() -> {
-
-      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
-
-      String entityType = generateId();
-
-      for (int i = 0; i < nEvents; i++) {
-        entityTypesAndIds.add(new EntityTypeAndId(entityType + (i % 10), generateId()));
-      }
-
-      prepareTopics(entityTypesAndIds);
-      generateEvents(entityTypesAndIds);
-    });
-  }
-
-  @Test
-  public void test100TopicsDifferentIds() throws Exception {
-    testPerformance(() -> {
-      List<EntityTypeAndId> entityTypesAndIds = new ArrayList<>();
-
-      String entityType = generateId();
-
-      for (int i = 0; i < nEvents; i++) {
-        entityTypesAndIds.add(new EntityTypeAndId(entityType + (i % 100), generateId()));
-      }
-
-      prepareTopics(entityTypesAndIds);
-      generateEvents(entityTypesAndIds);
-    });
+    return () -> id;
   }
 
   private void prepareTopics(List<EntityTypeAndId> entityTypesAndIds) {
@@ -313,7 +206,7 @@ public class PerformanceTest {
     });
   }
 
-  private void testPerformance(Runnable eventCreator) throws Exception {
+  private void testPerformance(Runnable eventCreator) {
     cdcDataPublisher.start();
 
     eventCreator.run();
