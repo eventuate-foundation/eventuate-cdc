@@ -1,7 +1,5 @@
 package io.eventuate.local.mysql.binlog;
 
-import io.eventuate.cdc.producer.wrappers.DataProducer;
-import io.eventuate.cdc.producer.wrappers.DataProducerFactory;
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.*;
@@ -15,7 +13,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,7 +22,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -45,14 +41,6 @@ public class PerformanceTest {
   @Import({MySqlBinlogCdcIntegrationTestConfiguration.class, OffsetStoreMockConfiguration.class})
   public static class Config {
     @Bean
-    public MySqlBinaryLogClientForPerformanceTesting mySqlBinaryLogClientPerformanceTester(@Value("${spring.datasource.url}") String dataSourceURL,
-                                                                                           DataSource dataSource) {
-
-      return new MySqlBinaryLogClientForPerformanceTesting(
-              "root", "rootpassword", dataSourceURL, dataSource, System.nanoTime(), 3000);
-    }
-
-    @Bean
     @Primary
     public PublishingFilter publishingFilter() {
       return (sourceBinlogFileOffset, destinationTopic) -> true;
@@ -61,7 +49,7 @@ public class PerformanceTest {
   }
 
   @Autowired
-  private MySqlBinaryLogClientForPerformanceTesting mySqlBinaryLogClientForPerformanceTesting;
+  private MySqlBinaryLogClient mySqlBinaryLogClient;
 
   @Autowired
   private TestHelper testHelper;
@@ -71,9 +59,6 @@ public class PerformanceTest {
 
   @Autowired
   private CdcDataPublisher<PublishedEvent> cdcDataPublisher;
-
-  @Autowired
-  private DataProducerFactory dataProducerFactory;
 
   @Autowired
   private EventuateKafkaProducer eventuateKafkaProducer;
@@ -179,8 +164,6 @@ public class PerformanceTest {
   }
 
   private void prepareTopics(List<EntityTypeAndId> entityTypesAndIds) {
-    DataProducer dataProducer = dataProducerFactory.create();
-
     entityTypesAndIds
             .stream()
             .map(EntityTypeAndId::getType)
@@ -211,23 +194,24 @@ public class PerformanceTest {
 
     eventCreator.run();
 
-    mySqlBinaryLogClientForPerformanceTesting.addBinlogEntryHandler(new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA),
+    mySqlBinaryLogClient.addBinlogEntryHandler(new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA),
             sourceTableNameSupplier.getSourceTableName(),
             new BinlogEntryToPublishedEventConverter(),
             cdcDataPublisher);
 
-    testHelper.runInSeparateThread(mySqlBinaryLogClientForPerformanceTesting::start);
+    testHelper.runInSeparateThread(mySqlBinaryLogClient::start);
 
-    Eventually.eventually(1000, 5000, TimeUnit.MILLISECONDS, () -> {
+    Eventually.eventually(1000, 500, TimeUnit.MILLISECONDS, () -> {
 
       System.out.println("--------------");
       System.out.println("--------------");
       System.out.println("--------------");
 
       Assert.assertEquals(nEvents, cdcDataPublisher.getTotallyProcessedEventCount());
-      System.out.println(String.format("%s event processing took %s ms",
+      System.out.println(String.format("%s event processing took %s ms, average send time is %s ms",
               nEvents,
-              (cdcDataPublisher.getTimeOfLastPrcessedEvent() - mySqlBinaryLogClientForPerformanceTesting.getEventProcessingStartTime()) / 1000000d));
+              (cdcDataPublisher.getTimeOfLastProcessedEvent() - mySqlBinaryLogClient.getEventProcessingStartTime()) / 1000000d,
+              cdcDataPublisher.getSendTimeAccumulator() / (double) nEvents / 1000000d));
 
 
       System.out.println("--------------");

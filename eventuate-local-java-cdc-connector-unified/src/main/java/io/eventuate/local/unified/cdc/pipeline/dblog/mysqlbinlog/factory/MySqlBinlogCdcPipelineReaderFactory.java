@@ -3,8 +3,10 @@ package io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.factory;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.ConnectionPoolConfigurationProperties;
+import io.eventuate.local.db.log.common.OffsetStore;
 import io.eventuate.local.mysql.binlog.DebeziumBinlogOffsetKafkaStore;
 import io.eventuate.local.mysql.binlog.MySqlBinaryLogClient;
+import io.eventuate.local.mysql.binlog.OffsetProcessor;
 import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.CommonCdcPipelineReaderFactory;
 import io.eventuate.local.unified.cdc.pipeline.dblog.common.factory.OffsetStoreFactory;
@@ -55,6 +57,11 @@ public class MySqlBinlogCdcPipelineReaderFactory extends CommonCdcPipelineReader
                     ? Optional.of(debeziumOffsetStoreFactory.create())
                     : Optional.empty();
 
+    OffsetStore offsetStore = offsetStoreFactory.create(readerProperties,
+            dataSource,
+            new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA),
+            readerProperties.getOffsetStoreKey());
+
     return new MySqlBinaryLogClient(meterRegistry,
             readerProperties.getCdcDbUserName(),
             readerProperties.getCdcDbPassword(),
@@ -64,10 +71,7 @@ public class MySqlBinlogCdcPipelineReaderFactory extends CommonCdcPipelineReader
             readerProperties.getMySqlBinlogClientUniqueId(),
             readerProperties.getBinlogConnectionTimeoutInMilliseconds(),
             readerProperties.getMaxAttemptsForBinlogConnection(),
-            offsetStoreFactory.create(readerProperties,
-                    dataSource,
-                    new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA),
-                    readerProperties.getOffsetStoreKey()),
+            offsetStore,
             debeziumBinlogOffsetKafkaStore,
             readerProperties.getReplicationLagMeasuringIntervalInMilliseconds(),
             readerProperties.getMonitoringRetryIntervalInMilliseconds(),

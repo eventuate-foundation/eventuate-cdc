@@ -127,7 +127,7 @@ public class PollingDaoIntegrationTest {
   protected BinlogEntryHandler prepareBinlogEntryHandler(Consumer<PublishedEvent> consumer) {
     cdcDataPublisher = new CdcDataPublisher<PublishedEvent>(null, null, null, null) {
       @Override
-      public CompletableFuture<?> handleEvent(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {
+      public CompletableFuture<?> sendMessage(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {
         consumer.accept(publishedEvent);
         return CompletableFuture.completedFuture(null);
       }

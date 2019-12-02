@@ -18,7 +18,7 @@ public class EventuateKafkaDataProducerWrapper implements DataProducer {
 
   @Override
   public CompletableFuture<?> send(String topic, String key, String body) {
-    return getOrCreateTopicPartitionSender(topic, key).handleEvent(topic, key, body);
+    return getOrCreateTopicPartitionSender(topic, key).sendMessage(topic, key, body);
   }
 
   @Override

@@ -47,6 +47,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
   private Optional<Runnable> callbackOnStop = Optional.empty();
   private OffsetProcessor offsetProcessor;
+  private Long eventProcessingStartTime;
 
   public MySqlBinaryLogClient(MeterRegistry meterRegistry,
                               String dbUserName,
@@ -84,7 +85,12 @@ public class MySqlBinaryLogClient extends DbLogClient {
     this.debeziumBinlogOffsetKafkaStore = debeziumBinlogOffsetKafkaStore;
 
     offsetProcessor = new OffsetProcessor(offsetStore);
+
     mySqlCdcProcessingStatusService = new MySqlCdcProcessingStatusService(dataSourceUrl, dbUserName, dbPassword);
+  }
+
+  public Long getEventProcessingStartTime() {
+    return eventProcessingStartTime;
   }
 
   public Optional<Exception> getPublishingException() {
@@ -199,10 +205,18 @@ public class MySqlBinaryLogClient extends DbLogClient {
         break;
       }
       case EXT_WRITE_ROWS: {
+        if (eventProcessingStartTime == null) {
+          eventProcessingStartTime = System.nanoTime();
+        }
+
         handleWriteRowsEvent(event, binlogFileOffset);
         break;
       }
       case WRITE_ROWS: {
+        if (eventProcessingStartTime == null) {
+          eventProcessingStartTime = System.nanoTime();
+        }
+
         handleWriteRowsEvent(event, binlogFileOffset);
         break;
       }

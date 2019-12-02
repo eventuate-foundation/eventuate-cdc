@@ -16,7 +16,7 @@ public class TopicPartitionSender {
     this.eventuateKafkaProducer = eventuateKafkaProducer;
   }
 
-  public CompletableFuture<?> handleEvent(String topic, String key, String body) {
+  public CompletableFuture<?> sendMessage(String topic, String key, String body) {
 
     TopicPartitionMessage topicPartitionMessage = new TopicPartitionMessage(topic, key, body);
 
@@ -56,7 +56,7 @@ public class TopicPartitionSender {
         But other thread added message to queue (just after we got null message) and tried to turn state to SENDING.
         Because state is not yet IDLE, 'sendMessage' will not be invoked.
         Then state will be turned to IDLE.
-        So message will stay in queue until next 'handleEvent' invocation.
+        So message will stay in queue until next 'sendMessage' invocation.
       */
 
       if (!messages.isEmpty() && state.compareAndSet(TopicPartitionSenderState.IDLE, TopicPartitionSenderState.SENDING)) {

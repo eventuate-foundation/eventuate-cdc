@@ -31,6 +31,6 @@ public class BinlogEntryHandler<EVENT extends BinLogEvent> {
   }
 
   public CompletableFuture<?> publish(BinlogEntry binlogEntry) {
-    return cdcDataPublisher.handleEvent(binlogEntryToEventConverter.convert(binlogEntry));
+    return cdcDataPublisher.sendMessage(binlogEntryToEventConverter.convert(binlogEntry));
   }
 }

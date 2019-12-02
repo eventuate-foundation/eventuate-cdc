@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class OffsetProcessor {
   protected Logger logger = LoggerFactory.getLogger(getClass());
 
-  private ConcurrentLinkedQueue<CompletableFuture<BinlogFileOffset>> futuresWithOffset = new ConcurrentLinkedQueue<>();
+  private ConcurrentLinkedQueue<CompletableFuture<BinlogFileOffset>> offsets = new ConcurrentLinkedQueue<>();
   private AtomicBoolean processingOffsets = new AtomicBoolean(false);
   private OffsetStore offsetStore;
 
@@ -21,10 +21,10 @@ public class OffsetProcessor {
     this.offsetStore = offsetStore;
   }
 
-  public void saveOffset(CompletableFuture<BinlogFileOffset> futureWithOffset) {
-    futuresWithOffset.add(futureWithOffset);
+  public void saveOffset(CompletableFuture<BinlogFileOffset> offset) {
+    offsets.add(offset);
 
-    futureWithOffset.whenComplete((o, throwable) -> processOffsets());
+    offset.whenComplete((o, throwable) -> processOffsets());
   }
 
   private void processOffsets() {
@@ -36,8 +36,8 @@ public class OffsetProcessor {
       Optional<BinlogFileOffset> offset = Optional.empty();
 
       while (true) {
-        if (isFutureWithOffsetReady(futuresWithOffset.peek())) {
-          offset = Optional.of(getOffset(futuresWithOffset.poll()));
+        if (isDone(offsets.peek())) {
+          offset = Optional.of(getOffset(offsets.poll()));
         }
         else {
           break;
@@ -50,22 +50,22 @@ public class OffsetProcessor {
 
       //Double check in case if new future offsets become ready to save,
       // but processing was not started, because there is other one was finishing
-      if (!isFutureWithOffsetReady(futuresWithOffset.peek())) {
+      if (!isDone(offsets.peek())) {
         return;
       }
     }
   }
 
-  private BinlogFileOffset getOffset(CompletableFuture<BinlogFileOffset> futureWithOffset) {
+  private BinlogFileOffset getOffset(CompletableFuture<BinlogFileOffset> offset) {
     try {
-      return futureWithOffset.get();
+      return offset.get();
     } catch (Throwable t) {
       logger.error("Event publishing failed", t);
       throw new RuntimeException(t);
     }
   }
 
-  private boolean isFutureWithOffsetReady(CompletableFuture<BinlogFileOffset> future) {
-    return future != null && future.isDone();
+  private boolean isDone(CompletableFuture<BinlogFileOffset> offset) {
+    return offset != null && offset.isDone();
   }
 }

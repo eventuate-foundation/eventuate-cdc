@@ -29,6 +29,7 @@ public class CdcDataPublisher<EVENT extends BinLogEvent> {
   private volatile boolean lastMessagePublishingFailed;
   private AtomicLong timeOfLastProcessedEvent = new AtomicLong(0);
   private AtomicInteger totallyProcessedEvents = new AtomicInteger(0);
+  private long sendTimeAccumulator = 0;
 
   public CdcDataPublisher(DataProducerFactory dataProducerFactory,
                           PublishingFilter publishingFilter,
@@ -59,8 +60,12 @@ public class CdcDataPublisher<EVENT extends BinLogEvent> {
     return totallyProcessedEvents.get();
   }
 
-  public long getTimeOfLastPrcessedEvent() {
+  public long getTimeOfLastProcessedEvent() {
     return timeOfLastProcessedEvent.get();
+  }
+
+  public long getSendTimeAccumulator() {
+    return sendTimeAccumulator;
   }
 
   public void start() {
@@ -75,7 +80,7 @@ public class CdcDataPublisher<EVENT extends BinLogEvent> {
       producer.close();
   }
 
-  public CompletableFuture<?> handleEvent(EVENT publishedEvent) throws EventuateLocalPublishingException {
+  public CompletableFuture<?> sendMessage(EVENT publishedEvent) throws EventuateLocalPublishingException {
 
     Objects.requireNonNull(publishedEvent);
 
@@ -90,7 +95,9 @@ public class CdcDataPublisher<EVENT extends BinLogEvent> {
     if (publishedEvent.getBinlogFileOffset().map(o -> publishingFilter.shouldBePublished(o, aggregateTopic)).orElse(true)) {
       logger.info("sending record: {}", json);
 
-      send(publishedEvent, aggregateTopic, json, new AtomicInteger(0), result);
+      long t = System.nanoTime();
+      send(publishedEvent, aggregateTopic, json, 0, result);
+      sendTimeAccumulator += System.nanoTime() - t;
 
       return result;
     } else {
@@ -100,13 +107,13 @@ public class CdcDataPublisher<EVENT extends BinLogEvent> {
     }
   }
 
-  private void send(EVENT publishedEvent, String aggregateTopic, String json, AtomicInteger retries, CompletableFuture<Object> result) {
+  private void send(EVENT publishedEvent, String aggregateTopic, String json, int retries, CompletableFuture<Object> result) {
     producer
             .send(aggregateTopic, publishingStrategy.partitionKeyFor(publishedEvent), json)
             .whenComplete((o, throwable) -> {
               if (throwable != null) {
-                if (retries.incrementAndGet() < 5) {
-                  send(publishedEvent, aggregateTopic, json, retries, result);
+                if ((retries + 1) < 5) {
+                  send(publishedEvent, aggregateTopic, json, retries + 1, result);
                 }
                 else {
                   result.completeExceptionally(throwable);
