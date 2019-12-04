@@ -1,5 +1,7 @@
 package io.eventuate.cdc.producer.wrappers.kafka;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
@@ -7,6 +9,7 @@ public class TopicPartitionMessage {
   private String topic;
   private String key;
   private String body;
+  private List<TopicPartitionMessage> batch = Collections.emptyList();
 
   private CompletableFuture<Object> future = new CompletableFuture<>();
 
@@ -44,5 +47,13 @@ public class TopicPartitionMessage {
   @Override
   public int hashCode() {
     return Objects.hash(topic, key, body);
+  }
+
+  public List<TopicPartitionMessage> getBatch() {
+    return batch;
+  }
+
+  public void setBatch(List<TopicPartitionMessage> messages) {
+    this.batch = messages;
   }
 }

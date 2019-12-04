@@ -1,7 +1,11 @@
 package io.eventuate.cdc.producer.wrappers.kafka;
 
+import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageBuilder;
+import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageKeyValue;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -21,6 +25,7 @@ public class TopicPartitionSender {
     TopicPartitionMessage topicPartitionMessage = new TopicPartitionMessage(topic, key, body);
 
     /* if message future is completed exceptionally, it can be resent*/
+    //Todo: now when batch is used logic should be changed. Remove for now?
     if (state.get() == TopicPartitionSenderState.ERROR && topicPartitionMessage.equals(lastFailedMessage)) {
       state.set(TopicPartitionSenderState.SENDING);
       sendMessage(topicPartitionMessage);
@@ -44,7 +49,34 @@ public class TopicPartitionSender {
 
   private void sendMessage(TopicPartitionMessage message) {
     if (message != null) {
-      eventuateKafkaProducer.send(message.getTopic(), message.getKey(), message.getBody()).whenComplete(handleNextMessage(message));
+
+      List<TopicPartitionMessage> batch = new ArrayList<>();
+
+      //Default size is 1MB, TODO: add configuration
+      EventuateKafkaMultiMessageBuilder eventuateKafkaMultiMessageBuilder = new EventuateKafkaMultiMessageBuilder(1000000);
+
+      if (!eventuateKafkaMultiMessageBuilder.addMessage(new EventuateKafkaMultiMessageKeyValue(message.getKey(), message.getBody()))) {
+        throw new RuntimeException("Cannot send kafka message, payload is too heavy!");
+      }
+
+      while (true) {
+        TopicPartitionMessage messageForBatch = messages.peek();
+
+        if (messageForBatch != null && eventuateKafkaMultiMessageBuilder
+                .addMessage(new EventuateKafkaMultiMessageKeyValue(messageForBatch.getKey(), messageForBatch.getBody()))) {
+
+          batch.add(messages.poll());
+        }
+        else {
+          break;
+        }
+      }
+
+      message.setBatch(batch);
+
+      eventuateKafkaProducer
+              .send(message.getTopic(), message.getKey(), eventuateKafkaMultiMessageBuilder.toBinaryArray())
+              .whenComplete(handleNextMessage(message));
     }
     else {
       state.set(TopicPartitionSenderState.IDLE);
@@ -71,8 +103,10 @@ public class TopicPartitionSender {
         lastFailedMessage = previousMessage;
         state.set(TopicPartitionSenderState.ERROR);
         previousMessage.getFuture().completeExceptionally(throwable);
+        previousMessage.getBatch().stream().map(TopicPartitionMessage::getFuture).forEach(f -> f.completeExceptionally(throwable));
       } else {
         previousMessage.getFuture().complete(object);
+        previousMessage.getBatch().stream().map(TopicPartitionMessage::getFuture).forEach(f -> f.complete(object));
         sendMessage();
       }
     };
