@@ -109,9 +109,12 @@ public class PostgresWalCdcIntegrationTestConfiguration {
 
   @Bean
   public DataProducerFactory dataProducerFactory(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
-                                                 EventuateKafkaProducerConfigurationProperties eventuateKafkaProducerConfigurationProperties) {
+                                                 EventuateKafkaProducerConfigurationProperties eventuateKafkaProducerConfigurationProperties,
+                                                 EventuateConfigurationProperties eventuateConfigurationProperties) {
     return () -> new EventuateKafkaDataProducerWrapper(new EventuateKafkaProducer(eventuateKafkaConfigurationProperties.getBootstrapServers(),
-            eventuateKafkaProducerConfigurationProperties));
+            eventuateKafkaProducerConfigurationProperties),
+            eventuateConfigurationProperties.isEnableBatchProcessing(),
+            eventuateConfigurationProperties.getMaxBatchSize());
   }
 
   @Bean

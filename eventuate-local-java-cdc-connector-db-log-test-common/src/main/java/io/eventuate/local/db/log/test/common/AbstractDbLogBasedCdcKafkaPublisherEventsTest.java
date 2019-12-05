@@ -1,5 +1,6 @@
 package io.eventuate.local.db.log.test.common;
 
+import io.eventuate.cdc.producer.wrappers.DataProducerFactory;
 import io.eventuate.cdc.producer.wrappers.kafka.EventuateKafkaDataProducerWrapper;
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.local.common.CdcDataPublisher;
@@ -13,8 +14,16 @@ public abstract class AbstractDbLogBasedCdcKafkaPublisherEventsTest extends CdcK
 
   @Override
   protected CdcDataPublisher<PublishedEvent> createCdcKafkaPublisher() {
-    return new CdcDataPublisher<>(() -> new EventuateKafkaDataProducerWrapper(createEventuateKafkaProducer()),
-            new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(), EventuateKafkaConsumerConfigurationProperties.empty()),
+    DataProducerFactory dataProducerFactory = () -> new EventuateKafkaDataProducerWrapper(createEventuateKafkaProducer(),
+            eventuateConfigurationProperties.isEnableBatchProcessing(),
+            eventuateConfigurationProperties.getMaxBatchSize());
+
+    DuplicatePublishingDetector duplicatePublishingDetector =
+            new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(),
+                    EventuateKafkaConsumerConfigurationProperties.empty());
+
+    return new CdcDataPublisher<>(dataProducerFactory,
+            duplicatePublishingDetector,
             publishingStrategy,
             meterRegistry);
   }

@@ -43,7 +43,9 @@ public class PollingCdcKafkaPublisherEventsTest extends CdcKafkaPublisherEventsT
   protected CdcDataPublisher<PublishedEvent> createCdcKafkaPublisher() {
     return new CdcDataPublisher<>(() ->
             new EventuateKafkaDataProducerWrapper(new EventuateKafkaProducer(eventuateKafkaConfigurationProperties.getBootstrapServers(),
-                    EventuateKafkaProducerConfigurationProperties.empty())),
+                    EventuateKafkaProducerConfigurationProperties.empty()),
+                    eventuateConfigurationProperties.isEnableBatchProcessing(),
+                    eventuateConfigurationProperties.getMaxBatchSize()),
             duplicatePublishingDetector,
             publishingStrategy,
             meterRegistry);

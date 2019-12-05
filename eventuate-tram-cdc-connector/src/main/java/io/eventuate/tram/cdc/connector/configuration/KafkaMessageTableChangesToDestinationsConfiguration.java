@@ -3,6 +3,7 @@ package io.eventuate.tram.cdc.connector.configuration;
 import io.eventuate.cdc.producer.wrappers.DataProducerFactory;
 import io.eventuate.cdc.producer.wrappers.kafka.EventuateKafkaDataProducerWrapper;
 import io.eventuate.local.common.DuplicatePublishingDetector;
+import io.eventuate.local.common.EventuateConfigurationProperties;
 import io.eventuate.local.common.PublishingFilter;
 import io.eventuate.local.db.log.common.DatabaseOffsetKafkaStore;
 import io.eventuate.local.mysql.binlog.DebeziumBinlogOffsetKafkaStore;
@@ -36,9 +37,12 @@ public class KafkaMessageTableChangesToDestinationsConfiguration {
 
   @Bean
   public DataProducerFactory kafkaDataProducerFactory(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
-                                                      EventuateKafkaProducerConfigurationProperties eventuateKafkaProducerConfigurationProperties) {
+                                                      EventuateKafkaProducerConfigurationProperties eventuateKafkaProducerConfigurationProperties,
+                                                      EventuateConfigurationProperties eventuateConfigurationProperties) {
     return () -> new EventuateKafkaDataProducerWrapper(new EventuateKafkaProducer(eventuateKafkaConfigurationProperties.getBootstrapServers(),
-            eventuateKafkaProducerConfigurationProperties));
+            eventuateKafkaProducerConfigurationProperties),
+            eventuateConfigurationProperties.isEnableBatchProcessing(),
+            eventuateConfigurationProperties.getMaxBatchSize());
   }
 
   @Bean

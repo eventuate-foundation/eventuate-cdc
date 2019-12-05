@@ -96,7 +96,7 @@ public class CdcDataPublisher<EVENT extends BinLogEvent> {
       logger.info("sending record: {}", json);
 
       long t = System.nanoTime();
-      send(publishedEvent, aggregateTopic, json, 0, result);
+      send(publishedEvent, aggregateTopic, json, result);
       sendTimeAccumulator += System.nanoTime() - t;
 
       return result;
@@ -107,17 +107,12 @@ public class CdcDataPublisher<EVENT extends BinLogEvent> {
     }
   }
 
-  private void send(EVENT publishedEvent, String aggregateTopic, String json, int retries, CompletableFuture<Object> result) {
+  private void send(EVENT publishedEvent, String aggregateTopic, String json, CompletableFuture<Object> result) {
     producer
             .send(aggregateTopic, publishingStrategy.partitionKeyFor(publishedEvent), json)
             .whenComplete((o, throwable) -> {
               if (throwable != null) {
-                if ((retries + 1) < 5) {
-                  send(publishedEvent, aggregateTopic, json, retries + 1, result);
-                }
-                else {
-                  result.completeExceptionally(throwable);
-                }
+                result.completeExceptionally(throwable);
               }
               else {
                 result.complete(o);

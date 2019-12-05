@@ -12,8 +12,16 @@ public class EventuateKafkaDataProducerWrapper implements DataProducer {
   private EventuateKafkaProducer eventuateKafkaProducer;
   private final ConcurrentHashMap<TopicPartition, TopicPartitionSender> topicPartitionSenders = new ConcurrentHashMap<>();
 
-  public EventuateKafkaDataProducerWrapper(EventuateKafkaProducer eventuateKafkaProducer) {
+  private boolean enableBatchProcessing;
+  private int batchSize;
+
+  public EventuateKafkaDataProducerWrapper(EventuateKafkaProducer eventuateKafkaProducer,
+                                           boolean enableBatchProcessing,
+                                           int batchSize) {
     this.eventuateKafkaProducer = eventuateKafkaProducer;
+
+    this.enableBatchProcessing = enableBatchProcessing;
+    this.batchSize = batchSize;
   }
 
   @Override
@@ -30,6 +38,7 @@ public class EventuateKafkaDataProducerWrapper implements DataProducer {
 
     TopicPartition topicPartition = new TopicPartition(topic, eventuateKafkaProducer.partitionFor(topic, key));
 
-    return topicPartitionSenders.computeIfAbsent(topicPartition, tp -> new TopicPartitionSender(eventuateKafkaProducer));
+    return topicPartitionSenders.computeIfAbsent(topicPartition,
+            tp -> new TopicPartitionSender(eventuateKafkaProducer, enableBatchProcessing, batchSize));
   }
 }
