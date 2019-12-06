@@ -2,6 +2,7 @@ package io.eventuate.local.mysql.binlog;
 
 import com.google.common.collect.ImmutableMap;
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
+import io.eventuate.local.common.OffsetProcessor;
 import io.eventuate.local.db.log.common.OffsetStore;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 public class OffsetProcessorTest {
 
   private OffsetStore offsetStore;
-  private OffsetProcessor offsetProcessor;
+  private OffsetProcessor<BinlogFileOffset> offsetProcessor;
 
   private CompletableFuture<BinlogFileOffset> a;
   private CompletableFuture<BinlogFileOffset> b;
@@ -26,7 +27,7 @@ public class OffsetProcessorTest {
   @Before
   public void init() {
     offsetStore = Mockito.mock(OffsetStore.class);
-    offsetProcessor = new OffsetProcessor(offsetStore);
+    offsetProcessor = new OffsetProcessor<>(offsetStore);
 
     a = new CompletableFuture<>();
     b = new CompletableFuture<>();

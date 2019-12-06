@@ -4,6 +4,8 @@ import io.eventuate.cdc.producer.wrappers.DataProducer;
 import io.eventuate.cdc.producer.wrappers.DataProducerFactory;
 import io.eventuate.common.eventuate.local.BinLogEvent;
 import io.eventuate.local.common.exception.EventuateLocalPublishingException;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,14 +18,13 @@ import java.util.concurrent.atomic.AtomicLong;
 public class CdcDataPublisher<EVENT extends BinLogEvent> {
   private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-  //  protected MeterRegistry meterRegistry;
+  protected MeterRegistry meterRegistry;
   protected PublishingStrategy<EVENT> publishingStrategy;
   protected DataProducerFactory dataProducerFactory;
   protected DataProducer producer;
-//  protected Counter meterEventsPublished;
-//  protected Counter meterEventsDuplicates;
-//  protected Counter meterEventsRetries;
-//  protected DistributionSummary distributionSummaryEventAge;
+  protected Counter meterEventsPublished;
+  protected Counter meterEventsDuplicates;
+  protected DistributionSummary distributionSummaryEventAge;
 
   private PublishingFilter publishingFilter;
   private volatile boolean lastMessagePublishingFailed;
@@ -39,22 +40,21 @@ public class CdcDataPublisher<EVENT extends BinLogEvent> {
     this.dataProducerFactory = dataProducerFactory;
     this.publishingStrategy = publishingStrategy;
     this.publishingFilter = publishingFilter;
-//    this.meterRegistry = meterRegistry;
-//    initMetrics();
+    this.meterRegistry = meterRegistry;
+    initMetrics();
   }
 
   public boolean isLastMessagePublishingFailed() {
     return lastMessagePublishingFailed;
   }
 
-//  private void initMetrics() {
-//    if (meterRegistry != null) {
-//      distributionSummaryEventAge = meterRegistry.summary("eventuate.cdc.event.age");
-//      meterEventsPublished = meterRegistry.counter("eventuate.cdc.events.published");
-//      meterEventsDuplicates = meterRegistry.counter("eventuate.cdc.events.duplicates");
-//      meterEventsRetries = meterRegistry.counter("eventuate.cdc.events.retries");
-//    }
-//  }
+  private void initMetrics() {
+    if (meterRegistry != null) {
+      distributionSummaryEventAge = meterRegistry.summary("eventuate.cdc.event.age");
+      meterEventsPublished = meterRegistry.counter("eventuate.cdc.events.published");
+      meterEventsDuplicates = meterRegistry.counter("eventuate.cdc.events.duplicates");
+    }
+  }
 
   public int getTotallyProcessedEventCount() {
     return totallyProcessedEvents.get();
@@ -97,11 +97,14 @@ public class CdcDataPublisher<EVENT extends BinLogEvent> {
 
       long t = System.nanoTime();
       send(publishedEvent, aggregateTopic, json, result);
+      meterEventsPublished.increment();
+      publishingStrategy.getCreateTime(publishedEvent).ifPresent(time -> distributionSummaryEventAge.record(System.currentTimeMillis() - time));
       sendTimeAccumulator += System.nanoTime() - t;
 
       return result;
     } else {
       logger.debug("Duplicate event {}", publishedEvent);
+      meterEventsDuplicates.increment();
       result.complete(null);
       return result;
     }

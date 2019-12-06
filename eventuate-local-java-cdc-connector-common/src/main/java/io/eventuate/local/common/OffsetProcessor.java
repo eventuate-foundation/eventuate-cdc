@@ -1,7 +1,5 @@
-package io.eventuate.local.mysql.binlog;
+package io.eventuate.local.common;
 
-import io.eventuate.common.eventuate.local.BinlogFileOffset;
-import io.eventuate.local.db.log.common.OffsetStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,18 +8,19 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class OffsetProcessor {
+public class OffsetProcessor<OFFSET> {
   protected Logger logger = LoggerFactory.getLogger(getClass());
 
-  private ConcurrentLinkedQueue<CompletableFuture<BinlogFileOffset>> offsets = new ConcurrentLinkedQueue<>();
   private AtomicBoolean processingOffsets = new AtomicBoolean(false);
-  private OffsetStore offsetStore;
 
-  public OffsetProcessor(OffsetStore offsetStore) {
+  protected ConcurrentLinkedQueue<CompletableFuture<OFFSET>> offsets = new ConcurrentLinkedQueue<>();
+  protected GenericOffsetStore<OFFSET> offsetStore;
+
+  public OffsetProcessor(GenericOffsetStore<OFFSET> offsetStore) {
     this.offsetStore = offsetStore;
   }
 
-  public void saveOffset(CompletableFuture<BinlogFileOffset> offset) {
+  public void saveOffset(CompletableFuture<OFFSET> offset) {
     offsets.add(offset);
 
     offset.whenComplete((o, throwable) -> processOffsets());
@@ -33,18 +32,7 @@ public class OffsetProcessor {
         return;
       }
 
-      Optional<BinlogFileOffset> offset = Optional.empty();
-
-      while (true) {
-        if (isDone(offsets.peek())) {
-          offset = Optional.of(getOffset(offsets.poll()));
-        }
-        else {
-          break;
-        }
-      }
-
-      offset.ifPresent(offsetStore::save);
+      collectAndSaveOffsets();
 
       processingOffsets.set(false);
 
@@ -56,7 +44,22 @@ public class OffsetProcessor {
     }
   }
 
-  private BinlogFileOffset getOffset(CompletableFuture<BinlogFileOffset> offset) {
+  protected void collectAndSaveOffsets() {
+    Optional<OFFSET> offset = Optional.empty();
+
+    while (true) {
+      if (isDone(offsets.peek())) {
+        offset = Optional.of(getOffset(offsets.poll()));
+      }
+      else {
+        break;
+      }
+    }
+
+    offset.ifPresent(offsetStore::save);
+  }
+
+  protected OFFSET getOffset(CompletableFuture<OFFSET> offset) {
     try {
       return offset.get();
     } catch (Throwable t) {
@@ -65,7 +68,7 @@ public class OffsetProcessor {
     }
   }
 
-  private boolean isDone(CompletableFuture<BinlogFileOffset> offset) {
+  protected boolean isDone(CompletableFuture<OFFSET> offset) {
     return offset != null && offset.isDone();
   }
 }

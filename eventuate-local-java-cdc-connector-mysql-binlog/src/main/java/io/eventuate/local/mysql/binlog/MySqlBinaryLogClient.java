@@ -11,6 +11,7 @@ import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.*;
 import io.eventuate.local.db.log.common.DbLogClient;
 import io.eventuate.local.db.log.common.OffsetKafkaStore;
+import io.eventuate.local.common.OffsetProcessor;
 import io.eventuate.local.db.log.common.OffsetStore;
 import io.micrometer.core.instrument.MeterRegistry;
 
@@ -46,7 +47,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
   private Optional<Exception> publishingException = Optional.empty();
 
   private Optional<Runnable> callbackOnStop = Optional.empty();
-  private OffsetProcessor offsetProcessor;
+  private OffsetProcessor<BinlogFileOffset> offsetProcessor;
   private Long eventProcessingStartTime;
 
   public MySqlBinaryLogClient(MeterRegistry meterRegistry,
@@ -84,7 +85,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
     this.offsetStore = offsetStore;
     this.debeziumBinlogOffsetKafkaStore = debeziumBinlogOffsetKafkaStore;
 
-    offsetProcessor = new OffsetProcessor(offsetStore);
+    offsetProcessor = new OffsetProcessor<>(offsetStore);
 
     mySqlCdcProcessingStatusService = new MySqlCdcProcessingStatusService(dataSourceUrl, dbUserName, dbPassword);
   }
