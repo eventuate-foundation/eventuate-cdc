@@ -1,0 +1,86 @@
+package io.eventuate.cdc.producer.wrappers.kafka;
+
+import io.eventuate.local.test.util.TestHelper;
+import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
+import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageKeyValue;
+import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
+import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = TopicPartitionSenderTest.Config.class)
+public class TopicPartitionSenderTest {
+
+  @Configuration
+  public static class Config {}
+
+  @Value("${eventuatelocal.kafka.bootstrap.servers}")
+  private String kafkaBootstrapServers;
+
+  private TestHelper testHelper = new TestHelper();
+
+  private EventuateKafkaMultiMessageConverter eventuateKafkaMultiMessageConverter = new EventuateKafkaMultiMessageConverter();
+
+  private final int nEvents = 1000;
+  private String topic;
+  private String key;
+
+  @Before
+  public void init() {
+    topic = testHelper.generateId();
+    key = testHelper.generateId();
+  }
+
+  @Test
+  public void testBatchProcessing() {
+    sendEvents();
+    assertAllMessagesReceived(receiveEvents());
+  }
+
+  private void sendEvents() {
+    TopicPartitionSender topicPartitionSender = new TopicPartitionSender(
+            new EventuateKafkaProducer(kafkaBootstrapServers, EventuateKafkaProducerConfigurationProperties.empty()), true, 1000000);
+
+    for (int i = 0; i < nEvents; i++) {
+      topicPartitionSender.sendMessage(topic, key, String.valueOf(i));
+    }
+  }
+
+  private List<EventuateKafkaMultiMessageKeyValue> receiveEvents() {
+    try (KafkaConsumer<String, byte[]> consumer = testHelper.createConsumer(kafkaBootstrapServers)) {
+      consumer.subscribe(Collections.singletonList(topic));
+
+      ConsumerRecords<String, byte[]> consumerRecords = consumer.poll(30000);
+
+      List<EventuateKafkaMultiMessageKeyValue> messages = new ArrayList<>();
+
+      for (ConsumerRecord<String, byte[]> consumerRecord : consumerRecords) {
+        messages.addAll(eventuateKafkaMultiMessageConverter.convertBytesToMessages(consumerRecord.value()));
+      }
+
+      return messages;
+    }
+  }
+
+  private void assertAllMessagesReceived(List<EventuateKafkaMultiMessageKeyValue> messages) {
+    for (int i = 0; i < nEvents; i++) {
+      EventuateKafkaMultiMessageKeyValue message = messages.get(i);
+      Assert.assertEquals(key, message.getKey());
+      Assert.assertEquals(String.valueOf(i), message.getValue());
+    }
+  }
+}

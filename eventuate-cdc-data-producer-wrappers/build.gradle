@@ -3,6 +3,10 @@ dependencies {
     compile "io.eventuate.messaging.activemq:eventuate-messaging-activemq-producer:$eventuateMessagingActiveMQVersion"
     compile "io.eventuate.messaging.rabbitmq:eventuate-messaging-rabbitmq-producer:$eventuateMessagingRabbitMQVersion"
     compile "io.eventuate.messaging.redis:eventuate-messaging-redis-producer:$eventuateMessagingRedisVersion"
+
+    testCompile project(":eventuate-local-java-cdc-connector-test-util")
+    testCompile "junit:junit:4.11"
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 }
 
 test {
