@@ -35,6 +35,14 @@ public class TopicPartitionMessage {
     return future;
   }
 
+  public void complete(Object object) {
+    future.complete(object);
+  }
+
+  public void completeExceptionally(Throwable throwable) {
+    future.completeExceptionally(throwable);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (o == null) return false;

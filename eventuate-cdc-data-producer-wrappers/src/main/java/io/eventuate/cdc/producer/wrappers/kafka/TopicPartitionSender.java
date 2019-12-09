@@ -3,13 +3,12 @@ package io.eventuate.cdc.producer.wrappers.kafka;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageKeyValue;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
+import io.eventuate.util.common.StringUtils;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
 
 public class TopicPartitionSender {
   private EventuateKafkaProducer eventuateKafkaProducer;
@@ -43,17 +42,8 @@ public class TopicPartitionSender {
   }
 
   private void sendMessage() {
-    TopicPartitionMessage message = messages.poll();
-
-    sendMessage(message);
-  }
-
-  private void sendMessage(TopicPartitionMessage message) {
-    if (message != null) {
-
-      eventuateKafkaProducer
-              .send(message.getTopic(), message.getKey(), processBatchIfNecessary(message))
-              .whenComplete(handleNextMessage(message));
+    if (!messages.isEmpty()) {
+      sendNextMessage();
     }
     else {
       state.set(TopicPartitionSenderState.IDLE);
@@ -74,49 +64,80 @@ public class TopicPartitionSender {
     }
   }
 
-
-  private byte[] processBatchIfNecessary(TopicPartitionMessage message) {
-    if (!enableBatchProcessing) {
-      return message.getBody().getBytes(Charset.forName("UTF-8"));
+  private void sendNextMessage() {
+    if (enableBatchProcessing) {
+      sendMessageBatch();
     }
+    else {
+      sendSingleMessage();
+    }
+  }
 
+  private void sendSingleMessage() {
+    TopicPartitionMessage topicPartitionMessage;
+
+    while ((topicPartitionMessage = messages.poll()) != null) {
+      TopicPartitionMessage message = topicPartitionMessage;
+
+      eventuateKafkaProducer
+        .send(message.getTopic(), message.getKey(), StringUtils.stringToBytes(message.getBody()))
+        .whenComplete((o, throwable) -> {
+          if (throwable != null) {
+            state.set(TopicPartitionSenderState.ERROR);
+            message.completeExceptionally(throwable);
+          }
+          else {
+            message.complete(o);
+            sendSingleMessage();
+          }
+        });
+    }
+  }
+
+  private void sendMessageBatch() {
     List<TopicPartitionMessage> batch = new ArrayList<>();
-
     EventuateKafkaMultiMessageConverter.MessageBuilder messageBuilder = new EventuateKafkaMultiMessageConverter.MessageBuilder(batchSize);
 
-    if (!messageBuilder.addMessage(new EventuateKafkaMultiMessageKeyValue(message.getKey(), message.getBody()))) {
-      throw new RuntimeException("Cannot send kafka message, payload is too heavy!");
-    }
+    String key = null;
+    String topic = null;
 
     while (true) {
       TopicPartitionMessage messageForBatch = messages.peek();
 
-      if (messageForBatch != null && messageBuilder
-              .addMessage(new EventuateKafkaMultiMessageKeyValue(messageForBatch.getKey(), messageForBatch.getBody()))) {
+      if (messageForBatch != null &&
+              messageBuilder.addMessage(new EventuateKafkaMultiMessageKeyValue(messageForBatch.getKey(), messageForBatch.getBody()))) {
 
-        batch.add(messages.poll());
+        messageForBatch = messages.poll();
+
+        //key of the first message is a kafka record key
+        if (key == null) {
+          key = messageForBatch.getKey();
+          topic = messageForBatch.getTopic();
+        }
+
+        batch.add(messageForBatch);
       }
       else {
         break;
       }
     }
 
-    message.setBatch(batch);
+    if (batch.isEmpty()) {
+      state.set(TopicPartitionSenderState.ERROR);
+      throw new RuntimeException("Sender is in error state, publishing is not possible.");
+    }
 
-    return messageBuilder.toBinaryArray();
-  }
-
-  private BiConsumer<Object, Throwable> handleNextMessage(TopicPartitionMessage previousMessage) {
-    return (object, throwable) -> {
-      if (throwable != null) {
-        state.set(TopicPartitionSenderState.ERROR);
-        previousMessage.getFuture().completeExceptionally(throwable);
-        previousMessage.getBatch().stream().map(TopicPartitionMessage::getFuture).forEach(f -> f.completeExceptionally(throwable));
-      } else {
-        previousMessage.getFuture().complete(object);
-        previousMessage.getBatch().stream().map(TopicPartitionMessage::getFuture).forEach(f -> f.complete(object));
-        sendMessage();
-      }
-    };
+    eventuateKafkaProducer
+            .send(topic, key, messageBuilder.toBinaryArray())
+            .whenComplete((o, throwable) -> {
+              if (throwable != null) {
+                state.set(TopicPartitionSenderState.ERROR);
+                batch.forEach(m -> m.completeExceptionally(throwable));
+              }
+              else {
+                batch.forEach(m -> m.complete(o));
+                sendMessageBatch();
+              }
+            });
   }
 }
