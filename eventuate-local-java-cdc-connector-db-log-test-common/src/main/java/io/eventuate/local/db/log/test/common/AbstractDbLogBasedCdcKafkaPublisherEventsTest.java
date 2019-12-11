@@ -9,6 +9,7 @@ import io.eventuate.local.test.util.CdcKafkaPublisherEventsTest;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
+import io.micrometer.core.instrument.logging.LoggingMeterRegistry;
 
 public abstract class AbstractDbLogBasedCdcKafkaPublisherEventsTest extends CdcKafkaPublisherEventsTest {
 
@@ -16,7 +17,8 @@ public abstract class AbstractDbLogBasedCdcKafkaPublisherEventsTest extends CdcK
   protected CdcDataPublisher<PublishedEvent> createCdcKafkaPublisher() {
     DataProducerFactory dataProducerFactory = () -> new EventuateKafkaDataProducerWrapper(createEventuateKafkaProducer(),
             eventuateConfigurationProperties.isEnableBatchProcessing(),
-            eventuateConfigurationProperties.getMaxBatchSize());
+            eventuateConfigurationProperties.getMaxBatchSize(),
+            new LoggingMeterRegistry());
 
     DuplicatePublishingDetector duplicatePublishingDetector =
             new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(),

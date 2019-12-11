@@ -4,10 +4,12 @@ import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageKeyValue;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.util.common.StringUtils;
+import io.micrometer.core.instrument.MeterRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class TopicPartitionSender {
@@ -16,11 +18,17 @@ public class TopicPartitionSender {
   private AtomicReference<TopicPartitionSenderState> state = new AtomicReference<>(TopicPartitionSenderState.IDLE);
   private boolean enableBatchProcessing;
   private int batchSize;
+  private MeterRegistry meterRegistry;
 
-  public TopicPartitionSender(EventuateKafkaProducer eventuateKafkaProducer, boolean enableBatchProcessing, int batchSize) {
+  public TopicPartitionSender(EventuateKafkaProducer eventuateKafkaProducer,
+                              boolean enableBatchProcessing,
+                              int batchSize,
+                              MeterRegistry meterRegistry) {
+
     this.eventuateKafkaProducer = eventuateKafkaProducer;
     this.enableBatchProcessing = enableBatchProcessing;
     this.batchSize = batchSize;
+    this.meterRegistry = meterRegistry;
   }
 
   public CompletableFuture<?> sendMessage(String topic, String key, String body) {
@@ -82,13 +90,14 @@ public class TopicPartitionSender {
       eventuateKafkaProducer
         .send(message.getTopic(), message.getKey(), StringUtils.stringToBytes(message.getBody()))
         .whenComplete((o, throwable) -> {
+          updateMetrics(1);
           if (throwable != null) {
             state.set(TopicPartitionSenderState.ERROR);
             message.completeExceptionally(throwable);
           }
           else {
             message.complete(o);
-            sendSingleMessage();
+            sendMessage();
           }
         });
     }
@@ -100,6 +109,8 @@ public class TopicPartitionSender {
 
     String key = null;
     String topic = null;
+
+    AtomicInteger messageCounter = new AtomicInteger(0);
 
     while (true) {
       TopicPartitionMessage messageForBatch = messages.peek();
@@ -116,6 +127,7 @@ public class TopicPartitionSender {
         }
 
         batch.add(messageForBatch);
+        messageCounter.incrementAndGet();
       }
       else {
         break;
@@ -130,14 +142,20 @@ public class TopicPartitionSender {
     eventuateKafkaProducer
             .send(topic, key, messageBuilder.toBinaryArray())
             .whenComplete((o, throwable) -> {
+              updateMetrics(messageCounter.get());
               if (throwable != null) {
                 state.set(TopicPartitionSenderState.ERROR);
                 batch.forEach(m -> m.completeExceptionally(throwable));
               }
               else {
                 batch.forEach(m -> m.complete(o));
-                sendMessageBatch();
+                sendMessage();
               }
             });
+  }
+
+  private void updateMetrics(int processedEvents) {
+    meterRegistry.counter("eventuate.cdc.processed.messages").increment(processedEvents);
+    meterRegistry.gauge("eventuate.cdc.time.of.last.processed.message", System.nanoTime());
   }
 }

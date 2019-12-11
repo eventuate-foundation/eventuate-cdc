@@ -51,7 +51,7 @@ public class CdcDataPublisher<EVENT extends BinLogEvent> {
   private void initMetrics() {
     if (meterRegistry != null) {
       distributionSummaryEventAge = meterRegistry.summary("eventuate.cdc.event.age");
-      meterEventsPublished = meterRegistry.counter("eventuate.cdc.events.published");
+      meterEventsPublished = meterRegistry.counter("eventuate.cdc.events.sent");
       meterEventsDuplicates = meterRegistry.counter("eventuate.cdc.events.duplicates");
     }
   }

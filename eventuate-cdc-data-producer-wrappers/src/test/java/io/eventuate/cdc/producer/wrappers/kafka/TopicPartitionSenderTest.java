@@ -5,6 +5,7 @@ import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageKeyValue;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
+import io.micrometer.core.instrument.logging.LoggingMeterRegistry;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -46,17 +47,24 @@ public class TopicPartitionSenderTest {
   }
 
   @Test
-  public void testBatchProcessing() {
+  public void testBatchProcessing() throws InterruptedException {
     sendEvents();
     assertAllMessagesReceived(receiveEvents());
   }
 
-  private void sendEvents() {
+  private void sendEvents() throws InterruptedException {
     TopicPartitionSender topicPartitionSender = new TopicPartitionSender(
-            new EventuateKafkaProducer(kafkaBootstrapServers, EventuateKafkaProducerConfigurationProperties.empty()), true, 1000000);
+            new EventuateKafkaProducer(kafkaBootstrapServers, EventuateKafkaProducerConfigurationProperties.empty()),
+            true,
+            1000000,
+            new LoggingMeterRegistry());
 
     for (int i = 0; i < nEvents; i++) {
-      topicPartitionSender.sendMessage(topic, key, String.valueOf(i));
+      int fi = i;
+      topicPartitionSender.sendMessage(topic, key, String.valueOf(fi));
+      if (i == nEvents / 2) {
+        Thread.sleep(1000);
+      }
     }
   }
 

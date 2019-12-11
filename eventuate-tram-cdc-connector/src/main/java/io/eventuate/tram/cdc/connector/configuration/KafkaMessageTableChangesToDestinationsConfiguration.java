@@ -16,6 +16,7 @@ import io.eventuate.messaging.kafka.common.EventuateKafkaPropertiesConfiguration
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
 import io.eventuate.tram.cdc.connector.configuration.condition.KafkaCondition;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -38,11 +39,13 @@ public class KafkaMessageTableChangesToDestinationsConfiguration {
   @Bean
   public DataProducerFactory kafkaDataProducerFactory(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
                                                       EventuateKafkaProducerConfigurationProperties eventuateKafkaProducerConfigurationProperties,
-                                                      EventuateConfigurationProperties eventuateConfigurationProperties) {
+                                                      EventuateConfigurationProperties eventuateConfigurationProperties,
+                                                      MeterRegistry meterRegistry) {
     return () -> new EventuateKafkaDataProducerWrapper(new EventuateKafkaProducer(eventuateKafkaConfigurationProperties.getBootstrapServers(),
             eventuateKafkaProducerConfigurationProperties),
             eventuateConfigurationProperties.isEnableBatchProcessing(),
-            eventuateConfigurationProperties.getMaxBatchSize());
+            eventuateConfigurationProperties.getMaxBatchSize(),
+            meterRegistry);
   }
 
   @Bean

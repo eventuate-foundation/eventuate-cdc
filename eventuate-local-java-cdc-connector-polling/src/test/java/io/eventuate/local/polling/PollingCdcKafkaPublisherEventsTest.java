@@ -8,6 +8,7 @@ import io.eventuate.local.common.DuplicatePublishingDetector;
 import io.eventuate.local.test.util.CdcKafkaPublisherEventsTest;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
+import io.micrometer.core.instrument.logging.LoggingMeterRegistry;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,8 @@ public class PollingCdcKafkaPublisherEventsTest extends CdcKafkaPublisherEventsT
             new EventuateKafkaDataProducerWrapper(new EventuateKafkaProducer(eventuateKafkaConfigurationProperties.getBootstrapServers(),
                     EventuateKafkaProducerConfigurationProperties.empty()),
                     eventuateConfigurationProperties.isEnableBatchProcessing(),
-                    eventuateConfigurationProperties.getMaxBatchSize()),
+                    eventuateConfigurationProperties.getMaxBatchSize(),
+                    new LoggingMeterRegistry()),
             duplicatePublishingDetector,
             publishingStrategy,
             meterRegistry);

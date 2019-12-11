@@ -16,6 +16,7 @@ import io.eventuate.messaging.kafka.common.EventuateKafkaPropertiesConfiguration
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.logging.LoggingMeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
@@ -114,7 +115,8 @@ public class MySqlBinlogCdcIntegrationTestConfiguration {
     return () -> new EventuateKafkaDataProducerWrapper(new EventuateKafkaProducer(eventuateKafkaConfigurationProperties.getBootstrapServers(),
             eventuateKafkaProducerConfigurationProperties),
             eventuateConfigurationProperties.isEnableBatchProcessing(),
-            eventuateConfigurationProperties.getMaxBatchSize());
+            eventuateConfigurationProperties.getMaxBatchSize(),
+            new LoggingMeterRegistry());
   }
 
   @Bean

@@ -206,18 +206,12 @@ public class MySqlBinaryLogClient extends DbLogClient {
         break;
       }
       case EXT_WRITE_ROWS: {
-        if (eventProcessingStartTime == null) {
-          eventProcessingStartTime = System.nanoTime();
-        }
-
+        initProcessingInfo();
         handleWriteRowsEvent(event, binlogFileOffset);
         break;
       }
       case WRITE_ROWS: {
-        if (eventProcessingStartTime == null) {
-          eventProcessingStartTime = System.nanoTime();
-        }
-
+        initProcessingInfo();
         handleWriteRowsEvent(event, binlogFileOffset);
         break;
       }
@@ -239,6 +233,13 @@ public class MySqlBinaryLogClient extends DbLogClient {
     }
 
     saveEndingOffsetOfLastProcessedEvent(event);
+  }
+
+  private void initProcessingInfo() {
+    if (eventProcessingStartTime == null) {
+      eventProcessingStartTime = System.nanoTime();
+      meterRegistry.gauge("eventuate.cdc.processing.start.time", eventProcessingStartTime);
+    }
   }
 
   private Optional<BinlogFileOffset> getStartingBinlogFileOffset() {
