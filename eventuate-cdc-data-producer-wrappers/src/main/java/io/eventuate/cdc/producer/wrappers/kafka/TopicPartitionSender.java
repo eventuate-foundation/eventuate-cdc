@@ -110,7 +110,6 @@ public class TopicPartitionSender {
     String key = null;
     String topic = null;
 
-    AtomicInteger messageCounter = new AtomicInteger(0);
 
     while (true) {
       TopicPartitionMessage messageForBatch = messages.peek();
@@ -127,7 +126,6 @@ public class TopicPartitionSender {
         }
 
         batch.add(messageForBatch);
-        messageCounter.incrementAndGet();
       }
       else {
         break;
@@ -136,13 +134,13 @@ public class TopicPartitionSender {
 
     if (batch.isEmpty()) {
       state.set(TopicPartitionSenderState.ERROR);
-      throw new RuntimeException("Sender is in error state, publishing is not possible.");
+      throw new RuntimeException("Message is too big to send.");
     }
 
     eventuateKafkaProducer
             .send(topic, key, messageBuilder.toBinaryArray())
             .whenComplete((o, throwable) -> {
-              updateMetrics(messageCounter.get());
+              updateMetrics(batch.size());
               if (throwable != null) {
                 state.set(TopicPartitionSenderState.ERROR);
                 batch.forEach(m -> m.completeExceptionally(throwable));
