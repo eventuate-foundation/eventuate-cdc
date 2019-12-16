@@ -13,4 +13,6 @@ dependencies {
 
 test {
     forkEvery 1
+
+    exclude '**/PerformanceTest.class'
 }
