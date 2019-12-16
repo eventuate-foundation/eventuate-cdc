@@ -1,7 +1,7 @@
 package io.eventuate.local.mysql.binlog;
 
 import io.eventuate.cdc.producer.wrappers.DataProducerFactory;
-import io.eventuate.cdc.producer.wrappers.EventuateKafkaDataProducerWrapper;
+import io.eventuate.cdc.producer.wrappers.kafka.EventuateKafkaDataProducerWrapper;
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.coordination.leadership.zookeeper.ZkLeaderSelector;
@@ -16,6 +16,8 @@ import io.eventuate.messaging.kafka.common.EventuateKafkaPropertiesConfiguration
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.logging.LoggingMeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -108,9 +110,13 @@ public class MySqlBinlogCdcIntegrationTestConfiguration {
 
   @Bean
   public DataProducerFactory dataProducerFactory(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
-                                                 EventuateKafkaProducerConfigurationProperties eventuateKafkaProducerConfigurationProperties) {
+                                                 EventuateKafkaProducerConfigurationProperties eventuateKafkaProducerConfigurationProperties,
+                                                 EventuateConfigurationProperties eventuateConfigurationProperties) {
     return () -> new EventuateKafkaDataProducerWrapper(new EventuateKafkaProducer(eventuateKafkaConfigurationProperties.getBootstrapServers(),
-            eventuateKafkaProducerConfigurationProperties));
+            eventuateKafkaProducerConfigurationProperties),
+            eventuateConfigurationProperties.isEnableBatchProcessing(),
+            eventuateConfigurationProperties.getMaxBatchSize(),
+            new LoggingMeterRegistry());
   }
 
   @Bean
@@ -120,14 +126,19 @@ public class MySqlBinlogCdcIntegrationTestConfiguration {
 
   @Bean
   public CdcDataPublisher<PublishedEvent> cdcKafkaPublisher(DataProducerFactory dataProducerFactory,
-                                                            EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
-                                                            EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties,
-                                                            PublishingStrategy<PublishedEvent> publishingStrategy) {
+                                                            PublishingStrategy<PublishedEvent> publishingStrategy,
+                                                            PublishingFilter publishingFilter) {
 
     return new CdcDataPublisher<>(dataProducerFactory,
-            new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(), eventuateKafkaConsumerConfigurationProperties),
+            publishingFilter,
             publishingStrategy,
-            null);
+            new SimpleMeterRegistry());
+  }
+
+  @Bean
+  public PublishingFilter publishingFilter(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
+                                           EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties) {
+    return new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(), eventuateKafkaConsumerConfigurationProperties);
   }
 
   @Bean

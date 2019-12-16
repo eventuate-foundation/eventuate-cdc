@@ -73,6 +73,12 @@ public class EventuateConfigurationProperties {
   @Value("${eventuate.monitoring.schema:#{\"eventuate\"}}")
   private String monitoringSchema;
 
+  @Value("${eventuate.cdc.kafka.enable.batch.processing:#{false}}")
+  private boolean enableBatchProcessing;
+
+  @Value("${eventuate.cdc.kafka.batch.processing.max.batch.size:#{1000000}}")
+  private int maxBatchSize;
+
   public String getDbUserName() {
     return dbUserName;
   }
@@ -183,5 +189,13 @@ public class EventuateConfigurationProperties {
 
   public String getMonitoringSchema() {
     return monitoringSchema;
+  }
+
+  public boolean isEnableBatchProcessing() {
+    return enableBatchProcessing;
+  }
+
+  public int getMaxBatchSize() {
+    return maxBatchSize;
   }
 }

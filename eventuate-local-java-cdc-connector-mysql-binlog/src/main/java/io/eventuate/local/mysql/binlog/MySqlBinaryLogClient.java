@@ -11,14 +11,15 @@ import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.*;
 import io.eventuate.local.db.log.common.DbLogClient;
 import io.eventuate.local.db.log.common.OffsetKafkaStore;
+import io.eventuate.local.common.OffsetProcessor;
 import io.eventuate.local.db.log.common.OffsetStore;
 import io.micrometer.core.instrument.MeterRegistry;
 
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MySqlBinaryLogClient extends DbLogClient {
 
@@ -33,7 +34,6 @@ public class MySqlBinaryLogClient extends DbLogClient {
   private BinaryLogClient client;
   private final Map<Long, TableMapEventData> tableMapEventByTableId = new HashMap<>();
   private String binlogFilename;
-  private long offset;
   private MySqlBinlogEntryExtractor extractor;
   private MySqlBinlogCdcMonitoringTimestampExtractor timestampExtractor;
   private int connectionTimeoutInMilliseconds;
@@ -47,6 +47,8 @@ public class MySqlBinaryLogClient extends DbLogClient {
   private Optional<Exception> publishingException = Optional.empty();
 
   private Optional<Runnable> callbackOnStop = Optional.empty();
+  private OffsetProcessor<BinlogFileOffset> offsetProcessor;
+  private Long eventProcessingStartTime;
 
   public MySqlBinaryLogClient(MeterRegistry meterRegistry,
                               String dbUserName,
@@ -83,7 +85,13 @@ public class MySqlBinaryLogClient extends DbLogClient {
     this.offsetStore = offsetStore;
     this.debeziumBinlogOffsetKafkaStore = debeziumBinlogOffsetKafkaStore;
 
+    offsetProcessor = new OffsetProcessor<>(offsetStore);
+
     mySqlCdcProcessingStatusService = new MySqlCdcProcessingStatusService(dataSourceUrl, dbUserName, dbPassword);
+  }
+
+  public Long getEventProcessingStartTime() {
+    return eventProcessingStartTime;
   }
 
   public Optional<Exception> getPublishingException() {
@@ -198,10 +206,12 @@ public class MySqlBinaryLogClient extends DbLogClient {
         break;
       }
       case EXT_WRITE_ROWS: {
+        initProcessingInfo();
         handleWriteRowsEvent(event, binlogFileOffset);
         break;
       }
       case WRITE_ROWS: {
+        initProcessingInfo();
         handleWriteRowsEvent(event, binlogFileOffset);
         break;
       }
@@ -223,6 +233,13 @@ public class MySqlBinaryLogClient extends DbLogClient {
     }
 
     saveEndingOffsetOfLastProcessedEvent(event);
+  }
+
+  private void initProcessingInfo() {
+    if (eventProcessingStartTime == null) {
+      eventProcessingStartTime = System.nanoTime();
+      meterRegistry.gauge("eventuate.cdc.processing.start.time", eventProcessingStartTime);
+    }
   }
 
   private Optional<BinlogFileOffset> getStartingBinlogFileOffset() {
@@ -249,8 +266,13 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
     WriteRowsEventData eventData = event.getData();
 
-    offset = extractOffset(event);
+    BinlogFileOffset binlogFileOffset = extractBinlogFileOffset(event);
+
+    long offset = binlogFileOffset.getOffset();
+
     logger.info("mysql binlog client got event with offset {}/{}", binlogFilename, offset);
+
+    AtomicBoolean eventPublished = new AtomicBoolean(false);
 
     if (isCdcMonitoringTableId(eventData.getTableId())) {
       onLagMeasurementEventReceived(eventData);
@@ -261,17 +283,43 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
       BinlogEntry entry = extractor.extract(schemaAndTable, eventData, binlogFilename, offset);
 
-
       if (!shouldSkipEntry(startingBinlogFileOffset, entry.getBinlogFileOffset())) {
         binlogEntryHandlers
-              .stream()
-              .filter(bh -> bh.isFor(schemaAndTable))
-              .forEach(binlogEntryHandler -> binlogEntryHandler.publish(entry));
+                .stream()
+                .filter(bh -> bh.isFor(schemaAndTable))
+                .forEach(binlogEntryHandler -> {
+                  publish(entry, binlogEntryHandler, binlogFileOffset);
+                  eventPublished.set(true);
+                });
       }
     }
 
     onEventReceived();
-    saveOffset(event);
+
+    if (!eventPublished.get()) {
+      offsetProcessor.saveOffset(CompletableFuture.completedFuture(binlogFileOffset));
+    }
+  }
+
+  private void publish(BinlogEntry entry, BinlogEntryHandler binlogEntryHandler, BinlogFileOffset binlogFileOffset) {
+    CompletableFuture<?> publishingFuture = binlogEntryHandler.publish(entry);
+
+    CompletableFuture<BinlogFileOffset> futureWithOffset = new CompletableFuture<>();
+
+    publishingFuture.whenComplete((o, throwable) -> {
+      if (throwable == null) {
+        futureWithOffset.complete(binlogFileOffset);
+      }
+      else {
+        futureWithOffset.completeExceptionally(throwable);
+      }
+    });
+
+    offsetProcessor.saveOffset(futureWithOffset);
+  }
+
+  private BinlogFileOffset extractBinlogFileOffset(Event event) {
+    return new BinlogFileOffset(binlogFilename, extractOffset(event));
   }
 
   private void onLagMeasurementEventReceived(WriteRowsEventData eventData) {
@@ -290,7 +338,8 @@ public class MySqlBinaryLogClient extends DbLogClient {
     }
 
     onEventReceived();
-    saveOffset(event);
+
+    offsetProcessor.saveOffset(CompletableFuture.completedFuture(extractBinlogFileOffset(event)));
   }
 
   private void onLagMeasurementEventReceived(UpdateRowsEventData eventData) {
@@ -301,11 +350,6 @@ public class MySqlBinaryLogClient extends DbLogClient {
     return ((EventHeaderV4) event.getHeader()).getPosition();
   }
 
-  private void saveOffset(Event event) {
-    offset = extractOffset(event);
-    BinlogFileOffset binlogFileOffset = new BinlogFileOffset(binlogFilename, offset);
-    offsetStore.save(binlogFileOffset);
-  }
 
   private boolean isCdcMonitoringTableId(Long id) {
     return cdcMonitoringTableId.map(id::equals).orElse(false);
@@ -405,4 +449,5 @@ public class MySqlBinaryLogClient extends DbLogClient {
       return binlogFileOffset;
     }
   }
+
 }

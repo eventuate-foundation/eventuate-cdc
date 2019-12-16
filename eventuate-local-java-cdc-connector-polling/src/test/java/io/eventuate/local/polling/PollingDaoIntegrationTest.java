@@ -29,6 +29,8 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 @ActiveProfiles("EventuatePolling")
@@ -125,8 +127,9 @@ public class PollingDaoIntegrationTest {
   protected BinlogEntryHandler prepareBinlogEntryHandler(Consumer<PublishedEvent> consumer) {
     cdcDataPublisher = new CdcDataPublisher<PublishedEvent>(null, null, null, null) {
       @Override
-      public void handleEvent(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {
+      public CompletableFuture<?> sendMessage(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {
         consumer.accept(publishedEvent);
+        return CompletableFuture.completedFuture(null);
       }
     };
 

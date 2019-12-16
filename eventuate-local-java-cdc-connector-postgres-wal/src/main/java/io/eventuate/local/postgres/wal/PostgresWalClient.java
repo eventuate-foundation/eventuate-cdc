@@ -3,9 +3,11 @@ package io.eventuate.local.postgres.wal;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.local.common.BinlogEntry;
+import io.eventuate.local.common.BinlogEntryHandler;
 import io.eventuate.local.common.CdcProcessingStatusService;
 import io.eventuate.local.common.SchemaAndTable;
 import io.eventuate.local.db.log.common.DbLogClient;
+import io.eventuate.local.common.OffsetProcessor;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.postgresql.PGConnection;
 import org.postgresql.PGProperty;
@@ -21,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -35,6 +38,7 @@ public class PostgresWalClient extends DbLogClient {
   private int replicationStatusIntervalInMilliseconds;
   private String replicationSlotName;
   private PostgresWalCdcProcessingStatusService postgresWalCdcProcessingStatusService;
+  private OffsetProcessor<LogSequenceNumber> offsetProcessor;
 
   public PostgresWalClient(MeterRegistry meterRegistry,
                            String url,
@@ -140,6 +144,16 @@ public class PostgresWalClient extends DbLogClient {
             .withStatusInterval(replicationStatusIntervalInMilliseconds, TimeUnit.MILLISECONDS)
             .start();
 
+    offsetProcessor = new OffsetProcessor<>(logSequenceNumber -> {
+      stream.setAppliedLSN(stream.getLastReceiveLSN());
+      stream.setFlushedLSN(stream.getLastReceiveLSN());
+      try {
+        stream.forceUpdateStatus();
+      } catch (SQLException e) {
+        throw new RuntimeException(e);
+      }
+    });
+
     onConnected();
 
     logger.info("connection to postgres wal succeed");
@@ -194,19 +208,32 @@ public class PostgresWalClient extends DbLogClient {
                   .stream()
                   .filter(entry -> handler.isFor(entry.getSchemaAndTable()))
                   .map(BinlogEntryWithSchemaAndTable::getBinlogEntry)
-                  .forEach(e -> {
-                    handler.publish(e);
-                    onEventReceived();
-                  }));
-
-
-      stream.setAppliedLSN(stream.getLastReceiveLSN());
-      stream.setFlushedLSN(stream.getLastReceiveLSN());
-      stream.forceUpdateStatus();
+                  .forEach(e -> handleBinlogEntry(e, handler)));
       saveOffsetOfLastProcessedEvent();
     }
 
     stopCountDownLatch.countDown();
+  }
+
+  private void handleBinlogEntry(BinlogEntry entry, BinlogEntryHandler handler) {
+    LogSequenceNumber logSequenceNumber = stream.getLastReceiveLSN();
+
+    CompletableFuture<LogSequenceNumber> futureOffset = new CompletableFuture<>();
+
+    CompletableFuture<?> future = handler.publish(entry);
+
+    future.whenComplete((o, throwable) -> {
+      if (throwable != null) {
+        futureOffset.completeExceptionally(throwable);
+      }
+      else {
+        futureOffset.complete(logSequenceNumber);
+      }
+    });
+
+    offsetProcessor.saveOffset(futureOffset);
+
+    onEventReceived();
   }
 
   @Override
