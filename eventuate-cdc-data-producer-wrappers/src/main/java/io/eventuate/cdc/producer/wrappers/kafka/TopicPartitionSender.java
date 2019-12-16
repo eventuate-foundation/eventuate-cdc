@@ -1,9 +1,9 @@
 package io.eventuate.cdc.producer.wrappers.kafka;
 
+import io.eventuate.messaging.kafka.common.EventuateBinaryMessageEncoding;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageKeyValue;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
-import io.eventuate.util.common.StringUtils;
 import io.micrometer.core.instrument.MeterRegistry;
 
 import java.util.ArrayList;
@@ -88,7 +88,7 @@ public class TopicPartitionSender {
       TopicPartitionMessage message = topicPartitionMessage;
 
       eventuateKafkaProducer
-        .send(message.getTopic(), message.getKey(), StringUtils.stringToBytes(message.getBody()))
+        .send(message.getTopic(), message.getKey(), EventuateBinaryMessageEncoding.stringToBytes(message.getBody()))
         .whenComplete((o, throwable) -> {
           updateMetrics(1);
           if (throwable != null) {
