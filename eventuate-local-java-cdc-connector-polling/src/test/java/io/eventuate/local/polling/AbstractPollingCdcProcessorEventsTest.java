@@ -10,6 +10,8 @@ import io.eventuate.local.test.util.CdcProcessorEventsTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 public abstract class AbstractPollingCdcProcessorEventsTest extends CdcProcessorEventsTest {
@@ -36,8 +38,9 @@ public abstract class AbstractPollingCdcProcessorEventsTest extends CdcProcessor
             new BinlogEntryToPublishedEventConverter(),
             new CdcDataPublisher<PublishedEvent>(null, null, null, null) {
               @Override
-              public void handleEvent(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {
+              public CompletableFuture<?> sendMessage(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {
                 consumer.accept(publishedEvent);
+                return CompletableFuture.completedFuture(null);
               }
             });
   }

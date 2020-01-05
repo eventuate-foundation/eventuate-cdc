@@ -1,8 +1,16 @@
 dependencies {
     compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-producer:$eventuateMessagingKafkaVersion"
-    compile "io.eventuate.messaging.activemq:eventuate-messaging-activemq-producer:$eventuateMessagingKafkaVersion"
-    compile "io.eventuate.messaging.rabbitmq:eventuate-messaging-rabbitmq-producer:$eventuateMessagingKafkaVersion"
-    compile "io.eventuate.messaging.redis:eventuate-messaging-redis-producer:$eventuateMessagingKafkaVersion"
+    compile "io.eventuate.messaging.activemq:eventuate-messaging-activemq-producer:$eventuateMessagingActiveMQVersion"
+    compile "io.eventuate.messaging.rabbitmq:eventuate-messaging-rabbitmq-producer:$eventuateMessagingRabbitMQVersion"
+    compile "io.eventuate.messaging.redis:eventuate-messaging-redis-producer:$eventuateMessagingRedisVersion"
+
+    compile 'io.micrometer:micrometer-core:1.1.1'
+    compile 'io.micrometer:micrometer-registry-jmx:0.12.0.RELEASE'
+    compile 'io.micrometer:micrometer-registry-prometheus:0.12.0.RELEASE'
+
+    testCompile project(":eventuate-local-java-cdc-connector-test-util")
+    testCompile "junit:junit:4.11"
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
 }
 
 test {

@@ -6,6 +6,7 @@ import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.messaging.kafka.basic.consumer.ConsumerPropertiesFactory;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumer;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
+import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -25,6 +26,7 @@ public class DuplicatePublishingDetector implements PublishingFilter {
   private boolean okToProcess = false;
   private String kafkaBootstrapServers;
   private EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties;
+  private EventuateKafkaMultiMessageConverter eventuateKafkaMultiMessageConverter = new EventuateKafkaMultiMessageConverter();
 
   public DuplicatePublishingDetector(String kafkaBootstrapServers,
                                      EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties) {
@@ -50,7 +52,7 @@ public class DuplicatePublishingDetector implements PublishingFilter {
     String subscriberId = "duplicate-checker-" + destinationTopic + "-" + System.currentTimeMillis();
     Properties consumerProperties = ConsumerPropertiesFactory.makeDefaultConsumerProperties(kafkaBootstrapServers, subscriberId);
     consumerProperties.putAll(eventuateKafkaConsumerConfigurationProperties.getProperties());
-    KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProperties);
+    KafkaConsumer<String, byte[]> consumer = new KafkaConsumer<>(consumerProperties);
 
     List<PartitionInfo> partitions = EventuateKafkaConsumer.verifyTopicExistsBeforeSubscribing(consumer, destinationTopic);
 
@@ -79,9 +81,9 @@ public class DuplicatePublishingDetector implements PublishingFilter {
 
     logger.info("Polling for records");
 
-    List<ConsumerRecord<String, String>> records = new ArrayList<>();
+    List<ConsumerRecord<String, byte[]>> records = new ArrayList<>();
     while (records.size()<positions.size()) {
-      ConsumerRecords<String, String> consumerRecords = consumer.poll(1000);
+      ConsumerRecords<String, byte[]> consumerRecords = consumer.poll(1000);
       consumerRecords.forEach(records::add);
     }
 
@@ -89,9 +91,14 @@ public class DuplicatePublishingDetector implements PublishingFilter {
     Optional<BinlogFileOffset> max =
             records
                     .stream()
-                    .map(record -> {
-                      logger.info(String.format("got record: %s %s %s", record.partition(), record.offset(), record.value()));
-                      return JSonMapper.fromJson(record.value(), PublishedEvent.class).getBinlogFileOffset();
+                    .flatMap(record -> {
+                      logger.info(String.format("got record: %s %s", record.partition(), record.offset()));
+
+                      return eventuateKafkaMultiMessageConverter
+                              .convertBytesToValues(record.value())
+                              .stream()
+                              .map(value -> JSonMapper.fromJson(value, PublishedEvent.class).getBinlogFileOffset());
+
                     })
                     .filter(Optional::isPresent)
                     .map(Optional::get)

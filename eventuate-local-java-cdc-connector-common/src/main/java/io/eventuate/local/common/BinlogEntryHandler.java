@@ -2,6 +2,8 @@ package io.eventuate.local.common;
 
 import io.eventuate.common.eventuate.local.BinLogEvent;
 
+import java.util.concurrent.CompletableFuture;
+
 public class BinlogEntryHandler<EVENT extends BinLogEvent> {
   protected SchemaAndTable schemaAndTable;
   protected BinlogEntryToEventConverter<EVENT> binlogEntryToEventConverter;
@@ -28,7 +30,7 @@ public class BinlogEntryHandler<EVENT extends BinLogEvent> {
     return this.schemaAndTable.equals(schemaAndTable);
   }
 
-  public void publish(BinlogEntry binlogEntry) {
-    cdcDataPublisher.handleEvent(binlogEntryToEventConverter.convert(binlogEntry));
+  public CompletableFuture<?> publish(BinlogEntry binlogEntry) {
+    return cdcDataPublisher.sendMessage(binlogEntryToEventConverter.convert(binlogEntry));
   }
 }

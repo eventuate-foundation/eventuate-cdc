@@ -3,6 +3,7 @@ package io.eventuate.local.test.util;
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.CdcDataPublisher;
+import io.eventuate.local.common.EventuateConfigurationProperties;
 import io.eventuate.local.common.PublishingStrategy;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -22,6 +23,9 @@ public abstract class CdcKafkaPublisherEventsTest {
 
   @Autowired
   protected EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties;
+
+  @Autowired
+  protected EventuateConfigurationProperties eventuateConfigurationProperties;
 
   @Autowired
   protected PublishingStrategy<PublishedEvent> publishingStrategy;
@@ -47,7 +51,7 @@ public abstract class CdcKafkaPublisherEventsTest {
   public void shouldSendPublishedEventsToKafka() {
     TestHelper.EventIdEntityId entityIdVersionAndEventIds = testHelper.saveEvent(testHelper.generateTestCreatedEvent());
 
-    KafkaConsumer<String, String> consumer = testHelper.createConsumer(eventuateKafkaConfigurationProperties.getBootstrapServers());
+    KafkaConsumer<String, byte[]> consumer = testHelper.createConsumer(eventuateKafkaConfigurationProperties.getBootstrapServers());
     consumer.partitionsFor(testHelper.getEventTopicName());
     consumer.subscribe(Collections.singletonList(testHelper.getEventTopicName()));
 

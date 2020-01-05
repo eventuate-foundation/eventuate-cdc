@@ -29,7 +29,7 @@ public class MigrationOldCdcPhaseE2ETest extends AbstractE2EMigrationTest {
       private boolean secondEventFailed;
 
       @Override
-      public MessageConsumerBacklog apply(ConsumerRecord<String, String> record, BiConsumer<Void, Throwable> consumer) {
+      public MessageConsumerBacklog apply(ConsumerRecord<String, byte[]> record, BiConsumer<Void, Throwable> consumer) {
         if (!received) {
           received = true;
           return super.apply(record, consumer);

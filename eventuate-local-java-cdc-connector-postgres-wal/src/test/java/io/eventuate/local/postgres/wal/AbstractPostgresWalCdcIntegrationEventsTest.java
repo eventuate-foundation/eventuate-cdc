@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public abstract class AbstractPostgresWalCdcIntegrationEventsTest {
@@ -49,8 +51,9 @@ public abstract class AbstractPostgresWalCdcIntegrationEventsTest {
             new BinlogEntryToPublishedEventConverter(),
             new CdcDataPublisher<PublishedEvent>(null, null, null, null) {
               @Override
-              public void handleEvent(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {
+              public CompletableFuture<?> sendMessage(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {
                 publishedEvents.add(publishedEvent);
+                return CompletableFuture.completedFuture(null);
               }
             });
 
