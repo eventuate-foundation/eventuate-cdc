@@ -28,7 +28,7 @@ public class DaoUtils {
         logger.error(String.format("Could not access database %s - retrying in %s milliseconds", e.getMessage(), intervalInMilliseconds), e);
 
         if (attempt++ >= maxAttempts) {
-          throw new RuntimeException(e);
+          throw new RuntimeException("Max retry attempts exceeded", e);
         }
 
         try {
