@@ -153,6 +153,7 @@ public class TopicPartitionSender {
   }
 
   private void updateMetrics(int processedEvents) {
+    meterRegistry.summary("eventuate.cdc.kafka.batch.size").record(processedEvents);
     meterRegistry.counter("eventuate.cdc.processed.messages").increment(processedEvents);
     meterRegistry.gauge("eventuate.cdc.time.of.last.processed.message", System.nanoTime());
   }

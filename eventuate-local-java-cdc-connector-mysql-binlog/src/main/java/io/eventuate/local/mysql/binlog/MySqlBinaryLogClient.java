@@ -161,7 +161,9 @@ public class MySqlBinaryLogClient extends DbLogClient {
     }
 
     try {
-      handleBinlogEvent(event, binlogFileOffset);
+      meterRegistry.timer("eventuate.cdc.mysql.event.processing.duration").record(() -> {
+        handleBinlogEvent(event, binlogFileOffset);
+      });
     } catch (Exception e) {
       handleRestart(e);
     }
@@ -176,6 +178,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
   }
 
   private void handleBinlogEvent(Event event, Optional<BinlogFileOffset> binlogFileOffset) {
+
     switch (event.getHeader().getEventType()) {
       case TABLE_MAP: {
         TableMapEventData tableMapEvent = event.getData();
