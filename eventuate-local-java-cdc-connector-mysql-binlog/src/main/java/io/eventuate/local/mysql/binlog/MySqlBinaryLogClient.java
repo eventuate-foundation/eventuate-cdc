@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class MySqlBinaryLogClient extends DbLogClient {
 
@@ -49,6 +50,9 @@ public class MySqlBinaryLogClient extends DbLogClient {
   private Optional<Runnable> callbackOnStop = Optional.empty();
   private OffsetProcessor<BinlogFileOffset> offsetProcessor;
   private Long eventProcessingStartTime;
+
+  private AtomicLong timeOfFirstMessage = new AtomicLong();
+  private AtomicLong timeOfLatestMessage = new AtomicLong();;
 
   public MySqlBinaryLogClient(MeterRegistry meterRegistry,
                               String dbUserName,
@@ -88,7 +92,13 @@ public class MySqlBinaryLogClient extends DbLogClient {
     offsetProcessor = new OffsetProcessor<>(offsetStore);
 
     mySqlCdcProcessingStatusService = new MySqlCdcProcessingStatusService(dataSourceUrl, dbUserName, dbPassword);
-  }
+
+    meterRegistry.gauge("eventuate.cdc.mysql.event.unprocessed.offsets", offsetProcessor.getUnprocessedOffsetCount());
+
+    meterRegistry.gauge("eventuate.cdc.mysql.event.first.message.time", timeOfFirstMessage);
+    meterRegistry.gauge("eventuate.cdc.mysql.event.latest.message.time", timeOfLatestMessage);
+
+}
 
   public Long getEventProcessingStartTime() {
     return eventProcessingStartTime;
@@ -305,6 +315,10 @@ public class MySqlBinaryLogClient extends DbLogClient {
   }
 
   private void publish(BinlogEntry entry, BinlogEntryHandler binlogEntryHandler, BinlogFileOffset binlogFileOffset) {
+    long timeNow = System.currentTimeMillis();
+    this.timeOfFirstMessage.compareAndSet(0, timeNow);
+    this.timeOfLatestMessage.set(timeNow);
+
     CompletableFuture<?> publishingFuture = binlogEntryHandler.publish(entry);
 
     CompletableFuture<BinlogFileOffset> futureWithOffset = new CompletableFuture<>();

@@ -5,15 +5,16 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class OffsetProcessor<OFFSET> {
   protected Logger logger = LoggerFactory.getLogger(getClass());
 
   private AtomicBoolean processingOffsets = new AtomicBoolean(false);
 
-  protected ConcurrentLinkedQueue<CompletableFuture<OFFSET>> offsets = new ConcurrentLinkedQueue<>();
+  protected ConcurrentCountedLinkedQueue<OFFSET> offsets = new ConcurrentCountedLinkedQueue<>();
   protected GenericOffsetStore<OFFSET> offsetStore;
 
   public OffsetProcessor(GenericOffsetStore<OFFSET> offsetStore) {
@@ -62,7 +63,7 @@ public class OffsetProcessor<OFFSET> {
   protected OFFSET getOffset(CompletableFuture<OFFSET> offset) {
     try {
       return offset.get();
-    } catch (Throwable t) {
+    } catch (InterruptedException | ExecutionException t) {
       logger.error("Event publishing failed", t);
       throw new RuntimeException(t);
     }
@@ -70,5 +71,9 @@ public class OffsetProcessor<OFFSET> {
 
   protected boolean isDone(CompletableFuture<OFFSET> offset) {
     return offset != null && offset.isDone();
+  }
+
+  public AtomicInteger getUnprocessedOffsetCount() {
+    return offsets.size;
   }
 }
