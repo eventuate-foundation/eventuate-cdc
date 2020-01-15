@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class TopicPartitionSender {
@@ -19,6 +20,7 @@ public class TopicPartitionSender {
   private boolean enableBatchProcessing;
   private int batchSize;
   private MeterRegistry meterRegistry;
+  private AtomicLong timeOfLastProcessedMessage;
 
   public TopicPartitionSender(EventuateKafkaProducer eventuateKafkaProducer,
                               boolean enableBatchProcessing,
@@ -154,6 +156,11 @@ public class TopicPartitionSender {
 
   private void updateMetrics(int processedEvents) {
     meterRegistry.counter("eventuate.cdc.processed.messages").increment(processedEvents);
-    meterRegistry.gauge("eventuate.cdc.time.of.last.processed.message", System.nanoTime());
+    if (timeOfLastProcessedMessage == null) {
+      timeOfLastProcessedMessage = new AtomicLong(System.nanoTime());
+      meterRegistry.gauge("eventuate.cdc.time.of.last.processed.message", timeOfLastProcessedMessage);
+    } else {
+      timeOfLastProcessedMessage.set(System.nanoTime());
+    }
   }
 }
