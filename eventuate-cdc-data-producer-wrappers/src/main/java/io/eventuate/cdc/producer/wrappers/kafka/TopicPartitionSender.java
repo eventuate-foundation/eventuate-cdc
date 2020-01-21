@@ -1,15 +1,14 @@
 package io.eventuate.cdc.producer.wrappers.kafka;
 
+import io.eventuate.messaging.kafka.common.EventuateBinaryMessageEncoding;
+import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessage;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
-import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageKeyValue;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
-import io.eventuate.util.common.StringUtils;
 import io.micrometer.core.instrument.MeterRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class TopicPartitionSender {
@@ -88,7 +87,7 @@ public class TopicPartitionSender {
       TopicPartitionMessage message = topicPartitionMessage;
 
       eventuateKafkaProducer
-        .send(message.getTopic(), message.getKey(), StringUtils.stringToBytes(message.getBody()))
+        .send(message.getTopic(), message.getKey(), EventuateBinaryMessageEncoding.stringToBytes(message.getBody()))
         .whenComplete((o, throwable) -> {
           updateMetrics(1);
           if (throwable != null) {
@@ -115,7 +114,7 @@ public class TopicPartitionSender {
       TopicPartitionMessage messageForBatch = messages.peek();
 
       if (messageForBatch != null &&
-              messageBuilder.addMessage(new EventuateKafkaMultiMessageKeyValue(messageForBatch.getKey(), messageForBatch.getBody()))) {
+              messageBuilder.addMessage(new EventuateKafkaMultiMessage(messageForBatch.getKey(), messageForBatch.getBody()))) {
 
         messageForBatch = messages.poll();
 

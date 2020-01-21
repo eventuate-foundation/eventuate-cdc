@@ -4,8 +4,8 @@ import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessage;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
-import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageKeyValue;
 import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -173,8 +173,9 @@ public class TestHelper {
           if (eventuateKafkaMultiMessageConverter.isMultiMessage(record.value())) {
             entity = eventuateKafkaMultiMessageConverter
                     .convertBytesToMessages(record.value())
+                    .getMessages()
                     .stream()
-                    .map(EventuateKafkaMultiMessageKeyValue::getKey)
+                    .map(EventuateKafkaMultiMessage::getKey)
                     .filter(entityId::equals)
                     .findAny();
           }
