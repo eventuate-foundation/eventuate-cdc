@@ -1,3 +1,3 @@
 #! /bin/bash -e
 
-docker build -t test-eventuate-cdc-service .
+docker build -t eventuateio/eventuate-cdc-service:local-test .

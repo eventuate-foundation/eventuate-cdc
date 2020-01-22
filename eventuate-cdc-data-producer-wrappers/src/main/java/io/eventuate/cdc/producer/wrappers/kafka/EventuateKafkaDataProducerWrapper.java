@@ -5,11 +5,15 @@ import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.kafka.common.TopicPartition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class EventuateKafkaDataProducerWrapper implements DataProducer {
+
+  private Logger logger = LoggerFactory.getLogger(getClass());
 
   private EventuateKafkaProducer eventuateKafkaProducer;
   private final ConcurrentHashMap<TopicPartition, TopicPartitionSender> topicPartitionSenders = new ConcurrentHashMap<>();
@@ -25,6 +29,9 @@ public class EventuateKafkaDataProducerWrapper implements DataProducer {
     this.enableBatchProcessing = enableBatchProcessing;
     this.batchSize = batchSize;
     this.meterRegistry = meterRegistry;
+
+    logger.info("enableBatchProcessing={}", enableBatchProcessing);
+    logger.info("batchSize={}", batchSize);
   }
 
   @Override

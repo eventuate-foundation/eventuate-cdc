@@ -155,6 +155,7 @@ public class TopicPartitionSender {
   }
 
   private void updateMetrics(int processedEvents) {
+    meterRegistry.summary("eventuate.cdc.kafka.batch.size").record(processedEvents);
     meterRegistry.counter("eventuate.cdc.processed.messages").increment(processedEvents);
     if (timeOfLastProcessedMessage == null) {
       timeOfLastProcessedMessage = new AtomicLong(System.nanoTime());
