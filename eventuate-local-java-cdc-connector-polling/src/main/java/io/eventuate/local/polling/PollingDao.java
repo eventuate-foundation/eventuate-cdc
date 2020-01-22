@@ -115,20 +115,20 @@ public class PollingDao extends BinlogEntryReader {
             this::onInterrupted,
             running);
 
-    List<CompletableFuture<Object>> futureIds = new ArrayList<>();
+    List<CompletableFuture<Object>> ids = new ArrayList<>();
 
     while (sqlRowSet.next()) {
       Object id = sqlRowSet.getObject(pk);
-      futureIds.add(handleEvent(id, handler, sqlRowSet));
+      ids.add(handleEvent(id, handler, sqlRowSet));
       onEventReceived();
     }
 
-    if (!futureIds.isEmpty()) {
+    if (!ids.isEmpty()) {
       onActivity();
-      markEventsAsProcessed(futureIds, pk, handler);
+      markEventsAsProcessed(ids, pk, handler);
     }
 
-    return futureIds.size();
+    return ids.size();
   }
 
   private void markEventsAsProcessed(List<CompletableFuture<Object>> futureIds, String pk, BinlogEntryHandler handler) {
@@ -166,18 +166,7 @@ public class PollingDao extends BinlogEntryReader {
       }
     });
 
-    CompletableFuture<Object> offsetFuture = new CompletableFuture<>();
-
-    future.whenComplete((o, throwable) -> {
-      if (throwable != null) {
-        offsetFuture.completeExceptionally(throwable);
-      }
-      else {
-        offsetFuture.complete(id);
-      }
-    });
-
-    return offsetFuture;
+    return future.thenApply(o -> id);
   }
 
   private String getPrimaryKey(BinlogEntryHandler handler) {
