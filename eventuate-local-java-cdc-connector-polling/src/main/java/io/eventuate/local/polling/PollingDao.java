@@ -17,6 +17,8 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class PollingDao extends BinlogEntryReader {
   private static final String PUBLISHED_FIELD = "published";
@@ -29,7 +31,6 @@ public class PollingDao extends BinlogEntryReader {
   private int pollingIntervalInMilliseconds;
   private Map<SchemaAndTable, String> pkFields = new HashMap<>();
   private EventuateSqlDialect eventuateSqlDialect;
-  private PollingOffsetProcessor offsetProcessor;
   private PollingProcessingStatusService pollingProcessingStatusService;
 
   public PollingDao(MeterRegistry meterRegistry,
@@ -105,17 +106,6 @@ public class PollingDao extends BinlogEntryReader {
 
     String pk = getPrimaryKey(handler);
 
-    offsetProcessor = new PollingOffsetProcessor((offsets) -> {
-      String markEventsAsReadQuery = String.format("UPDATE %s SET %s = 1 WHERE %s in (:ids)",
-              handler.getQualifiedTable(), PUBLISHED_FIELD, pk);
-
-      DaoUtils.handleConnectionLost(maxAttemptsForPolling,
-              pollingRetryIntervalInMilliseconds,
-              () -> namedParameterJdbcTemplate.update(markEventsAsReadQuery, ImmutableMap.of("ids", offsets)),
-              this::onInterrupted,
-              running);
-    });
-
     String findEventsQuery = eventuateSqlDialect.addLimitToSql(String.format("SELECT * FROM %s WHERE %s = 0 ORDER BY %s ASC",
             handler.getQualifiedTable(), PUBLISHED_FIELD, pk), ":limit");
 
@@ -125,25 +115,45 @@ public class PollingDao extends BinlogEntryReader {
             this::onInterrupted,
             running);
 
-    List<Object> ids = new ArrayList<>();
+    List<CompletableFuture<Object>> futureIds = new ArrayList<>();
 
     while (sqlRowSet.next()) {
       Object id = sqlRowSet.getObject(pk);
-      ids.add(id);
-
-      handleEvent(id, handler, sqlRowSet);
-
+      futureIds.add(handleEvent(id, handler, sqlRowSet));
       onEventReceived();
     }
 
-    if (ids.isEmpty()) {
+    if (!futureIds.isEmpty()) {
       onActivity();
+      markEventsAsProcessed(futureIds, pk, handler);
     }
 
-    return ids.size();
+    return futureIds.size();
   }
 
-  private void handleEvent(Object id, BinlogEntryHandler handler, SqlRowSet sqlRowSet) {
+  private void markEventsAsProcessed(List<CompletableFuture<Object>> futureIds, String pk, BinlogEntryHandler handler) {
+    List<Object> ids = futureIds
+            .stream()
+            .map(futureId -> {
+              try {
+                return futureId.get();
+              } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+              }
+            })
+            .collect(Collectors.toList());
+
+    String markEventsAsReadQuery = String.format("UPDATE %s SET %s = 1 WHERE %s in (:ids)",
+            handler.getQualifiedTable(), PUBLISHED_FIELD, pk);
+
+    DaoUtils.handleConnectionLost(maxAttemptsForPolling,
+            pollingRetryIntervalInMilliseconds,
+            () -> namedParameterJdbcTemplate.update(markEventsAsReadQuery, ImmutableMap.of("ids", ids)),
+            this::onInterrupted,
+            running);
+  }
+
+  private CompletableFuture<Object> handleEvent(Object id, BinlogEntryHandler handler, SqlRowSet sqlRowSet) {
     CompletableFuture<?> future = handler.publish(new BinlogEntry() {
       @Override
       public Object getColumn(String name) {
@@ -167,7 +177,7 @@ public class PollingDao extends BinlogEntryReader {
       }
     });
 
-    offsetProcessor.saveOffset(offsetFuture);
+    return offsetFuture;
   }
 
   private String getPrimaryKey(BinlogEntryHandler handler) {
