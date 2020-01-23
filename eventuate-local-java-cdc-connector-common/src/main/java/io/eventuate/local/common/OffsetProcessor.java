@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -61,12 +60,7 @@ public class OffsetProcessor<OFFSET> {
   }
 
   protected OFFSET getOffset(CompletableFuture<OFFSET> offset) {
-    try {
-      return offset.get();
-    } catch (InterruptedException | ExecutionException t) {
-      logger.error("Event publishing failed", t);
-      throw new RuntimeException(t);
-    }
+    return CompletableFutureUtil.get(offset);
   }
 
   protected boolean isDone(CompletableFuture<OFFSET> offset) {

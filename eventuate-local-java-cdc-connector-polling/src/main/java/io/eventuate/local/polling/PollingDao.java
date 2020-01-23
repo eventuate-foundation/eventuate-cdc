@@ -131,16 +131,10 @@ public class PollingDao extends BinlogEntryReader {
     return ids.size();
   }
 
-  private void markEventsAsProcessed(List<CompletableFuture<Object>> futureIds, String pk, BinlogEntryHandler handler) {
-    List<Object> ids = futureIds
+  private void markEventsAsProcessed(List<CompletableFuture<Object>> eventIds, String pk, BinlogEntryHandler handler) {
+    List<Object> ids = eventIds
             .stream()
-            .map(futureId -> {
-              try {
-                return futureId.get();
-              } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-              }
-            })
+            .map(CompletableFutureUtil::get)
             .collect(Collectors.toList());
 
     String markEventsAsReadQuery = String.format("UPDATE %s SET %s = 1 WHERE %s in (:ids)",
