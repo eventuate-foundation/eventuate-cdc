@@ -1,10 +1,6 @@
 buildscript {
     repositories {
         mavenCentral()
-
-        maven {
-            url "https://repo.spring.io/milestone/"
-        }
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootPluginVersion")
@@ -51,9 +47,6 @@ subprojects {
         mavenCentral()
         jcenter()
         eventuateMavenRepoUrl.split(',').each { repoUrl -> maven { url repoUrl } }
-        maven {
-            url "https://repo.spring.io/milestone/"
-        }
     }
 
     dependencies {

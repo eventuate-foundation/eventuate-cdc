@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.local.common.OffsetProcessor;
 import io.eventuate.local.db.log.common.OffsetStore;
+import io.eventuate.util.test.async.Eventually;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -64,7 +65,7 @@ public class OffsetProcessorTest {
   }
 
   private void assertUnprocessedCountEquals(int i) {
-    assertEquals(i, offsetProcessor.getUnprocessedOffsetCount().get());
+    Eventually.eventually(() -> assertEquals(i, offsetProcessor.getUnprocessedOffsetCount().get()));
   }
 
   @Test
@@ -80,7 +81,7 @@ public class OffsetProcessorTest {
   }
 
   private void verify(Map<BinlogFileOffset, Integer> invocations) {
-    invocations.forEach((offset, invocationCount) -> Mockito.verify(offsetStore, Mockito.times(invocationCount)).save(offset));
+    Eventually.eventually(() -> invocations.forEach((offset, invocationCount) -> Mockito.verify(offsetStore, Mockito.times(invocationCount)).save(offset)));
   }
 
 }
