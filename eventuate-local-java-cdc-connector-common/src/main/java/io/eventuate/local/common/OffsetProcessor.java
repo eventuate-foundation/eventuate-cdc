@@ -4,8 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -16,6 +15,7 @@ public class OffsetProcessor<OFFSET> {
 
   protected ConcurrentCountedLinkedQueue<OFFSET> offsets = new ConcurrentCountedLinkedQueue<>();
   protected GenericOffsetStore<OFFSET> offsetStore;
+  private Executor executor = Executors.newCachedThreadPool();
 
   public OffsetProcessor(GenericOffsetStore<OFFSET> offsetStore) {
     this.offsetStore = offsetStore;
@@ -24,7 +24,7 @@ public class OffsetProcessor<OFFSET> {
   public void saveOffset(CompletableFuture<OFFSET> offset) {
     offsets.add(offset);
 
-    offset.whenComplete((o, throwable) -> processOffsets());
+    offset.whenCompleteAsync((o, throwable) -> processOffsets(), executor);
   }
 
   private void processOffsets() {

@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
 
         maven {
-            url "http://repo.spring.io/milestone/"
+            url "https://repo.spring.io/milestone/"
         }
     }
     dependencies {
@@ -48,12 +48,12 @@ subprojects {
     }
 
     repositories {
-        maven {
-            url "http://repo.spring.io/milestone/"
-        }
         mavenCentral()
         jcenter()
         eventuateMavenRepoUrl.split(',').each { repoUrl -> maven { url repoUrl } }
+        maven {
+            url "https://repo.spring.io/milestone/"
+        }
     }
 
     dependencies {

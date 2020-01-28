@@ -5,6 +5,7 @@ import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessage;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,8 @@ public class TopicPartitionSender {
   private int batchSize;
   private MeterRegistry meterRegistry;
   private AtomicLong timeOfLastProcessedMessage;
+  private Executor executor = Executors.newCachedThreadPool();
+  private final Timer sendDurationTimer;
 
   public TopicPartitionSender(EventuateKafkaProducer eventuateKafkaProducer,
                               boolean enableBatchProcessing,
@@ -30,6 +33,7 @@ public class TopicPartitionSender {
     this.enableBatchProcessing = enableBatchProcessing;
     this.batchSize = batchSize;
     this.meterRegistry = meterRegistry;
+    this.sendDurationTimer = meterRegistry.timer("eventuate.cdc.kafka.send.duration");
   }
 
   public CompletableFuture<?> sendMessage(String topic, String key, String body) {
@@ -138,9 +142,13 @@ public class TopicPartitionSender {
       throw new RuntimeException("Message is too big to send.");
     }
 
+    long startTime = System.currentTimeMillis();
+
     eventuateKafkaProducer
             .send(topic, key, messageBuilder.toBinaryArray())
-            .whenComplete((o, throwable) -> {
+            .whenCompleteAsync((o, throwable) -> {
+              long endTime = System.currentTimeMillis();
+              sendDurationTimer.record(endTime - startTime, TimeUnit.MILLISECONDS);
               updateMetrics(batch.size());
               if (throwable != null) {
                 state.set(TopicPartitionSenderState.ERROR);
@@ -150,7 +158,7 @@ public class TopicPartitionSender {
                 batch.forEach(m -> m.complete(o));
                 sendMessage();
               }
-            });
+            }, executor);
   }
 
   private void updateMetrics(int processedEvents) {
