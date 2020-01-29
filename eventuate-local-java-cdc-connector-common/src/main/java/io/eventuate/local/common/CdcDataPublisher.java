@@ -86,14 +86,14 @@ public class CdcDataPublisher<EVENT extends BinLogEvent> {
 
     String json = publishingStrategy.toJson(publishedEvent);
 
-    logger.info("Got record: {}", json);
+    logger.debug("Got record: {}", json);
 
     String aggregateTopic = publishingStrategy.topicFor(publishedEvent);
 
     CompletableFuture<Object> result = new CompletableFuture<>();
 
     if (publishedEvent.getBinlogFileOffset().map(o -> publishingFilter.shouldBePublished(o, aggregateTopic)).orElse(true)) {
-      logger.info("sending record: {}", json);
+      logger.debug("sending record: {}", json);
 
       long t = System.nanoTime();
       send(publishedEvent, aggregateTopic, json, result);

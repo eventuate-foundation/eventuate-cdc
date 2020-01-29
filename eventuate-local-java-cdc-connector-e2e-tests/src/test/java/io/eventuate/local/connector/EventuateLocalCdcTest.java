@@ -6,7 +6,6 @@ import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumer;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
-import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageKeyValue;
 import io.eventuate.messaging.kafka.common.EventuateKafkaPropertiesConfiguration;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

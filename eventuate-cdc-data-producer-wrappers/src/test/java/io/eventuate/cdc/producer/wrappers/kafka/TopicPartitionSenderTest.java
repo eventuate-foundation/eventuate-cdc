@@ -1,8 +1,8 @@
 package io.eventuate.cdc.producer.wrappers.kafka;
 
 import io.eventuate.local.test.util.TestHelper;
+import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessage;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
-import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageKeyValue;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
 import io.micrometer.core.instrument.logging.LoggingMeterRegistry;
@@ -68,25 +68,25 @@ public class TopicPartitionSenderTest {
     }
   }
 
-  private List<EventuateKafkaMultiMessageKeyValue> receiveEvents() {
+  private List<EventuateKafkaMultiMessage> receiveEvents() {
     try (KafkaConsumer<String, byte[]> consumer = testHelper.createConsumer(kafkaBootstrapServers)) {
       consumer.subscribe(Collections.singletonList(topic));
 
       ConsumerRecords<String, byte[]> consumerRecords = consumer.poll(30000);
 
-      List<EventuateKafkaMultiMessageKeyValue> messages = new ArrayList<>();
+      List<EventuateKafkaMultiMessage> messages = new ArrayList<>();
 
       for (ConsumerRecord<String, byte[]> consumerRecord : consumerRecords) {
-        messages.addAll(eventuateKafkaMultiMessageConverter.convertBytesToMessages(consumerRecord.value()));
+        messages.addAll(eventuateKafkaMultiMessageConverter.convertBytesToMessages(consumerRecord.value()).getMessages());
       }
 
       return messages;
     }
   }
 
-  private void assertAllMessagesReceived(List<EventuateKafkaMultiMessageKeyValue> messages) {
+  private void assertAllMessagesReceived(List<EventuateKafkaMultiMessage> messages) {
     for (int i = 0; i < nEvents; i++) {
-      EventuateKafkaMultiMessageKeyValue message = messages.get(i);
+      EventuateKafkaMultiMessage message = messages.get(i);
       Assert.assertEquals(key, message.getKey());
       Assert.assertEquals(String.valueOf(i), message.getValue());
     }

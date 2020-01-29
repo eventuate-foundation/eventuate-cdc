@@ -17,7 +17,6 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 public class PollingDao extends BinlogEntryReader {
@@ -114,7 +113,6 @@ public class PollingDao extends BinlogEntryReader {
             () -> namedParameterJdbcTemplate.queryForRowSet(findEventsQuery, ImmutableMap.of("limit", maxEventsPerPolling)),
             this::onInterrupted,
             running);
-
     List<CompletableFuture<Object>> ids = new ArrayList<>();
 
     while (sqlRowSet.next()) {
@@ -124,9 +122,10 @@ public class PollingDao extends BinlogEntryReader {
     }
 
     if (!ids.isEmpty()) {
-      onActivity();
       markEventsAsProcessed(ids, pk, handler);
     }
+
+    onActivity();
 
     return ids.size();
   }
@@ -146,6 +145,7 @@ public class PollingDao extends BinlogEntryReader {
             this::onInterrupted,
             running);
   }
+
 
   private CompletableFuture<Object> handleEvent(Object id, BinlogEntryHandler handler, SqlRowSet sqlRowSet) {
     CompletableFuture<?> future = handler.publish(new BinlogEntry() {

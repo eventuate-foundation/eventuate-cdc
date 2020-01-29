@@ -14,6 +14,7 @@ import io.eventuate.local.db.log.common.OffsetKafkaStore;
 import io.eventuate.local.common.OffsetProcessor;
 import io.eventuate.local.db.log.common.OffsetStore;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -53,6 +54,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
   private AtomicLong timeOfFirstMessage = new AtomicLong();
   private AtomicLong timeOfLatestMessage = new AtomicLong();;
+  private Timer messagePublishingTimer;
 
   public MySqlBinaryLogClient(MeterRegistry meterRegistry,
                               String dbUserName,
@@ -98,7 +100,8 @@ public class MySqlBinaryLogClient extends DbLogClient {
     meterRegistry.gauge("eventuate.cdc.mysql.event.first.message.time", timeOfFirstMessage);
     meterRegistry.gauge("eventuate.cdc.mysql.event.latest.message.time", timeOfLatestMessage);
 
-}
+    messagePublishingTimer = meterRegistry.timer("eventuate.cdc.mysql.message.publishing.duration");
+  }
 
   public Long getEventProcessingStartTime() {
     return eventProcessingStartTime;
@@ -275,7 +278,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
       return;
     }
 
-    logger.info("Got binlog event {}", event);
+    logger.debug("Got binlog event {}", event);
 
     WriteRowsEventData eventData = event.getData();
 
@@ -283,7 +286,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
     long offset = binlogFileOffset.getOffset();
 
-    logger.info("mysql binlog client got event with offset {}/{}", binlogFilename, offset);
+    logger.debug("mysql binlog client got event with offset {}/{}", binlogFilename, offset);
 
     AtomicBoolean eventPublished = new AtomicBoolean(false);
 
@@ -301,7 +304,9 @@ public class MySqlBinaryLogClient extends DbLogClient {
                 .stream()
                 .filter(bh -> bh.isFor(schemaAndTable))
                 .forEach(binlogEntryHandler -> {
-                  publish(entry, binlogEntryHandler, binlogFileOffset);
+                  messagePublishingTimer.record(() -> {
+                    publish(entry, binlogEntryHandler, binlogFileOffset);
+                  });
                   eventPublished.set(true);
                 });
       }
