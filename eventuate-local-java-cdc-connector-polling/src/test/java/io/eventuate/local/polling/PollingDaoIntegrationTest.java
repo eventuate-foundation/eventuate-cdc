@@ -3,7 +3,6 @@ package io.eventuate.local.polling;
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
-import io.eventuate.coordination.leadership.EventuateLeaderSelector;
 import io.eventuate.local.common.BinlogEntryHandler;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.CdcDataPublisher;
@@ -29,9 +28,9 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @ActiveProfiles("EventuatePolling")
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -40,6 +39,8 @@ import java.util.function.Consumer;
 public class PollingDaoIntegrationTest {
 
   private static final int EVENTS_PER_POLLING_ITERATION = 3;
+  private static final int EVENTS = 10;
+
 
   @Value("${spring.datasource.url}")
   private String dataSourceURL;
@@ -65,7 +66,7 @@ public class PollingDaoIntegrationTest {
   @Autowired
   private TestHelper testHelper;
 
-  private int processedEvents;
+  private AtomicInteger processedEvents;
 
   private CdcDataPublisher<PublishedEvent> cdcDataPublisher;
 
@@ -73,31 +74,57 @@ public class PollingDaoIntegrationTest {
 
   @Before
   public void init() {
-    processedEvents = 0;
+    processedEvents = new AtomicInteger(0);
     pollingDao = createPollingDao();
+    clearEventsTable();
   }
 
   @Test
   public void testThatPollingEventCountAreLimited() {
-    final int EVENTS = 10;
+    BinlogEntryHandler binlogEntryHandler = prepareBinlogEntryHandler(CompletableFuture.completedFuture(null));
 
-    clearEventsTable();
+    List<String> eventIds = saveEvents();
 
-    BinlogEntryHandler binlogEntryHandler = prepareBinlogEntryHandler(publishedEvent -> {
-      processedEvents++;
+    pollingDao.processEvents(binlogEntryHandler);
+
+    Assert.assertEquals(EVENTS_PER_POLLING_ITERATION, processedEvents.get());
+
+    assertEventsArePublished(eventIds.subList(0, EVENTS_PER_POLLING_ITERATION));
+  }
+
+  @Test
+  public void testMessagesAreNotProcessedTwice() throws InterruptedException {
+    CompletableFuture<?> completableFuture = new CompletableFuture();
+
+    BinlogEntryHandler binlogEntryHandler = prepareBinlogEntryHandler(completableFuture);
+
+    saveEvents();
+
+    CountDownLatch allIterationsComplete = new CountDownLatch(1);
+
+    CompletableFuture.supplyAsync(() -> {
+      for (int i = 0; i < (EVENTS / EVENTS_PER_POLLING_ITERATION) * 2; i++) {
+        pollingDao.processEvents(binlogEntryHandler);
+      }
+      allIterationsComplete.countDown();
+      return null;
     });
 
+    Thread.sleep(3000);
+    completableFuture.complete(null);
+    allIterationsComplete.await();
+
+    Assert.assertEquals(EVENTS, processedEvents.get());
+  }
+
+  private List<String> saveEvents() {
     List<String> eventIds = new ArrayList<>();
 
     for (int i = 0; i < EVENTS; i++) {
       eventIds.add(testHelper.saveEvent(testHelper.generateTestCreatedEvent()).getEventId());
     }
 
-    pollingDao.processEvents(binlogEntryHandler);
-
-    Assert.assertEquals(EVENTS_PER_POLLING_ITERATION, processedEvents);
-
-    assertEventsArePublished(eventIds.subList(0, EVENTS_PER_POLLING_ITERATION));
+    return eventIds;
   }
 
   private PollingDao createPollingDao() {
@@ -124,12 +151,12 @@ public class PollingDaoIntegrationTest {
     Assert.assertEquals(1, ((Number)event.get("published")).intValue());
   }
 
-  protected BinlogEntryHandler prepareBinlogEntryHandler(Consumer<PublishedEvent> consumer) {
+  private BinlogEntryHandler prepareBinlogEntryHandler(CompletableFuture<?> resultWhenEventConsumed) {
     cdcDataPublisher = new CdcDataPublisher<PublishedEvent>(null, null, null, null) {
       @Override
       public CompletableFuture<?> sendMessage(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {
-        consumer.accept(publishedEvent);
-        return CompletableFuture.completedFuture(null);
+        processedEvents.incrementAndGet();
+        return resultWhenEventConsumed;
       }
     };
 

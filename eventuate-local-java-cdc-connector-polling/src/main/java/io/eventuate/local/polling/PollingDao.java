@@ -17,7 +17,6 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 public class PollingDao extends BinlogEntryReader {
@@ -114,33 +113,27 @@ public class PollingDao extends BinlogEntryReader {
             () -> namedParameterJdbcTemplate.queryForRowSet(findEventsQuery, ImmutableMap.of("limit", maxEventsPerPolling)),
             this::onInterrupted,
             running);
-
-    List<CompletableFuture<Object>> futureIds = new ArrayList<>();
+    List<CompletableFuture<Object>> ids = new ArrayList<>();
 
     while (sqlRowSet.next()) {
       Object id = sqlRowSet.getObject(pk);
-      futureIds.add(handleEvent(id, handler, sqlRowSet));
+      ids.add(handleEvent(id, handler, sqlRowSet));
       onEventReceived();
     }
 
-    if (!futureIds.isEmpty()) {
-      onActivity();
-      markEventsAsProcessed(futureIds, pk, handler);
+    if (!ids.isEmpty()) {
+      markEventsAsProcessed(ids, pk, handler);
     }
 
-    return futureIds.size();
+    onActivity();
+
+    return ids.size();
   }
 
-  private void markEventsAsProcessed(List<CompletableFuture<Object>> futureIds, String pk, BinlogEntryHandler handler) {
-    List<Object> ids = futureIds
+  private void markEventsAsProcessed(List<CompletableFuture<Object>> eventIds, String pk, BinlogEntryHandler handler) {
+    List<Object> ids = eventIds
             .stream()
-            .map(futureId -> {
-              try {
-                return futureId.get();
-              } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-              }
-            })
+            .map(CompletableFutureUtil::get)
             .collect(Collectors.toList());
 
     String markEventsAsReadQuery = String.format("UPDATE %s SET %s = 1 WHERE %s in (:ids)",
@@ -152,6 +145,7 @@ public class PollingDao extends BinlogEntryReader {
             this::onInterrupted,
             running);
   }
+
 
   private CompletableFuture<Object> handleEvent(Object id, BinlogEntryHandler handler, SqlRowSet sqlRowSet) {
     CompletableFuture<?> future = handler.publish(new BinlogEntry() {
@@ -166,18 +160,7 @@ public class PollingDao extends BinlogEntryReader {
       }
     });
 
-    CompletableFuture<Object> offsetFuture = new CompletableFuture<>();
-
-    future.whenComplete((o, throwable) -> {
-      if (throwable != null) {
-        offsetFuture.completeExceptionally(throwable);
-      }
-      else {
-        offsetFuture.complete(id);
-      }
-    });
-
-    return offsetFuture;
+    return future.thenApply(o -> id);
   }
 
   private String getPrimaryKey(BinlogEntryHandler handler) {

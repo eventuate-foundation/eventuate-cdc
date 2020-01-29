@@ -61,12 +61,7 @@ public class OffsetProcessor<OFFSET> {
   }
 
   protected OFFSET getOffset(CompletableFuture<OFFSET> offset) {
-    try {
-      return offset.get();
-    } catch (InterruptedException | ExecutionException t) {
-      logger.error("Event publishing failed", t);
-      throw new RuntimeException(t);
-    }
+    return CompletableFutureUtil.get(offset);
   }
 
   protected boolean isDone(CompletableFuture<OFFSET> offset) {
