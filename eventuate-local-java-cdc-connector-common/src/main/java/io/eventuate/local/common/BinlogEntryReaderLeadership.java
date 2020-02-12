@@ -29,17 +29,22 @@ public class BinlogEntryReaderLeadership {
   public void start() {
     eventuateLeaderSelector = leaderSelectorFactory.create(leaderLockId,
             UUID.randomUUID().toString(),
-            (leadershipController) -> {
-              this.leadershipController = leadershipController;
-              leader = true;
-              new Thread(binlogEntryReader::start).start();
-            },
-            () -> {
-              leader = false;
-              binlogEntryReader.stop(false);
-            });
+            this::leaderSelectedCallback,
+            this::leaderRemovedCallback
+  );
 
     eventuateLeaderSelector.start();
+  }
+
+  private void leaderSelectedCallback(LeadershipController leadershipController) {
+    this.leadershipController = leadershipController;
+    leader = true;
+    new Thread(binlogEntryReader::start).start();
+  }
+
+  private void leaderRemovedCallback() {
+    leader = false;
+    binlogEntryReader.stop(false);
   }
 
   public void stop() {
