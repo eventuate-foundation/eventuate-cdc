@@ -55,6 +55,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
   private AtomicLong timeOfFirstMessage = new AtomicLong();
   private AtomicLong timeOfLatestMessage = new AtomicLong();;
   private Timer messagePublishingTimer;
+  private BinaryLogClient.EventListener eventListener;
 
   public MySqlBinaryLogClient(MeterRegistry meterRegistry,
                               String dbUserName,
@@ -157,7 +158,10 @@ public class MySqlBinaryLogClient extends DbLogClient {
     client.setBinlogPosition(bfo.getOffset());
 
     client.setEventDeserializer(getEventDeserializer());
-    client.registerEventListener(event -> handleBinlogEventWithErrorHandling(event, binlogFileOffset));
+
+    eventListener = event -> handleBinlogEventWithErrorHandling(event, binlogFileOffset);
+
+    client.registerEventListener(eventListener);
 
     connectWithRetriesOnFail();
 
@@ -436,6 +440,8 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
     tableMapEventByTableId.clear();
     cdcMonitoringTableId = Optional.empty();
+
+    client.unregisterEventListener(eventListener);
 
     try {
       client.disconnect();
