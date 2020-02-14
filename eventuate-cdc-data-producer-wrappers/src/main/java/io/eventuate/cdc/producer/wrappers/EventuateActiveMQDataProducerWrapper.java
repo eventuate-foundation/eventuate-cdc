@@ -1,10 +1,13 @@
 package io.eventuate.cdc.producer.wrappers;
 
 import io.eventuate.messaging.activemq.producer.EventuateActiveMQProducer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 
 public class EventuateActiveMQDataProducerWrapper implements DataProducer {
+  private Logger logger = LoggerFactory.getLogger(getClass());
 
   private EventuateActiveMQProducer eventuateActiveMQProducer;
 
@@ -19,6 +22,9 @@ public class EventuateActiveMQDataProducerWrapper implements DataProducer {
 
   @Override
   public void close() {
+    logger.info("closing EventuateActiveMQDataProducerWrapper");
     eventuateActiveMQProducer.close();
+    logger.info("closed EventuateActiveMQDataProducerWrapper");
+
   }
 }

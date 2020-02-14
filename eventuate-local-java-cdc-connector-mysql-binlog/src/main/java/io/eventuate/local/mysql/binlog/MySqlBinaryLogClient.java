@@ -129,10 +129,8 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
   @Override
   public void start() {
+    logger.info("Starting MySqlBinaryLogClient");
     super.start();
-
-    logger.info("mysql binlog client started");
-
     stopCountDownLatch = new CountDownLatch(1);
     running.set(true);
     publishingException = Optional.empty();
@@ -170,6 +168,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
     } catch (InterruptedException e) {
       handleProcessingFailException(e);
     }
+    logger.info("MySqlBinaryLogClient finished processing");
   }
 
   private void handleBinlogEventWithErrorHandling(Event event, Optional<BinlogFileOffset> binlogFileOffset) {
@@ -434,6 +433,8 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
   @Override
   public void stop(boolean removeHandlers) {
+    logger.info("Stopping MySqlBinaryLogClient");
+
     if (!running.compareAndSet(true, false)) {
       return;
     }
@@ -456,6 +457,8 @@ public class MySqlBinaryLogClient extends DbLogClient {
     stopCountDownLatch.countDown();
 
     callbackOnStop.ifPresent(Runnable::run);
+
+    logger.info("Stopped MySqlBinaryLogClient");
   }
 
   private void saveEndingOffsetOfLastProcessedEvent(Event event) {

@@ -41,7 +41,9 @@ public class EventuateKafkaDataProducerWrapper implements DataProducer {
 
   @Override
   public void close() {
+    logger.info("closing EventuateKafkaDataProducerWrapper");
     eventuateKafkaProducer.close();
+    logger.info("closed EventuateKafkaDataProducerWrapper");
   }
 
   private TopicPartitionSender getOrCreateTopicPartitionSender(String topic, String key, MeterRegistry meterRegistry) {
