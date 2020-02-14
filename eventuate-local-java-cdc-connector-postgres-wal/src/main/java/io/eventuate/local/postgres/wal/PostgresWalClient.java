@@ -240,7 +240,7 @@ public class PostgresWalClient extends DbLogClient {
 
   @Override
   public void stop(boolean removeHandlers) {
-    System.out.println("Stopping PostgresWalClient");
+    logger.info("Stopping PostgresWalClient");
     super.stop(removeHandlers);
 
     try {
@@ -254,7 +254,7 @@ public class PostgresWalClient extends DbLogClient {
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
     }
-    System.out.println("Stopped PostgresWalClient");
+    logger.info("Stopped PostgresWalClient");
   }
 
   private void checkMonitoringChange(PostgresWalMessage postgresWalMessage) {
