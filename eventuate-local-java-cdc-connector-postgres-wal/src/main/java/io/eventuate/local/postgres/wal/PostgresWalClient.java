@@ -107,7 +107,7 @@ public class PostgresWalClient extends DbLogClient {
         break;
       } catch (SQLException e) {
         onDisconnected();
-        logger.error("connection to posgres wal failed");
+        logger.error("connection to postgres wal failed");
         if (i == maxAttemptsForBinlogConnection) {
           handleProcessingFailException(e);
         }

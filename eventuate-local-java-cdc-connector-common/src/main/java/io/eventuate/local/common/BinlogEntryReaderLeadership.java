@@ -35,21 +35,25 @@ public class BinlogEntryReaderLeadership {
 
     eventuateLeaderSelector = leaderSelectorFactory.create(leaderLockId,
             UUID.randomUUID().toString(),
-            (leadershipController) -> {
-              logger.info("Assigning leadership");
-              this.leadershipController = leadershipController;
-              leader = true;
-              new Thread(binlogEntryReader::start).start();
-              logger.info("Assigned leadership");
-            },
-            () -> {
-              logger.info("Resigning leadership");
-              leader = false;
-              binlogEntryReader.stop(false);
-              logger.info("Resigned leadership");
-            });
+            this::leaderSelectedCallback,
+            this::leaderRemovedCallback);
 
     eventuateLeaderSelector.start();
+  }
+
+  private void leaderSelectedCallback(LeadershipController leadershipController) {
+    logger.info("Assigning leadership");
+    this.leadershipController = leadershipController;
+    leader = true;
+    new Thread(binlogEntryReader::start).start();
+    logger.info("Assigned leadership");
+  }
+
+  private void leaderRemovedCallback() {
+    logger.info("Resigning leadership");
+    leader = false;
+    binlogEntryReader.stop(false);
+    logger.info("Resigned leadership");
   }
 
   public void stop() {
