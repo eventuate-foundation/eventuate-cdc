@@ -53,7 +53,7 @@ public class PostgresWalCdcProcessingStatusService implements CdcProcessingStatu
       jdbcTemplate.execute("DELETE FROM eventuate.replication_test");
       jdbcTemplate.update("INSERT INTO eventuate.replication_test values (?)", UUID.randomUUID().toString());
 
-      String position = jdbcTemplate.queryForObject("SELECT location FROM pg_logical_slot_get_changes(?, NULL, NULL) ORDER BY location DESC limit 1",
+      String position = jdbcTemplate.queryForObject("SELECT lsn FROM pg_logical_slot_get_changes(?, NULL, NULL) ORDER BY lsn DESC limit 1",
               String.class,
               additionalSlotName);
 
