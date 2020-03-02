@@ -10,6 +10,9 @@ import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigu
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
+import io.eventuate.messaging.kafka.spring.basic.consumer.EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration;
+import io.eventuate.messaging.kafka.spring.common.EventuateKafkaPropertiesConfiguration;
+import io.eventuate.messaging.kafka.spring.producer.EventuateKafkaProducerSpringConfigurationPropertiesConfiguration;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.Test;
@@ -17,10 +20,10 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.UUID;
@@ -33,17 +36,13 @@ import static org.junit.Assert.assertEquals;
 public class DatabaseOffsetKafkaStoreTest {
 
   @Configuration
-  @EnableConfigurationProperties({EventuateKafkaProducerConfigurationProperties.class,
-          EventuateKafkaConsumerConfigurationProperties.class})
+  @Import({EventuateKafkaPropertiesConfiguration.class,
+          EventuateKafkaProducerSpringConfigurationPropertiesConfiguration.class,
+          EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration.class})
   public static class Config {
     @Bean
     public EventuateConfigurationProperties eventuateConfigurationProperties() {
       return new EventuateConfigurationProperties();
-    }
-
-    @Bean
-    public EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties() {
-      return new EventuateKafkaConfigurationProperties();
     }
 
     @Bean

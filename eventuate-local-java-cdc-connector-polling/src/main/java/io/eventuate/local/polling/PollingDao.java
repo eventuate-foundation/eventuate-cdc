@@ -76,6 +76,7 @@ public class PollingDao extends BinlogEntryReader {
 
   @Override
   public void start() {
+    logger.info("Starting PollingDao");
     super.start();
 
     stopCountDownLatch = new CountDownLatch(1);
@@ -99,6 +100,7 @@ public class PollingDao extends BinlogEntryReader {
     }
 
     stopCountDownLatch.countDown();
+    logger.info("PollingDao finished processing");
   }
 
   public int processEvents(BinlogEntryHandler handler) {

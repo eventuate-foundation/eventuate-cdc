@@ -69,15 +69,16 @@ public class CdcDataPublisher<EVENT extends BinLogEvent> {
   }
 
   public void start() {
-    logger.debug("Starting CdcDataPublisher");
+    logger.info("Starting CdcDataPublisher");
     producer = dataProducerFactory.create();
-    logger.debug("Starting CdcDataPublisher");
+    logger.info("Started CdcDataPublisher");
   }
 
   public void stop() {
-    logger.debug("Stopping data producer");
+    logger.info("Stopping CdcDataPublisher");
     if (producer != null)
       producer.close();
+    logger.info("Stopped CdcDataPublisher");
   }
 
   public CompletableFuture<?> sendMessage(EVENT publishedEvent) throws EventuateLocalPublishingException {

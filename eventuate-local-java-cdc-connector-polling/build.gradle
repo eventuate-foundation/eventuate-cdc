@@ -1,8 +1,9 @@
 dependencies {
     compile project(":eventuate-local-java-cdc-connector-common")
     compile "io.eventuate.common:eventuate-common-coordination-leadership-zookeeper:$eventuateCommonVersion"
-    compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
+    compile "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
 
+    testCompile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-common:$eventuateMessagingKafkaVersion"
     testCompile project(":eventuate-local-java-test-util")
     testCompile project(":eventuate-local-java-cdc-connector-test-util")
     testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"

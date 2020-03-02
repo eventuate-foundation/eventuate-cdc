@@ -2,7 +2,7 @@ dependencies {
     compile project (":eventuate-local-java-cdc-connector-common")
     compile project (":eventuate-cdc-common-e2e-tests")
 
-    testCompile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-consumer:$eventuateMessagingKafkaVersion"
+    testCompile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-consumer:$eventuateMessagingKafkaVersion"
     testCompile "io.eventuate.messaging.activemq:eventuate-messaging-activemq-consumer:$eventuateMessagingActiveMQVersion"
     testCompile "io.eventuate.messaging.rabbitmq:eventuate-messaging-rabbitmq-consumer:$eventuateMessagingRabbitMQVersion"
     testCompile "io.eventuate.messaging.redis:eventuate-messaging-redis-consumer:$eventuateMessagingRedisVersion"

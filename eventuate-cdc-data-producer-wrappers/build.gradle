@@ -1,5 +1,5 @@
 dependencies {
-    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-producer:$eventuateMessagingKafkaVersion"
+    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-producer:$eventuateMessagingKafkaVersion"
     compile "io.eventuate.messaging.activemq:eventuate-messaging-activemq-producer:$eventuateMessagingActiveMQVersion"
     compile "io.eventuate.messaging.rabbitmq:eventuate-messaging-rabbitmq-producer:$eventuateMessagingRabbitMQVersion"
     compile "io.eventuate.messaging.redis:eventuate-messaging-redis-producer:$eventuateMessagingRedisVersion"

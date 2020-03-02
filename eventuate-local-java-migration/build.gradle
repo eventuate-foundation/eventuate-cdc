@@ -11,8 +11,9 @@ dependencies {
     }
 
     compile project (":eventuate-local-java-cdc-connector-mysql-binlog")
-    compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
+    compile "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
 
+    testCompile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-common:$eventuateMessagingKafkaVersion"
     testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
     testCompile "junit:junit:4.11"
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"

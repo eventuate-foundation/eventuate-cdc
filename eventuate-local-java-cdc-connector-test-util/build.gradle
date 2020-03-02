@@ -1,6 +1,6 @@
 dependencies {
     compile project(":eventuate-local-java-cdc-connector-common")
-    compile "io.eventuate.common:eventuate-common-jdbc:$eventuateCommonVersion"
+    compile "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
     compile "junit:junit:4.12"
 }
 
