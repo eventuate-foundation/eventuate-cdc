@@ -6,7 +6,9 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
+          keys:
+            - eventuate-cdc-{{ checksum "gradle.properties" }}
+            - eventuate-cdc-
       - run: TERM=dumb ./gradlew testClasses
       - save_cache:
           paths:
