@@ -1,9 +1,9 @@
 package io.eventuate.cdc.e2e.common;
 
+import io.eventuate.common.common.spring.jdbc.EventuateSpringJdbcStatementExecutor;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.util.test.async.Eventually;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public abstract class AbstractEventuateCdcTest {
 
   @Before
   public void init() {
-    eventuateCommonJdbcOperations = new EventuateCommonJdbcOperations(jdbcTemplate);
+    eventuateCommonJdbcOperations = new EventuateCommonJdbcOperations(new EventuateSpringJdbcStatementExecutor(jdbcTemplate));
   }
 
   @Test

@@ -55,6 +55,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
   private AtomicLong timeOfFirstMessage = new AtomicLong();
   private AtomicLong timeOfLatestMessage = new AtomicLong();;
   private Timer messagePublishingTimer;
+  private BinaryLogClient.EventListener eventListener;
 
   public MySqlBinaryLogClient(MeterRegistry meterRegistry,
                               String dbUserName,
@@ -128,10 +129,8 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
   @Override
   public void start() {
+    logger.info("Starting MySqlBinaryLogClient");
     super.start();
-
-    logger.info("mysql binlog client started");
-
     stopCountDownLatch = new CountDownLatch(1);
     running.set(true);
     publishingException = Optional.empty();
@@ -157,7 +156,10 @@ public class MySqlBinaryLogClient extends DbLogClient {
     client.setBinlogPosition(bfo.getOffset());
 
     client.setEventDeserializer(getEventDeserializer());
-    client.registerEventListener(event -> handleBinlogEventWithErrorHandling(event, binlogFileOffset));
+
+    eventListener = event -> handleBinlogEventWithErrorHandling(event, binlogFileOffset);
+
+    client.registerEventListener(eventListener);
 
     connectWithRetriesOnFail();
 
@@ -166,6 +168,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
     } catch (InterruptedException e) {
       handleProcessingFailException(e);
     }
+    logger.info("MySqlBinaryLogClient finished processing");
   }
 
   private void handleBinlogEventWithErrorHandling(Event event, Optional<BinlogFileOffset> binlogFileOffset) {
@@ -430,12 +433,16 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
   @Override
   public void stop(boolean removeHandlers) {
+    logger.info("Stopping MySqlBinaryLogClient");
+
     if (!running.compareAndSet(true, false)) {
       return;
     }
 
     tableMapEventByTableId.clear();
     cdcMonitoringTableId = Optional.empty();
+
+    client.unregisterEventListener(eventListener);
 
     try {
       client.disconnect();
@@ -450,6 +457,8 @@ public class MySqlBinaryLogClient extends DbLogClient {
     stopCountDownLatch.countDown();
 
     callbackOnStop.ifPresent(Runnable::run);
+
+    logger.info("Stopped MySqlBinaryLogClient");
   }
 
   private void saveEndingOffsetOfLastProcessedEvent(Event event) {

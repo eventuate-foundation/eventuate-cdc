@@ -12,21 +12,22 @@ import io.eventuate.local.unified.cdc.pipeline.dblog.common.factory.OffsetStoreF
 import io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.factory.DebeziumOffsetStoreFactory;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
-import io.eventuate.messaging.kafka.common.EventuateKafkaPropertiesConfiguration;
+import io.eventuate.messaging.kafka.spring.basic.consumer.EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration;
+import io.eventuate.messaging.kafka.spring.common.EventuateKafkaPropertiesConfiguration;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
+import io.eventuate.messaging.kafka.spring.producer.EventuateKafkaProducerSpringConfigurationPropertiesConfiguration;
 import io.eventuate.tram.cdc.connector.configuration.condition.KafkaCondition;
 import io.micrometer.core.instrument.MeterRegistry;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@EnableConfigurationProperties({EventuateKafkaProducerConfigurationProperties.class,
-        EventuateKafkaConsumerConfigurationProperties.class})
-@Import(EventuateKafkaPropertiesConfiguration.class)
+@Import({EventuateKafkaPropertiesConfiguration.class,
+        EventuateKafkaProducerSpringConfigurationPropertiesConfiguration.class,
+        EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration.class})
 @Conditional(KafkaCondition.class)
 public class KafkaMessageTableChangesToDestinationsConfiguration {
   @Bean

@@ -89,12 +89,14 @@ public class PostgresWalClient extends DbLogClient {
 
   @Override
   public void start() {
+    logger.info("Starting PostgresWalClient");
     super.start();
 
     stopCountDownLatch = new CountDownLatch(1);
     running.set(true);
 
     connectWithRetriesOnFail();
+    logger.info("PostgresWalClient finished processing");
   }
 
   private void connectWithRetriesOnFail() {
@@ -238,6 +240,7 @@ public class PostgresWalClient extends DbLogClient {
 
   @Override
   public void stop(boolean removeHandlers) {
+    logger.info("Stopping PostgresWalClient");
     super.stop(removeHandlers);
 
     try {
@@ -251,6 +254,7 @@ public class PostgresWalClient extends DbLogClient {
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
     }
+    logger.info("Stopped PostgresWalClient");
   }
 
   private void checkMonitoringChange(PostgresWalMessage postgresWalMessage) {

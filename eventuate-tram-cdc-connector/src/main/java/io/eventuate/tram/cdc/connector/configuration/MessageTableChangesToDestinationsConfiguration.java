@@ -1,7 +1,7 @@
 package io.eventuate.tram.cdc.connector.configuration;
 
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
-import io.eventuate.common.jdbc.sqldialect.SqlDialectConfiguration;
+import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.mysql.binlog.DebeziumBinlogOffsetKafkaStore;
 import io.eventuate.local.unified.cdc.pipeline.dblog.common.factory.OffsetStoreFactory;
 import io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.factory.DebeziumOffsetStoreFactory;

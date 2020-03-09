@@ -17,7 +17,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {MySqlBinlogCdcIntegrationTestConfiguration.class, MySqlBinaryLogClientOffsetStoreTest.OffsetStoreConfiguration.class})
+@SpringBootTest(classes = {MySqlBinlogCdcIntegrationTestConfiguration.class,
+        MySqlBinaryLogClientOffsetStoreTest.OffsetStoreConfiguration.class})
 public class MySqlBinaryLogClientOffsetStoreTest extends AbstractMySqlBinaryLogClientTest {
 
   public static class OffsetStoreConfiguration {

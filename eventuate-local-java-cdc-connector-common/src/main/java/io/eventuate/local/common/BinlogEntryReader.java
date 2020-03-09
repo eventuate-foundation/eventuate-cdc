@@ -55,6 +55,8 @@ public abstract class BinlogEntryReader {
                                                                               String sourceTableName,
                                                                               BinlogEntryToEventConverter<EVENT> binlogEntryToEventConverter,
                                                                               CdcDataPublisher<EVENT> dataPublisher) {
+    logger.info("Adding binlog entry handler for schema = {}, table = {}", eventuateSchema.getEventuateDatabaseSchema(), sourceTableName);
+
     if (eventuateSchema.isEmpty()) {
       throw new IllegalArgumentException("The eventuate schema cannot be empty for the cdc processor.");
     }
@@ -65,6 +67,8 @@ public abstract class BinlogEntryReader {
             new BinlogEntryHandler<>(schemaAndTable, binlogEntryToEventConverter, dataPublisher);
 
     binlogEntryHandlers.add(binlogEntryHandler);
+
+    logger.info("Added binlog entry handler for schema = {}, table = {}", eventuateSchema.getEventuateDatabaseSchema(), sourceTableName);
 
     return binlogEntryHandler;
   }

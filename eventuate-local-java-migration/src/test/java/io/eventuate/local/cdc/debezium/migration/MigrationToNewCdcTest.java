@@ -7,6 +7,7 @@ import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.local.mysql.binlog.DebeziumBinlogOffsetKafkaStore;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
+import io.eventuate.messaging.kafka.spring.common.EventuateKafkaPropertiesConfiguration;
 import org.apache.kafka.connect.runtime.WorkerConfig;
 import org.apache.kafka.connect.storage.Converter;
 import org.apache.kafka.connect.storage.KafkaOffsetBackingStore;
@@ -17,7 +18,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -31,12 +32,8 @@ public class MigrationToNewCdcTest {
 
   @org.springframework.context.annotation.Configuration
   @EnableAutoConfiguration
+  @Import(EventuateKafkaPropertiesConfiguration.class)
   public static class EventTableChangesToAggregateTopicRelayTestConfiguration {
-
-    @Bean
-    public EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties() {
-      return new EventuateKafkaConfigurationProperties();
-    }
   }
 
   private final String connectorName = "my-sql-connector";

@@ -1,10 +1,13 @@
 package io.eventuate.cdc.producer.wrappers;
 
 import io.eventuate.messaging.rabbitmq.producer.EventuateRabbitMQProducer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 
 public class EventuateRabbitMQDataProducerWrapper implements DataProducer {
+  private Logger logger = LoggerFactory.getLogger(getClass());
 
   private EventuateRabbitMQProducer eventuateRabbitMQProducer;
 
@@ -19,6 +22,8 @@ public class EventuateRabbitMQDataProducerWrapper implements DataProducer {
 
   @Override
   public void close() {
+    logger.info("closing EventuateRabbitMQDataProducerWrapper");
     eventuateRabbitMQProducer.close();
+    logger.info("closed EventuateRabbitMQDataProducerWrapper");
   }
 }

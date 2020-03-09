@@ -5,6 +5,7 @@ dependencies {
 
     compile "io.eventuate.messaging.activemq:eventuate-messaging-activemq-common:$eventuateMessagingActiveMQVersion"
     compile "io.eventuate.messaging.redis:eventuate-messaging-redis-common:$eventuateMessagingRedisVersion"
+    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-common:$eventuateMessagingKafkaVersion"
 
     compile project(":eventuate-local-java-cdc-connector-unified:")
     compile "org.springframework.boot:spring-boot-starter-web:$springBootCdcVersion"

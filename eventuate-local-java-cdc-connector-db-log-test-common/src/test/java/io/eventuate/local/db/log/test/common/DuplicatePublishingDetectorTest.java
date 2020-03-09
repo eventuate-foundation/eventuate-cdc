@@ -8,6 +8,7 @@ import io.eventuate.local.common.DuplicatePublishingDetector;
 import io.eventuate.local.test.util.TestHelper;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
+import io.eventuate.messaging.kafka.spring.common.EventuateKafkaPropertiesConfiguration;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.Test;
@@ -18,6 +19,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.UUID;
@@ -31,11 +33,8 @@ import static org.junit.Assert.assertTrue;
 public class DuplicatePublishingDetectorTest {
 
   @Configuration
+  @Import(EventuateKafkaPropertiesConfiguration.class)
   public static class Config {
-    @Bean
-    public EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties() {
-      return new EventuateKafkaConfigurationProperties();
-    }
 
     @Bean
     public EventuateSchema eventuateSchema(@Value("${eventuate.database.schema:#{null}}") String eventuateDatabaseSchema) {

@@ -1,6 +1,7 @@
 dependencies {
     compile project(":eventuate-local-java-cdc-connector-test-util")
     compile project(":eventuate-local-java-cdc-connector-db-log-common")
+    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-common:$eventuateMessagingKafkaVersion"
 
     testCompile "junit:junit:4.11"
     testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"

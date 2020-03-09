@@ -1,7 +1,7 @@
 package io.eventuate.tram.connector;
 
 import com.google.common.collect.ImmutableSet;
-import io.eventuate.common.jdbc.sqldialect.SqlDialectConfiguration;
+import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.messaging.activemq.common.EventuateActiveMQCommonConfiguration;
 import io.eventuate.messaging.activemq.common.EventuateActiveMQConfigurationProperties;
 import io.eventuate.messaging.activemq.consumer.MessageConsumerActiveMQImpl;

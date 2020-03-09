@@ -12,9 +12,11 @@ import io.eventuate.local.test.util.TestHelper;
 import io.eventuate.local.testutil.SqlScriptEditor;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
-import io.eventuate.messaging.kafka.common.EventuateKafkaPropertiesConfiguration;
+import io.eventuate.messaging.kafka.spring.basic.consumer.EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration;
+import io.eventuate.messaging.kafka.spring.common.EventuateKafkaPropertiesConfiguration;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
+import io.eventuate.messaging.kafka.spring.producer.EventuateKafkaProducerSpringConfigurationPropertiesConfiguration;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.logging.LoggingMeterRegistry;
 import org.apache.curator.RetryPolicy;
@@ -23,7 +25,6 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -33,9 +34,9 @@ import java.util.stream.Collectors;
 
 @Configuration
 @EnableAutoConfiguration
-@Import(EventuateKafkaPropertiesConfiguration.class)
-@EnableConfigurationProperties({EventuateKafkaProducerConfigurationProperties.class,
-        EventuateKafkaConsumerConfigurationProperties.class})
+@Import({EventuateKafkaPropertiesConfiguration.class,
+        EventuateKafkaProducerSpringConfigurationPropertiesConfiguration.class,
+        EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration.class})
 public class PostgresWalCdcIntegrationTestConfiguration {
 
 

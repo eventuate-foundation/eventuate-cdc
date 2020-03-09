@@ -1,5 +1,6 @@
 package io.eventuate.local.cdc.debezium.migration;
 
+import io.eventuate.common.common.spring.jdbc.EventuateSpringJdbcStatementExecutor;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumer;
@@ -40,7 +41,7 @@ public abstract class AbstractE2EMigrationTest {
 
   @Before
   public void init() {
-    eventuateCommonJdbcOperations = new EventuateCommonJdbcOperations(jdbcTemplate);
+    eventuateCommonJdbcOperations = new EventuateCommonJdbcOperations(new EventuateSpringJdbcStatementExecutor(jdbcTemplate));
   }
 
   protected void subscribe(Handler handler) {

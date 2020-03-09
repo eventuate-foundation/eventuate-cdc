@@ -1,5 +1,6 @@
 package io.eventuate.local.test.util;
 
+import io.eventuate.common.common.spring.jdbc.EventuateSpringJdbcStatementExecutor;
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
@@ -37,7 +38,7 @@ public class TestHelper {
 
   @PostConstruct
   public void init() {
-    eventuateCommonJdbcOperations = new EventuateCommonJdbcOperations(jdbcTemplate);
+    eventuateCommonJdbcOperations = new EventuateCommonJdbcOperations(new EventuateSpringJdbcStatementExecutor(jdbcTemplate));
   }
 
   public String getEventTopicName() {

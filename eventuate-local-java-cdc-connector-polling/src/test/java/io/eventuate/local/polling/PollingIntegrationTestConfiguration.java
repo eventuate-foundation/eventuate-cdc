@@ -1,7 +1,7 @@
 package io.eventuate.local.polling;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
-import io.eventuate.common.jdbc.sqldialect.SqlDialectConfiguration;
+import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.coordination.leadership.zookeeper.ZkLeaderSelector;
@@ -11,9 +11,11 @@ import io.eventuate.local.test.util.SourceTableNameSupplier;
 import io.eventuate.local.test.util.TestHelper;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
-import io.eventuate.messaging.kafka.common.EventuateKafkaPropertiesConfiguration;
+import io.eventuate.messaging.kafka.spring.basic.consumer.EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration;
+import io.eventuate.messaging.kafka.spring.common.EventuateKafkaPropertiesConfiguration;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
+import io.eventuate.messaging.kafka.spring.producer.EventuateKafkaProducerSpringConfigurationPropertiesConfiguration;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
@@ -22,7 +24,6 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -32,9 +33,10 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableAutoConfiguration
-@Import({EventuateKafkaPropertiesConfiguration.class, SqlDialectConfiguration.class})
-@EnableConfigurationProperties({EventuateKafkaProducerConfigurationProperties.class,
-        EventuateKafkaConsumerConfigurationProperties.class})
+@Import({EventuateKafkaPropertiesConfiguration.class,
+        EventuateKafkaProducerSpringConfigurationPropertiesConfiguration.class,
+        EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration.class
+        , SqlDialectConfiguration.class})
 public class PollingIntegrationTestConfiguration {
 
   @Bean
