@@ -1,3 +1,5 @@
+apply plugin: PublicModulePlugin
+
 dependencies {
     compile project(":eventuate-local-java-cdc-connector-common")
 }

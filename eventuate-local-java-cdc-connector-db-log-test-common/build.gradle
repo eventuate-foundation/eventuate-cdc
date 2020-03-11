@@ -1,3 +1,5 @@
+apply plugin: PublicModulePlugin
+
 dependencies {
     compile project(":eventuate-local-java-cdc-connector-test-util")
     compile project(":eventuate-local-java-cdc-connector-db-log-common")

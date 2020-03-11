@@ -1,3 +1,5 @@
+apply plugin: PublicModulePlugin
+
 dependencies {
     compile 'com.github.shyiko:mysql-binlog-connector-java:0.16.1'
     compile project(":eventuate-local-java-cdc-connector-db-log-common")
