@@ -9,7 +9,7 @@ jobs:
           keys:
             - eventuate-cdc-{{ checksum "gradle.properties" }}
             - eventuate-cdc-
-      - run: TERM=dumb ./gradlew testClasses
+      - run: TERM=dumb ./gradlew testClasses aggregateJavaDocs
       - save_cache:
           paths:
             - ~/.gradle
@@ -32,7 +32,7 @@ jobs:
       - checkout
       - restore_cache:
           key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./gradlew testClasses
+      - run: TERM=dumb ./gradlew testClasses aggregateJavaDocs
       - save_cache:
           paths:
             - ~/.gradle
@@ -55,7 +55,7 @@ jobs:
       - checkout
       - restore_cache:
           key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./gradlew testClasses
+      - run: TERM=dumb ./gradlew testClasses aggregateJavaDocs
       - save_cache:
           paths:
             - ~/.gradle
@@ -294,7 +294,7 @@ jobs:
       - checkout
       - restore_cache:
           key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./gradlew testClasses
+      - run: TERM=dumb ./gradlew testClasses aggregateJavaDocs
       - save_cache:
           paths:
             - ~/.gradle
