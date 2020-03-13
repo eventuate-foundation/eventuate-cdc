@@ -11,7 +11,7 @@ dependencies {
 
     testCompile "junit:junit:4.11"
     testCompile "com.h2database:h2:1.4.199"
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
 }
 
 test {

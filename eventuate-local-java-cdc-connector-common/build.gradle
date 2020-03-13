@@ -3,11 +3,11 @@ apply plugin: PublicModulePlugin
 dependencies {
     compile project (":eventuate-cdc-data-producer-wrappers")
 
-    compile "org.springframework.boot:spring-boot-starter-actuator:$springBootCdcVersion"
-    compile "org.springframework.boot:spring-boot-starter:$springBootCdcVersion"
+    compile "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
+    compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
     compile 'org.apache.curator:curator-recipes:2.11.0'
     compile "io.dropwizard.metrics:metrics-core:$dropwizardMetricsVersion"
-    compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootCdcVersion"
+    compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
     compile 'io.micrometer:micrometer-core:1.1.1'
     compile 'io.micrometer:micrometer-registry-jmx:1.1.1'
     compile 'io.micrometer:micrometer-registry-prometheus:1.1.1'
@@ -23,7 +23,7 @@ dependencies {
     }
     compile 'com.microsoft.sqlserver:mssql-jdbc:7.2.1.jre8'
     testCompile "junit:junit:4.11"
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
     testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
 }
 

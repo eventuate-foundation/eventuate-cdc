@@ -8,7 +8,7 @@ dependencies {
     compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-common:$eventuateMessagingKafkaVersion"
 
     compile project(":eventuate-local-java-cdc-connector-unified:")
-    compile "org.springframework.boot:spring-boot-starter-web:$springBootCdcVersion"
+    compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
 
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
 }

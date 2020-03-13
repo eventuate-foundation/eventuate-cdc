@@ -25,6 +25,7 @@ kafka:
     - ADVERTISED_HOST_NAME=${DOCKER_HOST_IP}
     - KAFKA_HEAP_OPTS=-Xmx320m -Xms320m
     - ZOOKEEPER_SERVERS=zookeeper:2181
+    - ZOOKEEPER_CONNECTION_TIMEOUT_MS=60000
 
 activemq:
   image: webcenter/activemq:5.14.3
