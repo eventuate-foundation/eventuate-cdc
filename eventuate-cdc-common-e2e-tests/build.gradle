@@ -6,7 +6,7 @@ dependencies {
     compile "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
     compile "junit:junit:4.11"
     compile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
-    compile "org.springframework.boot:spring-boot-starter-test:$springBootCdcVersion"
+    compile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
 }
 
 test {
