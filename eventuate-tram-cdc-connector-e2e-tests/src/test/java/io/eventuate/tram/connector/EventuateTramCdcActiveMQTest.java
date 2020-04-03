@@ -2,9 +2,9 @@ package io.eventuate.tram.connector;
 
 import com.google.common.collect.ImmutableSet;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
-import io.eventuate.messaging.activemq.common.EventuateActiveMQCommonConfiguration;
-import io.eventuate.messaging.activemq.common.EventuateActiveMQConfigurationProperties;
-import io.eventuate.messaging.activemq.consumer.MessageConsumerActiveMQImpl;
+import io.eventuate.messaging.activemq.spring.common.EventuateActiveMQCommonConfiguration;
+import io.eventuate.messaging.activemq.spring.common.EventuateActiveMQConfigurationProperties;
+import io.eventuate.messaging.activemq.spring.consumer.MessageConsumerActiveMQImpl;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

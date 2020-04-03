@@ -1,6 +1,6 @@
 package io.eventuate.cdc.producer.wrappers;
 
-import io.eventuate.messaging.redis.producer.EventuateRedisProducer;
+import io.eventuate.messaging.redis.spring.producer.EventuateRedisProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

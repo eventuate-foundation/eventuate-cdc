@@ -3,7 +3,7 @@ package io.eventuate.tram.cdc.connector.configuration;
 import io.eventuate.cdc.producer.wrappers.DataProducerFactory;
 import io.eventuate.cdc.producer.wrappers.EventuateRabbitMQDataProducerWrapper;
 import io.eventuate.local.common.PublishingFilter;
-import io.eventuate.messaging.rabbitmq.producer.EventuateRabbitMQProducer;
+import io.eventuate.messaging.rabbitmq.spring.producer.EventuateRabbitMQProducer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

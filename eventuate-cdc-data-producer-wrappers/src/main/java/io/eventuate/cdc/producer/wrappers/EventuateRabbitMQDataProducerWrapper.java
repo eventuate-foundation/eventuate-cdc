@@ -1,6 +1,6 @@
 package io.eventuate.cdc.producer.wrappers;
 
-import io.eventuate.messaging.rabbitmq.producer.EventuateRabbitMQProducer;
+import io.eventuate.messaging.rabbitmq.spring.producer.EventuateRabbitMQProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
