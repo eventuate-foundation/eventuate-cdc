@@ -4,11 +4,15 @@ The Eventuate CDC service is a key part of the https://eventuate.io/[Eventuate p
 
 image::https://eventuate.io/i/logo.gif[]
 
-It enables the https://github.com/eventuate-tram/eventuate-tram-core[Eventuate Tram], https://github.com/eventuate-tram/eventuate-tram-sagas[Eventuate Tram Sagas] and https://github.com/eventuate-local/eventuate-local[Eventuate Local] frameworks to implement transactional messages using the https://microservices.io/patterns/data/transactional-outbox.html[Transaction Outbox] pattern.
+It enables the https://github.com/eventuate-tram/eventuate-tram-core[Eventuate Tram], https://github.com/eventuate-tram/eventuate-tram-sagas[Eventuate Tram Sagas] and https://github.com/eventuate-local/eventuate-local[Eventuate Local] frameworks to implement transactional messaging using the https://microservices.io/patterns/data/transactional-outbox.html[Transactional Outbox] pattern.
 
-The Eventuate CDC acts as the bridge between the database and the message broker.
-It reads messages inserted into the database and publishes them to the message broker.
-It reads the messages the following patterns patterns:
+The Eventuate CDC service acts as the bridge between the database and the message broker:
+
+image::https://microservices.io/i/patterns/data/ReliablePublication.png[]
+
+It reads the messages inserted into the database by a service and publishes them to the message broker.
+
+The Eventuate CDC service reads the messages the following patterns patterns:
 
 * https://microservices.io/patterns/data/transaction-log-tailing.html[Transaction Log Tailing] - for MySQL and Postgres
 * https://microservices.io/patterns/data/polling-publisher.html[Polling publisher] - for other databases
