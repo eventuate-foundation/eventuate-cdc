@@ -1,0 +1,18 @@
+== Eventuate CDC service
+
+The Eventuate CDC service is a key part of the https://eventuate.io/[Eventuate platform].
+
+image::https://eventuate.io/i/logo.gif[]
+
+It enables the https://github.com/eventuate-tram/eventuate-tram-core[Eventuate Tram], https://github.com/eventuate-tram/eventuate-tram-sagas[Eventuate Tram Sagas] and https://github.com/eventuate-local/eventuate-local[Eventuate Local] frameworks to implement transactional messages using the https://microservices.io/patterns/data/transactional-outbox.html[Transaction Outbox] pattern.
+
+The Eventuate CDC acts as the bridge between the database and the message broker.
+It reads messages inserted into the database and publishes them to the message broker.
+It reads the messages the following patterns patterns:
+
+* https://microservices.io/patterns/data/transaction-log-tailing.html[Transaction Log Tailing] - for MySQL and Postgres
+* https://microservices.io/patterns/data/polling-publisher.html[Polling publisher] - for other databases
+
+It supports the following message brokers: Apache Kafka, Apache ActiveMQ, RabbitMQ and Redis (Streams).
+
+For more information on how to configure the Eventuate CDC service please see the https://eventuate.io/docs/manual/eventuate-tram/latest/cdc-configuration.html#cdc-configuration[Eventuate Tram manual].
