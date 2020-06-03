@@ -19,7 +19,7 @@ kafka:
     - ZOOKEEPER_CONNECTION_TIMEOUT_MS=60000
 
 mysql:
-  image: eventuateio/eventuate-mysql:0.9.0.RC3
+  image: test-eventuate-mysql
   ports:
     - 3306:3306
   environment:
