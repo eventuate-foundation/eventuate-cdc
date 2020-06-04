@@ -11,11 +11,13 @@ import io.eventuate.local.unified.cdc.pipeline.common.health.KafkaHealthCheck;
 import io.eventuate.local.unified.cdc.pipeline.dblog.common.factory.OffsetStoreFactory;
 import io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.factory.DebeziumOffsetStoreFactory;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
+import io.eventuate.messaging.kafka.basic.consumer.KafkaConsumerFactory;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
 import io.eventuate.messaging.kafka.spring.basic.consumer.EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration;
 import io.eventuate.messaging.kafka.spring.common.EventuateKafkaPropertiesConfiguration;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
+import io.eventuate.messaging.kafka.spring.consumer.KafkaConsumerFactoryConfiguration;
 import io.eventuate.messaging.kafka.spring.producer.EventuateKafkaProducerSpringConfigurationPropertiesConfiguration;
 import io.eventuate.tram.cdc.connector.configuration.condition.KafkaCondition;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -27,14 +29,17 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @Import({EventuateKafkaPropertiesConfiguration.class,
         EventuateKafkaProducerSpringConfigurationPropertiesConfiguration.class,
-        EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration.class})
+        EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration.class,
+        KafkaConsumerFactoryConfiguration.class})
 @Conditional(KafkaCondition.class)
 public class KafkaMessageTableChangesToDestinationsConfiguration {
   @Bean
   public PublishingFilter kafkaDuplicatePublishingDetector(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
-                                                           EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties) {
+                                                           EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties,
+                                                           KafkaConsumerFactory kafkaConsumerFactory) {
     return new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(),
-            eventuateKafkaConsumerConfigurationProperties);
+            eventuateKafkaConsumerConfigurationProperties,
+            kafkaConsumerFactory);
   }
 
   @Bean

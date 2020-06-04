@@ -3,9 +3,7 @@ package io.eventuate.local.common;
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.json.mapper.JSonMapper;
-import io.eventuate.messaging.kafka.basic.consumer.ConsumerPropertiesFactory;
-import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumer;
-import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
+import io.eventuate.messaging.kafka.basic.consumer.*;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -15,6 +13,8 @@ import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static java.util.stream.Collectors.toList;
@@ -27,11 +27,14 @@ public class DuplicatePublishingDetector implements PublishingFilter {
   private String kafkaBootstrapServers;
   private EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties;
   private EventuateKafkaMultiMessageConverter eventuateKafkaMultiMessageConverter = new EventuateKafkaMultiMessageConverter();
+  private KafkaConsumerFactory kafkaConsumerFactory;
 
   public DuplicatePublishingDetector(String kafkaBootstrapServers,
-                                     EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties) {
+                                     EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties,
+                                     KafkaConsumerFactory kafkaConsumerFactory) {
     this.kafkaBootstrapServers = kafkaBootstrapServers;
     this.eventuateKafkaConsumerConfigurationProperties = eventuateKafkaConsumerConfigurationProperties;
+    this.kafkaConsumerFactory = kafkaConsumerFactory;
   }
 
   @Override
@@ -52,13 +55,14 @@ public class DuplicatePublishingDetector implements PublishingFilter {
     String subscriberId = "duplicate-checker-" + destinationTopic + "-" + System.currentTimeMillis();
     Properties consumerProperties = ConsumerPropertiesFactory.makeDefaultConsumerProperties(kafkaBootstrapServers, subscriberId);
     consumerProperties.putAll(eventuateKafkaConsumerConfigurationProperties.getProperties());
-    KafkaConsumer<String, byte[]> consumer = new KafkaConsumer<>(consumerProperties);
+
+    KafkaMessageConsumer consumer = kafkaConsumerFactory.makeConsumer(null, consumerProperties);
 
     List<PartitionInfo> partitions = EventuateKafkaConsumer.verifyTopicExistsBeforeSubscribing(consumer, destinationTopic);
 
     List<TopicPartition> topicPartitionList = partitions.stream().map(p -> new TopicPartition(destinationTopic, p.partition())).collect(toList());
     consumer.assign(topicPartitionList);
-    consumer.poll(0);
+    consumer.poll(Duration.ZERO);
 
     logger.info("Seeking to end");
 
@@ -83,7 +87,7 @@ public class DuplicatePublishingDetector implements PublishingFilter {
 
     List<ConsumerRecord<String, byte[]>> records = new ArrayList<>();
     while (records.size()<positions.size()) {
-      ConsumerRecords<String, byte[]> consumerRecords = consumer.poll(1000);
+      ConsumerRecords<String, byte[]> consumerRecords = consumer.poll(Duration.of(1000, ChronoUnit.MILLIS));
       consumerRecords.forEach(records::add);
     }
 

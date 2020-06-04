@@ -11,11 +11,13 @@ import io.eventuate.local.db.log.common.OffsetStore;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
 import io.eventuate.local.test.util.TestHelper;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
+import io.eventuate.messaging.kafka.basic.consumer.KafkaConsumerFactory;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
 import io.eventuate.messaging.kafka.spring.basic.consumer.EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration;
 import io.eventuate.messaging.kafka.spring.common.EventuateKafkaPropertiesConfiguration;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
+import io.eventuate.messaging.kafka.spring.consumer.KafkaConsumerFactoryConfiguration;
 import io.eventuate.messaging.kafka.spring.producer.EventuateKafkaProducerSpringConfigurationPropertiesConfiguration;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.logging.LoggingMeterRegistry;
@@ -38,7 +40,8 @@ import java.util.Optional;
 @EnableAutoConfiguration
 @Import({EventuateKafkaPropertiesConfiguration.class,
         EventuateKafkaProducerSpringConfigurationPropertiesConfiguration.class,
-        EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration.class})
+        EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration.class,
+        KafkaConsumerFactoryConfiguration.class})
 public class MySqlBinlogCdcIntegrationTestConfiguration {
 
   @Bean
@@ -138,8 +141,11 @@ public class MySqlBinlogCdcIntegrationTestConfiguration {
 
   @Bean
   public PublishingFilter publishingFilter(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
-                                           EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties) {
-    return new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(), eventuateKafkaConsumerConfigurationProperties);
+                                           EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties,
+                                           KafkaConsumerFactory kafkaConsumerFactory) {
+    return new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(),
+            eventuateKafkaConsumerConfigurationProperties,
+            kafkaConsumerFactory);
   }
 
   @Bean

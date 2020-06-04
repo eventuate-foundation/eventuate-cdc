@@ -3,10 +3,7 @@ package io.eventuate.local.cdc.debezium.migration;
 import io.eventuate.common.common.spring.jdbc.EventuateSpringJdbcStatementExecutor;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
 import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumer;
-import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
-import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerMessageHandler;
-import io.eventuate.messaging.kafka.basic.consumer.MessageConsumerBacklog;
+import io.eventuate.messaging.kafka.basic.consumer.*;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -32,6 +29,9 @@ public abstract class AbstractE2EMigrationTest {
   protected EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties;
 
   @Autowired
+  protected KafkaConsumerFactory kafkaConsumerFactory;
+
+  @Autowired
   private JdbcTemplate jdbcTemplate;
 
   @Value("spring.datasource.driver.class.name")
@@ -49,7 +49,8 @@ public abstract class AbstractE2EMigrationTest {
             handler,
             Collections.singletonList(aggregateType),
             eventuateKafkaConfigurationProperties.getBootstrapServers(),
-            EventuateKafkaConsumerConfigurationProperties.empty());
+            EventuateKafkaConsumerConfigurationProperties.empty(),
+            kafkaConsumerFactory);
 
     eventuateKafkaConsumer.start();
 

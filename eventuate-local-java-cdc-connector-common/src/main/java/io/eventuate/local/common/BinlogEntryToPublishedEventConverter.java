@@ -8,12 +8,12 @@ public class BinlogEntryToPublishedEventConverter implements BinlogEntryToEventC
   @Override
   public PublishedEvent convert(BinlogEntry binlogEntry) {
     return new PublishedEvent(
-            (String)binlogEntry.getColumn("event_id"),
-            (String)binlogEntry.getColumn("entity_id"),
-            (String)binlogEntry.getColumn("entity_type"),
-            (String)binlogEntry.getColumn("event_data"),
-            (String)binlogEntry.getColumn("event_type"),
+            binlogEntry.getStringColumn("event_id"),
+            binlogEntry.getStringColumn("entity_id"),
+            binlogEntry.getStringColumn("entity_type"),
+            binlogEntry.getStringColumn("event_data"),
+            binlogEntry.getStringColumn("event_type"),
             binlogEntry.getBinlogFileOffset(),
-            Optional.ofNullable((String)binlogEntry.getColumn("metadata")));
+            Optional.ofNullable(binlogEntry.getStringColumn("metadata")));
   }
 }

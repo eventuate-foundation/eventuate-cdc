@@ -11,7 +11,6 @@ import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.*;
 import io.eventuate.local.db.log.common.DbLogClient;
 import io.eventuate.local.db.log.common.OffsetKafkaStore;
-import io.eventuate.local.common.OffsetProcessor;
 import io.eventuate.local.db.log.common.OffsetStore;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -19,7 +18,9 @@ import io.micrometer.core.instrument.Timer;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -413,6 +414,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
       if (!SUPPORTED_EVENTS.contains(eventType)) {
         eventDeserializer.setEventDataDeserializer(eventType,
                 new NullEventDataDeserializer());
+        eventDeserializer.setCompatibilityMode(EventDeserializer.CompatibilityMode.CHAR_AND_BINARY_AS_BYTE_ARRAY);
       }
     });
 

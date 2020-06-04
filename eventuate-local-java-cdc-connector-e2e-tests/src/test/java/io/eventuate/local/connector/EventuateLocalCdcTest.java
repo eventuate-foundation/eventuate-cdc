@@ -4,9 +4,11 @@ import io.eventuate.cdc.e2e.common.AbstractEventuateCdcTest;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumer;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
+import io.eventuate.messaging.kafka.basic.consumer.KafkaConsumerFactory;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
 import io.eventuate.messaging.kafka.spring.common.EventuateKafkaPropertiesConfiguration;
+import io.eventuate.messaging.kafka.spring.consumer.KafkaConsumerFactoryConfiguration;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -21,7 +23,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {EventuateLocalCdcTest.Config.class})
+@SpringBootTest(classes = {EventuateLocalCdcTest.Config.class, KafkaConsumerFactoryConfiguration.class})
 public class EventuateLocalCdcTest extends AbstractEventuateCdcTest {
 
   @Import(EventuateKafkaPropertiesConfiguration.class)
@@ -32,6 +34,9 @@ public class EventuateLocalCdcTest extends AbstractEventuateCdcTest {
 
   @Autowired
   protected EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties;
+
+  @Autowired
+  protected KafkaConsumerFactory kafkaConsumerFactory;
 
   protected EventuateKafkaMultiMessageConverter eventuateKafkaMultiMessageConverter = new EventuateKafkaMultiMessageConverter();
 
@@ -45,7 +50,8 @@ public class EventuateLocalCdcTest extends AbstractEventuateCdcTest {
             },
             Collections.singletonList(topic),
             eventuateKafkaConfigurationProperties.getBootstrapServers(),
-            EventuateKafkaConsumerConfigurationProperties.empty());
+            EventuateKafkaConsumerConfigurationProperties.empty(),
+            kafkaConsumerFactory);
 
     eventuateKafkaConsumer.start();
   }
