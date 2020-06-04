@@ -8,7 +8,7 @@ public interface BinlogEntry {
   Object getColumn(String name);
   BinlogFileOffset getBinlogFileOffset();
 
-  default String convertColumnToString(String name) {
+  default String getStringColumn(String name) {
     Object columnValue = getColumn(name);
 
     if (columnValue == null) {

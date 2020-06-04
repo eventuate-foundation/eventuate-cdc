@@ -9,9 +9,9 @@ import java.util.Map;
 public class BinlogEntryToMessageConverter implements BinlogEntryToEventConverter<MessageWithDestination> {
   @Override
   public MessageWithDestination convert(BinlogEntry binlogEntry) {
-    return new MessageWithDestination(binlogEntry.convertColumnToString("destination"),
-            binlogEntry.convertColumnToString("payload"),
-            JSonMapper.fromJson(binlogEntry.convertColumnToString("headers"), Map.class),
+    return new MessageWithDestination(binlogEntry.getStringColumn("destination"),
+            binlogEntry.getStringColumn("payload"),
+            JSonMapper.fromJson(binlogEntry.getStringColumn("headers"), Map.class),
             binlogEntry.getBinlogFileOffset());
   }
 }
