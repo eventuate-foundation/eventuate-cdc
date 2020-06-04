@@ -22,7 +22,8 @@ public abstract class AbstractDbLogBasedCdcKafkaPublisherEventsTest extends CdcK
 
     DuplicatePublishingDetector duplicatePublishingDetector =
             new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(),
-                    EventuateKafkaConsumerConfigurationProperties.empty());
+                    EventuateKafkaConsumerConfigurationProperties.empty(),
+                    kafkaConsumerFactory);
 
     return new CdcDataPublisher<>(dataProducerFactory,
             duplicatePublishingDetector,

@@ -7,8 +7,10 @@ import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.local.common.DuplicatePublishingDetector;
 import io.eventuate.local.test.util.TestHelper;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
+import io.eventuate.messaging.kafka.basic.consumer.KafkaConsumerFactory;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
 import io.eventuate.messaging.kafka.spring.common.EventuateKafkaPropertiesConfiguration;
+import io.eventuate.messaging.kafka.spring.consumer.KafkaConsumerFactoryConfiguration;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.Test;
@@ -33,7 +35,7 @@ import static org.junit.Assert.assertTrue;
 public class DuplicatePublishingDetectorTest {
 
   @Configuration
-  @Import(EventuateKafkaPropertiesConfiguration.class)
+  @Import({EventuateKafkaPropertiesConfiguration.class, KafkaConsumerFactoryConfiguration.class})
   public static class Config {
 
     @Bean
@@ -51,12 +53,15 @@ public class DuplicatePublishingDetectorTest {
   EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties;
 
   @Autowired
+  KafkaConsumerFactory kafkaConsumerFactory;
+
+  @Autowired
   TestHelper testHelper;
 
   @Test
   public void emptyTopicTest() {
     DuplicatePublishingDetector duplicatePublishingDetector = new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(),
-            EventuateKafkaConsumerConfigurationProperties.empty());
+            EventuateKafkaConsumerConfigurationProperties.empty(), kafkaConsumerFactory);
 
     BinlogFileOffset bfo = testHelper.generateBinlogFileOffset();
 
@@ -68,7 +73,7 @@ public class DuplicatePublishingDetectorTest {
     String topicName = testHelper.generateUniqueTopicName();
     String binlogFilename = "binlog.file." + System.currentTimeMillis();
     DuplicatePublishingDetector duplicatePublishingDetector = new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(),
-            EventuateKafkaConsumerConfigurationProperties.empty());
+            EventuateKafkaConsumerConfigurationProperties.empty(), kafkaConsumerFactory);
 
     Producer<String, String> producer = testHelper.createProducer(eventuateKafkaConfigurationProperties.getBootstrapServers());
     floodTopic(producer, binlogFilename, topicName);
@@ -83,7 +88,7 @@ public class DuplicatePublishingDetectorTest {
     String topicName = testHelper.generateUniqueTopicName();
     String binlogFilename = "binlog.file." + System.currentTimeMillis();
     DuplicatePublishingDetector duplicatePublishingDetector = new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(),
-            EventuateKafkaConsumerConfigurationProperties.empty());
+            EventuateKafkaConsumerConfigurationProperties.empty(), kafkaConsumerFactory);
 
     Producer<String, String> producer = testHelper.createProducer(eventuateKafkaConfigurationProperties.getBootstrapServers());
     floodTopic(producer, binlogFilename, topicName);

@@ -5,6 +5,7 @@ import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.common.EventuateConfigurationProperties;
 import io.eventuate.local.common.PublishingStrategy;
+import io.eventuate.messaging.kafka.basic.consumer.KafkaConsumerFactory;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -23,6 +24,9 @@ public abstract class CdcKafkaPublisherEventsTest {
 
   @Autowired
   protected EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties;
+
+  @Autowired
+  protected KafkaConsumerFactory kafkaConsumerFactory;
 
   @Autowired
   protected EventuateConfigurationProperties eventuateConfigurationProperties;

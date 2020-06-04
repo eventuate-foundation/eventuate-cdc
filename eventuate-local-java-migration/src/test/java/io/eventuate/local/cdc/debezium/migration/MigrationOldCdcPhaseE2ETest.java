@@ -1,6 +1,7 @@
 package io.eventuate.local.cdc.debezium.migration;
 
 import io.eventuate.messaging.kafka.basic.consumer.MessageConsumerBacklog;
+import io.eventuate.messaging.kafka.spring.consumer.KafkaConsumerFactoryConfiguration;
 import io.eventuate.util.test.async.Eventually;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.Assert;
@@ -14,7 +15,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = MigrationE2ETestConfiguration.class)
+@SpringBootTest(classes = {MigrationE2ETestConfiguration.class, KafkaConsumerFactoryConfiguration.class})
 @DirtiesContext
 public class MigrationOldCdcPhaseE2ETest extends AbstractE2EMigrationTest {
 
