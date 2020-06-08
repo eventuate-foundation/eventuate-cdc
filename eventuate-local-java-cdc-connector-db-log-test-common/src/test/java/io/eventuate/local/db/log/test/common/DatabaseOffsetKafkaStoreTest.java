@@ -2,6 +2,7 @@ package io.eventuate.local.db.log.test.common;
 
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.common.EventuateConfigurationProperties;
 import io.eventuate.local.db.log.common.DatabaseOffsetKafkaStore;
 import io.eventuate.local.db.log.common.OffsetStore;
@@ -38,7 +39,8 @@ public class DatabaseOffsetKafkaStoreTest {
   @Configuration
   @Import({EventuateKafkaPropertiesConfiguration.class,
           EventuateKafkaProducerSpringConfigurationPropertiesConfiguration.class,
-          EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration.class})
+          EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration.class,
+          SqlDialectConfiguration.class})
   public static class Config {
     @Bean
     public EventuateConfigurationProperties eventuateConfigurationProperties() {

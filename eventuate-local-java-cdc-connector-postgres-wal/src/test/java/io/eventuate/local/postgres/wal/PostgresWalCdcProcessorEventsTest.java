@@ -1,5 +1,6 @@
 package io.eventuate.local.postgres.wal;
 
+import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.common.CdcProcessingStatus;
 import io.eventuate.local.common.CdcProcessingStatusService;
 import io.eventuate.util.test.async.Eventually;
@@ -14,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 @ActiveProfiles("PostgresWal")
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = PostgresWalCdcIntegrationTestConfiguration.class)
+@SpringBootTest(classes = {PostgresWalCdcIntegrationTestConfiguration.class, SqlDialectConfiguration.class})
 public class PostgresWalCdcProcessorEventsTest extends AbstractPostgresWalCdcProcessorEventsTest {
 
   @Test

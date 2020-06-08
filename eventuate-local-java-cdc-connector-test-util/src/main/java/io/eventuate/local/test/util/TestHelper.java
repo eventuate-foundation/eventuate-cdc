@@ -5,6 +5,7 @@ import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessage;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
 import org.apache.commons.lang.StringUtils;
@@ -14,6 +15,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.annotation.PostConstruct;
@@ -32,13 +34,20 @@ public class TestHelper {
   @Autowired
   private EventuateSchema eventuateSchema;
 
+  @Autowired
+  private SqlDialectSelector sqlDialectSelector;
+
+  @Value("${spring.datasource.driver-class-name}")
+  private String driver;
+
   private EventuateCommonJdbcOperations eventuateCommonJdbcOperations;
 
   private EventuateKafkaMultiMessageConverter eventuateKafkaMultiMessageConverter = new EventuateKafkaMultiMessageConverter();
 
   @PostConstruct
   public void init() {
-    eventuateCommonJdbcOperations = new EventuateCommonJdbcOperations(new EventuateSpringJdbcStatementExecutor(jdbcTemplate));
+    eventuateCommonJdbcOperations = new EventuateCommonJdbcOperations(new EventuateSpringJdbcStatementExecutor(jdbcTemplate),
+            sqlDialectSelector.getDialect(driver));
   }
 
   public String getEventTopicName() {

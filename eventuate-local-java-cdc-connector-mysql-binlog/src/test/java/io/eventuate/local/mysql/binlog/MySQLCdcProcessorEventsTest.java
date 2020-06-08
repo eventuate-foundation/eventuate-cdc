@@ -1,5 +1,6 @@
 package io.eventuate.local.mysql.binlog;
 
+import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.common.CdcProcessingStatusService;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
@@ -10,7 +11,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {MySqlBinlogCdcIntegrationTestConfiguration.class,
-        OffsetStoreMockConfiguration.class})
+        OffsetStoreMockConfiguration.class,
+        SqlDialectConfiguration.class})
 public class MySQLCdcProcessorEventsTest extends AbstractMySQLCdcProcessorEventsTest {
 
   @Test

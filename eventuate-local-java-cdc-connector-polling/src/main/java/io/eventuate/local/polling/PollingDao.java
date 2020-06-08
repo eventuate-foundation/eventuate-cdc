@@ -7,6 +7,7 @@ import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.sqldialect.EventuateSqlDialect;
 import io.eventuate.local.common.*;
 import io.micrometer.core.instrument.MeterRegistry;
+import org.postgresql.util.PGobject;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
@@ -159,6 +160,11 @@ public class PollingDao extends BinlogEntryReader {
       @Override
       public BinlogFileOffset getBinlogFileOffset() {
         return null;
+      }
+
+      @Override
+      public String getJsonColumn(String name) {
+        return  eventuateSqlDialect.objectToString(sqlRowSet.getObject(name));
       }
     });
 

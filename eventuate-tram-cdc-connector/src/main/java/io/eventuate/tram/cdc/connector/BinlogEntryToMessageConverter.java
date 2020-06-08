@@ -10,8 +10,8 @@ public class BinlogEntryToMessageConverter implements BinlogEntryToEventConverte
   @Override
   public MessageWithDestination convert(BinlogEntry binlogEntry) {
     return new MessageWithDestination(binlogEntry.getStringColumn("destination"),
-            binlogEntry.getStringColumn("payload"),
-            JSonMapper.fromJson(binlogEntry.getStringColumn("headers"), Map.class),
+            binlogEntry.getJsonColumn("payload"),
+            JSonMapper.fromJson(binlogEntry.getJsonColumn("headers"), Map.class),
             binlogEntry.getBinlogFileOffset());
   }
 }
