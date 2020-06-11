@@ -1,6 +1,5 @@
 package io.eventuate.local.postgres.wal;
 
-import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.db.log.test.common.AbstractDbLogBasedCdcKafkaPublisherEventsTest;
 import org.junit.runner.RunWith;
@@ -12,7 +11,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @ActiveProfiles("PostgresWal")
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {PostgresWalCdcIntegrationTestConfiguration.class, SqlDialectConfiguration.class})
+@SpringBootTest(classes = PostgresWalCdcIntegrationTestConfiguration.class)
 public class PostgresWalCdcKafkaPublisherEventsTest extends AbstractDbLogBasedCdcKafkaPublisherEventsTest {
 
   @Autowired

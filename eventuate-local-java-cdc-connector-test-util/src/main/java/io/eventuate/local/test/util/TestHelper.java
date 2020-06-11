@@ -21,6 +21,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
@@ -133,6 +134,15 @@ public class TestHelper {
             eventuateSchema);
 
     return new EventIdEntityId(eventId, entityId);
+  }
+
+  public void saveMessage(String messageId,
+                          String payload,
+                          String destination,
+                          String currentTimeInMillisecondsSql,
+                          Map<String, String> headers,
+                          EventuateSchema eventuateSchema) {
+    eventuateCommonJdbcOperations.insertIntoMessageTable(messageId, payload, destination, currentTimeInMillisecondsSql, headers, eventuateSchema);
   }
 
   public EventIdEntityId updateEvent(String entityId, String eventData) {

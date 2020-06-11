@@ -2,6 +2,7 @@ apply plugin: PublicModulePlugin
 
 dependencies {
     compile project(":eventuate-local-java-cdc-connector-common")
+    compile project(":eventuate-tram-cdc-connector")
     compile "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
     compile "junit:junit:4.12"
 }

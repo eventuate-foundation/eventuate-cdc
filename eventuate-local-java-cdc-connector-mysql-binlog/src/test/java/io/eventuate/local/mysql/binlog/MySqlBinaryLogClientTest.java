@@ -1,7 +1,6 @@
 package io.eventuate.local.mysql.binlog;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
-import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.test.util.TestHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,9 +12,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {MySqlBinlogCdcIntegrationTestConfiguration.class,
-        KafkaOffsetStoreConfiguration.class,
-        SqlDialectConfiguration.class})
+@SpringBootTest(classes = {MySqlBinlogCdcIntegrationTestConfiguration.class, KafkaOffsetStoreConfiguration.class})
 public class MySqlBinaryLogClientTest extends AbstractMySqlBinaryLogClientTest {
 
   private boolean fail;

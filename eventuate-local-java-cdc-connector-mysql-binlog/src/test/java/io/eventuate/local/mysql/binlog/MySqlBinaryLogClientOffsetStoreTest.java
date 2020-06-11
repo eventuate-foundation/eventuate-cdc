@@ -2,7 +2,6 @@ package io.eventuate.local.mysql.binlog;
 
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.eventuate.local.PublishedEvent;
-import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.db.log.common.OffsetStore;
 import io.eventuate.local.test.util.TestHelper;
 import org.junit.Test;
@@ -19,8 +18,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {MySqlBinlogCdcIntegrationTestConfiguration.class,
-        MySqlBinaryLogClientOffsetStoreTest.OffsetStoreConfiguration.class,
-        SqlDialectConfiguration.class})
+        MySqlBinaryLogClientOffsetStoreTest.OffsetStoreConfiguration.class})
 public class MySqlBinaryLogClientOffsetStoreTest extends AbstractMySqlBinaryLogClientTest {
 
   public static class OffsetStoreConfiguration {
