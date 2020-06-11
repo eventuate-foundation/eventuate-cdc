@@ -125,6 +125,96 @@ jobs:
           path: ~/junit
       - store_artifacts:
           path: ~/container-logs
+  build-mysql-json:
+    machine: true
+    working_directory: ~/eventuate-cdc
+    steps:
+      - checkout
+      - restore_cache:
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
+      - run: TERM=dumb ./scripts/build-and-test-mysql-json.sh
+      - run:
+          name: Save test results
+          command: ./scripts/save-containers-and-tests.sh
+          when: always
+      - store_test_results:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
+  build-mariadb-json:
+    machine: true
+    working_directory: ~/eventuate-cdc
+    steps:
+      - checkout
+      - restore_cache:
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
+      - run: TERM=dumb ./scripts/build-and-test-mariadb-json.sh
+      - run:
+          name: Save test results
+          command: ./scripts/save-containers-and-tests.sh
+          when: always
+      - store_test_results:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
+  build-mssql-polling-json:
+    machine: true
+    working_directory: ~/eventuate-cdc
+    steps:
+      - checkout
+      - restore_cache:
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
+      - run: TERM=dumb ./scripts/build-and-test-mssql-polling-json.sh
+      - run:
+          name: Save test results
+          command: ./scripts/save-containers-and-tests.sh
+          when: always
+      - store_test_results:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
+  build-postgres-polling-json:
+    machine: true
+    working_directory: ~/eventuate-cdc
+    steps:
+      - checkout
+      - restore_cache:
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
+      - run: TERM=dumb ./scripts/build-and-test-postgres-polling-json.sh
+      - run:
+          name: Save test results
+          command: ./scripts/save-containers-and-tests.sh
+          when: always
+      - store_test_results:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
+  build-postgres-wal-json:
+    machine: true
+    working_directory: ~/eventuate-cdc
+    steps:
+      - checkout
+      - restore_cache:
+          key: eventuate-cdc-{{ checksum "gradle.properties" }}
+      - run: TERM=dumb ./scripts/build-and-test-postgres-wal-json.sh
+      - run:
+          name: Save test results
+          command: ./scripts/save-containers-and-tests.sh
+          when: always
+      - store_test_results:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/container-logs
   build-eventuate-local-cdc-mysql:
     machine: true
     working_directory: ~/eventuate-cdc
@@ -318,6 +408,21 @@ workflows:
           requires:
             - build
       - build-postgres-polling:
+          requires:
+            - build
+      - build-mysql-json:
+          requires:
+            - build
+      - build-mariadb-json:
+          requires:
+            - build
+      - build-mssql-polling-json:
+          requires:
+            - build
+      - build-postgres-polling-json:
+          requires:
+            - build
+      - build-postgres-wal-json:
           requires:
             - build
       - build-eventuate-local-cdc-mysql:

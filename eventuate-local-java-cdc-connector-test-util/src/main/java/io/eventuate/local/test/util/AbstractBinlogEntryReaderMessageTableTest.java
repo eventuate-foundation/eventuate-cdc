@@ -24,12 +24,15 @@ public abstract class AbstractBinlogEntryReaderMessageTableTest {
   @Autowired
   private EventuateSchema eventuateSchema;
 
+  @Autowired
+  private BinlogEntryReader binlogEntryReader;
+
   @Test
   public void testMessageHandled() {
 
     ConcurrentLinkedQueue<MessageWithDestination> messages = new ConcurrentLinkedQueue<>();
 
-    getBinlogEntryReader().addBinlogEntryHandler(eventuateSchema,
+    binlogEntryReader.addBinlogEntryHandler(eventuateSchema,
             "message",
             new BinlogEntryToMessageConverter(), new CdcDataPublisher<MessageWithDestination>(null, null, null, null) {
               @Override
@@ -48,7 +51,7 @@ public abstract class AbstractBinlogEntryReaderMessageTableTest {
 
     testHelper.saveMessage(messageId, rawPayload, destination, "0", headers, eventuateSchema);
 
-    testHelper.runInSeparateThread(getBinlogEntryReader()::start);
+    testHelper.runInSeparateThread(binlogEntryReader::start);
 
     Eventually.eventually(() -> {
       MessageWithDestination message = messages.poll();
@@ -58,8 +61,6 @@ public abstract class AbstractBinlogEntryReaderMessageTableTest {
       Assert.assertEquals(headers, message.getHeaders());
     });
 
-    getBinlogEntryReader().stop();
+    binlogEntryReader.stop();
   }
-
-  protected abstract BinlogEntryReader getBinlogEntryReader();
 }
