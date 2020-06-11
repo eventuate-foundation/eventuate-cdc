@@ -12,8 +12,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {MySqlBinlogCdcIntegrationTestConfiguration.class,
-        KafkaOffsetStoreConfiguration.class})
+@SpringBootTest(classes = {MySqlBinlogCdcIntegrationTestConfiguration.class, KafkaOffsetStoreConfiguration.class})
 public class MySqlBinaryLogClientTest extends AbstractMySqlBinaryLogClientTest {
 
   private boolean fail;

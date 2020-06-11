@@ -1,12 +1,15 @@
 package io.eventuate.local.polling;
 
 import com.google.common.collect.ImmutableMap;
+import io.eventuate.common.common.spring.jdbc.EventuateSpringJdbcStatementExecutor;
 import io.eventuate.common.eventuate.local.BinLogEvent;
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
+import io.eventuate.common.jdbc.EventuateJdbcStatementExecutor;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.sqldialect.EventuateSqlDialect;
 import io.eventuate.local.common.*;
 import io.micrometer.core.instrument.MeterRegistry;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
@@ -24,6 +27,7 @@ public class PollingDao extends BinlogEntryReader {
 
   private DataSource dataSource;
   private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+  private EventuateJdbcStatementExecutor eventuateJdbcStatementExecutor;
   private int maxEventsPerPolling;
   private int maxAttemptsForPolling;
   private int pollingRetryIntervalInMilliseconds;
@@ -54,6 +58,7 @@ public class PollingDao extends BinlogEntryReader {
     this.dataSource = dataSource;
     this.pollingIntervalInMilliseconds = pollingIntervalInMilliseconds;
     this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+    this.eventuateJdbcStatementExecutor = new EventuateSpringJdbcStatementExecutor(new JdbcTemplate(dataSource));
     this.maxEventsPerPolling = maxEventsPerPolling;
     this.maxAttemptsForPolling = maxAttemptsForPolling;
     this.pollingRetryIntervalInMilliseconds = pollingRetryIntervalInMilliseconds;
@@ -150,6 +155,9 @@ public class PollingDao extends BinlogEntryReader {
 
 
   private CompletableFuture<Object> handleEvent(Object id, BinlogEntryHandler handler, SqlRowSet sqlRowSet) {
+    SchemaAndTable schemaAndTable = handler.getSchemaAndTable();
+
+
     CompletableFuture<?> future = handler.publish(new BinlogEntry() {
       @Override
       public Object getColumn(String name) {
@@ -159,6 +167,16 @@ public class PollingDao extends BinlogEntryReader {
       @Override
       public BinlogFileOffset getBinlogFileOffset() {
         return null;
+      }
+
+      @Override
+      public String getJsonColumn(String name) {
+        return  eventuateSqlDialect
+                .jsonColumnToString(sqlRowSet.getObject(name),
+                        new EventuateSchema(schemaAndTable.getSchema()),
+                        schemaAndTable.getTableName(),
+                        name,
+                        eventuateJdbcStatementExecutor);
       }
     });
 

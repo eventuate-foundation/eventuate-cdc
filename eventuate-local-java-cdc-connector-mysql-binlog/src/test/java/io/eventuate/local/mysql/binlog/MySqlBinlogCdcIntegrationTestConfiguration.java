@@ -3,9 +3,10 @@ package io.eventuate.local.mysql.binlog;
 import io.eventuate.cdc.producer.wrappers.DataProducerFactory;
 import io.eventuate.cdc.producer.wrappers.kafka.EventuateKafkaDataProducerWrapper;
 import io.eventuate.common.eventuate.local.PublishedEvent;
+import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.coordination.leadership.zookeeper.ZkLeaderSelector;
-import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.*;
 import io.eventuate.local.db.log.common.OffsetStore;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
@@ -13,10 +14,10 @@ import io.eventuate.local.test.util.TestHelper;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.basic.consumer.KafkaConsumerFactory;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
-import io.eventuate.messaging.kafka.spring.basic.consumer.EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration;
-import io.eventuate.messaging.kafka.spring.common.EventuateKafkaPropertiesConfiguration;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
+import io.eventuate.messaging.kafka.spring.basic.consumer.EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration;
+import io.eventuate.messaging.kafka.spring.common.EventuateKafkaPropertiesConfiguration;
 import io.eventuate.messaging.kafka.spring.consumer.KafkaConsumerFactoryConfiguration;
 import io.eventuate.messaging.kafka.spring.producer.EventuateKafkaProducerSpringConfigurationPropertiesConfiguration;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -41,7 +42,8 @@ import java.util.Optional;
 @Import({EventuateKafkaPropertiesConfiguration.class,
         EventuateKafkaProducerSpringConfigurationPropertiesConfiguration.class,
         EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration.class,
-        KafkaConsumerFactoryConfiguration.class})
+        KafkaConsumerFactoryConfiguration.class,
+        SqlDialectConfiguration.class})
 public class MySqlBinlogCdcIntegrationTestConfiguration {
 
   @Bean

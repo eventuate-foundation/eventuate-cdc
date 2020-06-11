@@ -10,8 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {MySqlBinlogCdcIntegrationTestConfiguration.class,
-        KafkaOffsetStoreConfiguration.class})
+@SpringBootTest(classes = {MySqlBinlogCdcIntegrationTestConfiguration.class, KafkaOffsetStoreConfiguration.class})
 public class MySQLCdcKafkaPublisherEventsTest extends AbstractDbLogBasedCdcKafkaPublisherEventsTest {
   @Autowired
   private MySqlBinaryLogClient mySqlBinaryLogClient;

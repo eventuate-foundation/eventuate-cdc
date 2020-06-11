@@ -3,6 +3,7 @@ package io.eventuate.local.cdc.debezium.migration;
 import io.eventuate.common.common.spring.jdbc.EventuateSpringJdbcStatementExecutor;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.messaging.kafka.basic.consumer.*;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
@@ -37,11 +38,15 @@ public abstract class AbstractE2EMigrationTest {
   @Value("spring.datasource.driver.class.name")
   private String driver;
 
+  @Autowired
+  private SqlDialectSelector sqlDialectSelector;
+
   private EventuateCommonJdbcOperations eventuateCommonJdbcOperations;
 
   @Before
   public void init() {
-    eventuateCommonJdbcOperations = new EventuateCommonJdbcOperations(new EventuateSpringJdbcStatementExecutor(jdbcTemplate));
+    eventuateCommonJdbcOperations = new EventuateCommonJdbcOperations(new EventuateSpringJdbcStatementExecutor(jdbcTemplate),
+            sqlDialectSelector.getDialect(driver));
   }
 
   protected void subscribe(Handler handler) {

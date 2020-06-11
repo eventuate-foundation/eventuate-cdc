@@ -2,7 +2,9 @@ package io.eventuate.local.mysql.binlog;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.local.common.*;
+import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
+import io.eventuate.local.common.CdcDataPublisher;
+import io.eventuate.local.common.PublishingFilter;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
 import io.eventuate.local.test.util.TestHelper;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;

@@ -1,11 +1,14 @@
 package io.eventuate.local.mysql.binlog;
 
 import com.github.shyiko.mysql.binlog.event.WriteRowsEventData;
+import com.github.shyiko.mysql.binlog.event.deserialization.json.JsonBinary;
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.local.common.BinlogEntry;
 import io.eventuate.local.common.SchemaAndTable;
 
 import javax.sql.DataSource;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class MySqlBinlogEntryExtractor extends AbstractMySqlBinlogExtractor {
 
@@ -26,6 +29,52 @@ public class MySqlBinlogEntryExtractor extends AbstractMySqlBinlogExtractor {
       @Override
       public BinlogFileOffset getBinlogFileOffset() {
         return new BinlogFileOffset(binlogFilename, position);
+      }
+
+      @Override
+      public String getJsonColumn(String name) {
+        byte[] bytes = getBytes(name);
+
+        if (bytes == null) {
+          return null;
+        }
+
+        try {
+          return JsonBinary.parseAsString(bytes);
+        } catch (IOException e) {
+          //not a json, should be plain string from some old version of database schema
+        }
+
+        return new String(bytes, StandardCharsets.UTF_8);
+      }
+
+      @Override
+      public String getStringColumn(String name) {
+        byte[] bytes = getBytes(name);
+
+        if (bytes == null) {
+          return null;
+        }
+
+        return new String(bytes, StandardCharsets.UTF_8);
+      }
+
+      private byte[] getBytes(String name) {
+        Object value = getColumn(name);
+
+        if (value == null) {
+          return null;
+        }
+
+        if (!(value instanceof byte[]))
+          throw new IllegalArgumentException(String.format("Unexpected type %s of column %s, should be byte[]",
+                  value.getClass(), name));
+
+        return (byte[]) value;
+      }
+
+      private String binaryToString(byte[] bytes) {
+        return new String(bytes, StandardCharsets.UTF_8);
       }
     };
   }

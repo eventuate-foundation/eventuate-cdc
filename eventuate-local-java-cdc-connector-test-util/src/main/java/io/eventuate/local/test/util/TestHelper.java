@@ -5,6 +5,7 @@ import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessage;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
 import org.apache.commons.lang.StringUtils;
@@ -14,11 +15,13 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
@@ -32,13 +35,20 @@ public class TestHelper {
   @Autowired
   private EventuateSchema eventuateSchema;
 
+  @Autowired
+  private SqlDialectSelector sqlDialectSelector;
+
+  @Value("${spring.datasource.driver-class-name}")
+  private String driver;
+
   private EventuateCommonJdbcOperations eventuateCommonJdbcOperations;
 
   private EventuateKafkaMultiMessageConverter eventuateKafkaMultiMessageConverter = new EventuateKafkaMultiMessageConverter();
 
   @PostConstruct
   public void init() {
-    eventuateCommonJdbcOperations = new EventuateCommonJdbcOperations(new EventuateSpringJdbcStatementExecutor(jdbcTemplate));
+    eventuateCommonJdbcOperations = new EventuateCommonJdbcOperations(new EventuateSpringJdbcStatementExecutor(jdbcTemplate),
+            sqlDialectSelector.getDialect(driver));
   }
 
   public String getEventTopicName() {
@@ -124,6 +134,15 @@ public class TestHelper {
             eventuateSchema);
 
     return new EventIdEntityId(eventId, entityId);
+  }
+
+  public void saveMessage(String messageId,
+                          String payload,
+                          String destination,
+                          String currentTimeInMillisecondsSql,
+                          Map<String, String> headers,
+                          EventuateSchema eventuateSchema) {
+    eventuateCommonJdbcOperations.insertIntoMessageTable(messageId, payload, destination, currentTimeInMillisecondsSql, headers, eventuateSchema);
   }
 
   public EventIdEntityId updateEvent(String entityId, String eventData) {

@@ -2,6 +2,7 @@ package io.eventuate.local.connector;
 
 import io.eventuate.cdc.e2e.common.AbstractEventuateCdcTest;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumer;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.basic.consumer.KafkaConsumerFactory;
@@ -23,7 +24,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {EventuateLocalCdcTest.Config.class, KafkaConsumerFactoryConfiguration.class})
+@SpringBootTest(classes = {EventuateLocalCdcTest.Config.class, KafkaConsumerFactoryConfiguration.class, SqlDialectConfiguration.class})
 public class EventuateLocalCdcTest extends AbstractEventuateCdcTest {
 
   @Import(EventuateKafkaPropertiesConfiguration.class)

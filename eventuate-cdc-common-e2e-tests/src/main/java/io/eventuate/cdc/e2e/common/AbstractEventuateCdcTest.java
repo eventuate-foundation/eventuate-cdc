@@ -3,10 +3,12 @@ package io.eventuate.cdc.e2e.common;
 import io.eventuate.common.common.spring.jdbc.EventuateSpringJdbcStatementExecutor;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.UUID;
@@ -27,25 +29,33 @@ public abstract class AbstractEventuateCdcTest {
   @Autowired
   private JdbcTemplate jdbcTemplate;
 
+  @Autowired
+  private SqlDialectSelector sqlDialectSelector;
+
+  @Value("${spring.datasource.driver-class-name}")
+  private String driver;
+
   @Before
   public void init() {
-    eventuateCommonJdbcOperations = new EventuateCommonJdbcOperations(new EventuateSpringJdbcStatementExecutor(jdbcTemplate));
+    eventuateCommonJdbcOperations = new EventuateCommonJdbcOperations(new EventuateSpringJdbcStatementExecutor(jdbcTemplate),
+            sqlDialectSelector.getDialect(driver));
   }
 
   @Test
   public void insertToEventTableAndWaitEventInBroker() throws Exception {
     String destination = generateId();
+
     String data = generateId() + getClass().getName();
+    String rawData = "\"" + data + "\"";
 
     BlockingQueue<String> blockingQueue = new LinkedBlockingDeque<>();
 
     createConsumer(destination, blockingQueue::add);
-    saveEvent(data, destination, new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
+    saveEvent(rawData, destination, new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
 
     Eventually.eventually(120, 500, TimeUnit.MILLISECONDS, () -> {
       try {
         String m = blockingQueue.poll(100, TimeUnit.MILLISECONDS);
-        assertNotNull(m);
         assertTrue(m.contains(data));
       } catch (InterruptedException e) {
         throw new RuntimeException(e);

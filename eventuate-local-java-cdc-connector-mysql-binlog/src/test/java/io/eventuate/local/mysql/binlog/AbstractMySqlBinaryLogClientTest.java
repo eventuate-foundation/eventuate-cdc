@@ -10,7 +10,6 @@ import io.eventuate.local.test.util.SourceTableNameSupplier;
 import io.eventuate.local.test.util.TestHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
