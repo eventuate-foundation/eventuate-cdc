@@ -206,19 +206,20 @@ public class PollingDao extends BinlogEntryReader {
     Connection connection = null;
     try {
       connection = dataSource.getConnection();
+      SchemaAndTable schemaAndTable = handler.getSchemaAndTable();
       ResultSet resultSet = connection
               .getMetaData()
               .getPrimaryKeys(null,
-                      handler.getSchemaAndTable().getSchema(),
-                      handler.getSchemaAndTable().getTableName());
+                      schemaAndTable.getSchema(),
+                      schemaAndTable.getTableName());
 
       if (resultSet.next()) {
         pk = resultSet.getString("COLUMN_NAME");
         if (resultSet.next()) {
-          throw new RuntimeException("Table %s has more than one primary key");
+          throw new RuntimeException(String.format("Table %s has more than one primary key", schemaAndTable));
         }
       } else {
-        throw new RuntimeException("Cannot get table: result set is empty");
+        throw new RuntimeException(String.format("Cannot get table %s: result set is empty", schemaAndTable));
       }
     } finally {
       try {
