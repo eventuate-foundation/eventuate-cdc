@@ -157,28 +157,33 @@ public class PollingDao extends BinlogEntryReader {
   private CompletableFuture<Object> handleEvent(Object id, BinlogEntryHandler handler, SqlRowSet sqlRowSet) {
     SchemaAndTable schemaAndTable = handler.getSchemaAndTable();
 
+    CompletableFuture<?> future = null;
 
-    CompletableFuture<?> future = handler.publish(new BinlogEntry() {
-      @Override
-      public Object getColumn(String name) {
-        return sqlRowSet.getObject(name);
-      }
+    try {
+      future = handler.publish(new BinlogEntry() {
+        @Override
+        public Object getColumn(String name) {
+          return sqlRowSet.getObject(name);
+        }
 
-      @Override
-      public BinlogFileOffset getBinlogFileOffset() {
-        return null;
-      }
+        @Override
+        public BinlogFileOffset getBinlogFileOffset() {
+          return null;
+        }
 
-      @Override
-      public String getJsonColumn(String name) {
-        return  eventuateSqlDialect
-                .jsonColumnToString(sqlRowSet.getObject(name),
-                        new EventuateSchema(schemaAndTable.getSchema()),
-                        schemaAndTable.getTableName(),
-                        name,
-                        eventuateJdbcStatementExecutor);
-      }
-    });
+        @Override
+        public String getJsonColumn(String name) {
+          return  eventuateSqlDialect
+                  .jsonColumnToString(sqlRowSet.getObject(name),
+                          new EventuateSchema(schemaAndTable.getSchema()),
+                          schemaAndTable.getTableName(),
+                          name,
+                          eventuateJdbcStatementExecutor);
+        }
+      });
+    } catch (Exception e) {
+      handleProcessingFailException(e);
+    }
 
     return future.thenApply(o -> id);
   }

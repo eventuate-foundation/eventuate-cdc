@@ -328,7 +328,14 @@ public class MySqlBinaryLogClient extends DbLogClient {
     this.timeOfFirstMessage.compareAndSet(0, timeNow);
     this.timeOfLatestMessage.set(timeNow);
 
-    CompletableFuture<?> publishingFuture = binlogEntryHandler.publish(entry);
+
+    CompletableFuture<?> publishingFuture = null;
+    try {
+      publishingFuture = binlogEntryHandler.publish(entry);
+    } catch (Exception e) {
+      handleProcessingFailException(e);
+    }
+
 
     CompletableFuture<BinlogFileOffset> futureWithOffset = new CompletableFuture<>();
 

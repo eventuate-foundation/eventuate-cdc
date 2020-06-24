@@ -222,7 +222,13 @@ public class PostgresWalClient extends DbLogClient {
 
     CompletableFuture<LogSequenceNumber> futureOffset = new CompletableFuture<>();
 
-    CompletableFuture<?> future = handler.publish(entry);
+    CompletableFuture<?> future = null;
+
+    try {
+      future = handler.publish(entry);
+    } catch (Exception e) {
+      handleProcessingFailException(e);
+    }
 
     future.whenComplete((o, throwable) -> {
       if (throwable != null) {

@@ -23,6 +23,7 @@ public abstract class BinlogEntryReader {
   protected DataSource dataSource;
   protected String readerName;
   protected CommonCdcMetrics commonCdcMetrics;
+  protected Optional<String> processingError = Optional.empty();
 
   private volatile long lastEventTime = System.currentTimeMillis();
 
@@ -42,6 +43,10 @@ public abstract class BinlogEntryReader {
   }
 
   public abstract CdcProcessingStatusService getCdcProcessingStatusService();
+
+  public Optional<String> getProcessingError() {
+    return processingError;
+  }
 
   public String getReaderName() {
     return readerName;
@@ -117,6 +122,7 @@ public abstract class BinlogEntryReader {
 
   protected void handleProcessingFailException(Exception e) {
     logger.error(e.getMessage(), e);
+    processingError = Optional.of(e.getMessage());
     stopCountDownLatch.countDown();
     throw new RuntimeException(e);
   }
