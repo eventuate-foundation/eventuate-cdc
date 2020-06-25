@@ -140,7 +140,7 @@ public class PollingDao extends BinlogEntryReader {
   private void markEventsAsProcessed(List<CompletableFuture<Object>> eventIds, String pk, BinlogEntryHandler handler) {
     List<Object> ids = eventIds
             .stream()
-            .map(CompletableFutureUtil::get)
+            .map(this::extractId)
             .collect(Collectors.toList());
 
     String markEventsAsReadQuery = String.format("UPDATE %s SET %s = 1 WHERE %s in (:ids)",
@@ -153,6 +153,14 @@ public class PollingDao extends BinlogEntryReader {
             running);
   }
 
+  private Object extractId(CompletableFuture<Object> id) {
+    try {
+      return id.get();
+    } catch (Exception e) {
+      handleProcessingFailException(e);
+    }
+    return null;
+  }
 
   private CompletableFuture<Object> handleEvent(Object id, BinlogEntryHandler handler, SqlRowSet sqlRowSet) {
     SchemaAndTable schemaAndTable = handler.getSchemaAndTable();

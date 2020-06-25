@@ -231,11 +231,12 @@ public class PostgresWalClient extends DbLogClient {
     }
 
     future.whenComplete((o, throwable) -> {
-      if (throwable != null) {
-        futureOffset.completeExceptionally(throwable);
+      if (throwable == null) {
+        futureOffset.complete(logSequenceNumber);
       }
       else {
-        futureOffset.complete(logSequenceNumber);
+        futureOffset.completeExceptionally(throwable);
+        handleProcessingFailException(throwable);
       }
     });
 

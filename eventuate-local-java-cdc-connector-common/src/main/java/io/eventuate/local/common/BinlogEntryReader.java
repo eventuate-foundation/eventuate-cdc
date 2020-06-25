@@ -23,7 +23,7 @@ public abstract class BinlogEntryReader {
   protected DataSource dataSource;
   protected String readerName;
   protected CommonCdcMetrics commonCdcMetrics;
-  protected Optional<String> processingError = Optional.empty();
+  protected volatile Optional<String> processingError = Optional.empty();
 
   private volatile long lastEventTime = System.currentTimeMillis();
 
@@ -120,8 +120,8 @@ public abstract class BinlogEntryReader {
     lastEventTime = System.currentTimeMillis();
   }
 
-  protected void handleProcessingFailException(Exception e) {
-    logger.error(e.getMessage(), e);
+  protected void handleProcessingFailException(Throwable e) {
+    logger.error("Stopping due to exception", e);
     processingError = Optional.of(e.getMessage());
     stopCountDownLatch.countDown();
     throw new RuntimeException(e);
