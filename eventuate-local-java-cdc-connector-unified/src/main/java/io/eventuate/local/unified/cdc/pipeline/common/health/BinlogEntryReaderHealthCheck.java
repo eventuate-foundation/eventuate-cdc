@@ -25,6 +25,11 @@ public class BinlogEntryReaderHealthCheck extends AbstractHealthCheck {
             .forEach(binlogEntryReaderLeadership -> {
               BinlogEntryReader binlogEntryReader = binlogEntryReaderLeadership.getBinlogEntryReader();
 
+              binlogEntryReader.getProcessingError().ifPresent(error -> {
+                builder.addError(String.format(
+                        "%s got error during processing: %s", binlogEntryReader.getReaderName(), error));
+              });
+
               if (binlogEntryReader instanceof MySqlBinaryLogClient) {
                 checkMySqlBinlogReaderHealth((MySqlBinaryLogClient) binlogEntryReader, builder);
               }

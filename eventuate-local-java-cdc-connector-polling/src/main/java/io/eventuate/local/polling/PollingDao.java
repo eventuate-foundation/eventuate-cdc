@@ -140,7 +140,7 @@ public class PollingDao extends BinlogEntryReader {
   private void markEventsAsProcessed(List<CompletableFuture<Object>> eventIds, String pk, BinlogEntryHandler handler) {
     List<Object> ids = eventIds
             .stream()
-            .map(CompletableFutureUtil::get)
+            .map(this::extractId)
             .collect(Collectors.toList());
 
     String markEventsAsReadQuery = String.format("UPDATE %s SET %s = 1 WHERE %s in (:ids)",
@@ -153,32 +153,45 @@ public class PollingDao extends BinlogEntryReader {
             running);
   }
 
+  private Object extractId(CompletableFuture<Object> id) {
+    try {
+      return id.get();
+    } catch (Exception e) {
+      handleProcessingFailException(e);
+    }
+    return null;
+  }
 
   private CompletableFuture<Object> handleEvent(Object id, BinlogEntryHandler handler, SqlRowSet sqlRowSet) {
     SchemaAndTable schemaAndTable = handler.getSchemaAndTable();
 
+    CompletableFuture<?> future = null;
 
-    CompletableFuture<?> future = handler.publish(new BinlogEntry() {
-      @Override
-      public Object getColumn(String name) {
-        return sqlRowSet.getObject(name);
-      }
+    try {
+      future = handler.publish(new BinlogEntry() {
+        @Override
+        public Object getColumn(String name) {
+          return sqlRowSet.getObject(name);
+        }
 
-      @Override
-      public BinlogFileOffset getBinlogFileOffset() {
-        return null;
-      }
+        @Override
+        public BinlogFileOffset getBinlogFileOffset() {
+          return null;
+        }
 
-      @Override
-      public String getJsonColumn(String name) {
-        return  eventuateSqlDialect
-                .jsonColumnToString(sqlRowSet.getObject(name),
-                        new EventuateSchema(schemaAndTable.getSchema()),
-                        schemaAndTable.getTableName(),
-                        name,
-                        eventuateJdbcStatementExecutor);
-      }
-    });
+        @Override
+        public String getJsonColumn(String name) {
+          return  eventuateSqlDialect
+                  .jsonColumnToString(sqlRowSet.getObject(name),
+                          new EventuateSchema(schemaAndTable.getSchema()),
+                          schemaAndTable.getTableName(),
+                          name,
+                          eventuateJdbcStatementExecutor);
+        }
+      });
+    } catch (Exception e) {
+      handleProcessingFailException(e);
+    }
 
     return future.thenApply(o -> id);
   }
