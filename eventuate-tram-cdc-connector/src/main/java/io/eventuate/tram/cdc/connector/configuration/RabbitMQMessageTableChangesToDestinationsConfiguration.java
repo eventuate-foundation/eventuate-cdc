@@ -22,6 +22,6 @@ public class RabbitMQMessageTableChangesToDestinationsConfiguration {
 
   @Bean
   public DataProducerFactory rabbitMQDataProducerFactory(EventuateRabbitMQProducerConfigurationProperties properties) {
-    return () -> new EventuateRabbitMQDataProducerWrapper(new EventuateRabbitMQProducer(properties.getParsedBrokerAddresses()));
+    return () -> new EventuateRabbitMQDataProducerWrapper(new EventuateRabbitMQProducer(properties.getBrokerAddresses()));
   }
 }
