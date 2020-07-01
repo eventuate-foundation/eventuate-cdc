@@ -26,6 +26,6 @@ cdcservice:
     ACTIVEMQ_URL: tcp://activemq:61616
     ACTIVEMQ_USER: eventuateuser
     ACTIVEMQ_PASSWORD: eventuatepassword
-    RABBITMQ_URL: rabbitmq
+    RABBITMQ_BROKER_ADDRESSES: rabbitmq
     EVENTUATE_REDIS_SERVERS: redis:6379
     EVENTUATE_REDIS_PARTITIONS: 1
