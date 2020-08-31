@@ -11,15 +11,16 @@ if [ "$1" = "--clean" ] ; then
   shift
 fi
 
+docker="./gradlew postgresCompose"
+${docker}Down
+
 ./gradlew ${GRADLE_OPTS} $* testClasses
 
-. ./scripts/set-env-postgres-wal.sh
+. ./scripts/set-env.sh
+export SPRING_PROFILES_ACTIVE=postgres,PostgresWal
 
-docker-compose -f docker-compose-postgres.yml build
-docker-compose -f docker-compose-postgres.yml  up -d
-
-./scripts/wait-for-postgres.sh
+${docker}Up
 
 ./gradlew $* :eventuate-local-java-cdc-connector-postgres-wal:cleanTest :eventuate-local-java-cdc-connector-postgres-wal:test
 
-docker-compose -f docker-compose-postgres.yml down -v --remove-orphans
+${docker}Down

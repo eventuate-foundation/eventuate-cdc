@@ -1,3 +1,5 @@
-FROM eventuateio/eventuate-mssql:0.9.0.RC3
+ARG eventuateCommonVersion
+
+FROM eventuateio/eventuate-mssql:$eventuateCommonVersion
 
 COPY . /usr/src/app

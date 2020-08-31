@@ -1,27 +1,33 @@
-zookeeper:
-  image: eventuateio/eventuate-zookeeper:0.9.0.RC3
-  ports:
-    - 2181:2181
-    - 2888:2888
-    - 3888:3888
+version: '3'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.2.4
+    ports:
+      - 2181:2181
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      KAFKA_HEAP_OPTS: -Xmx64m
 
+  kafka:
+    image: "confluentinc/cp-kafka:5.2.4"
+    ports:
+      - 9092:9092
+      - 29092:29092
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_LISTENERS: LC://kafka:29092,LX://kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: LC://kafka:29092,LX://${DOCKER_HOST_IP:-localhost}:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LC:PLAINTEXT,LX:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LC
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_HEAP_OPTS: -Xmx192m
 
-kafka:
-  image: eventuateio/eventuate-kafka:0.9.0.RC2
-  ports:
-    - 9092:9092
-  links:
-    - zookeeper
-  environment:
-    - ADVERTISED_HOST_NAME=${DOCKER_HOST_IP}
-    - KAFKA_HEAP_OPTS=-Xmx320m -Xms320m
-    - ZOOKEEPER_SERVERS=zookeeper:2181
-    - ZOOKEEPER_CONNECTION_TIMEOUT_MS=60000
-
-mssql:
-  image: eventuateio/eventuate-mssql:0.9.0.RC3
-  ports:
-    - 1433:1433
-  environment:
-    SA_PASSWORD: Eventuate123!
-    ACCEPT_EULA: Y
+  mssql:
+    image: eventuateio/eventuate-mssql:$EVENTUATE_COMMON_VERSION
+    ports:
+      - 1433:1433
+    environment:
+      SA_PASSWORD: Eventuate123!
+      ACCEPT_EULA: Y

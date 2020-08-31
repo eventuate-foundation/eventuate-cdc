@@ -1,2 +1,4 @@
-FROM eventuateio/eventuate-mariadb:0.9.0.RC3
+ARG eventuateCommonVersion
+
+FROM eventuateio/eventuate-mariadb:$eventuateCommonVersion
 COPY 3.initialize-database.sql /docker-entrypoint-initdb.d

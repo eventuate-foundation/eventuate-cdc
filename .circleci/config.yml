@@ -10,6 +10,7 @@ jobs:
             - eventuate-cdc-{{ checksum "gradle.properties" }}
             - eventuate-cdc-
       - run: TERM=dumb ./gradlew testClasses aggregateJavaDocs
+      - run: ./.circleci/upgrade-docker-compose.sh
       - save_cache:
           paths:
             - ~/.gradle

@@ -11,16 +11,20 @@ if [ "$1" = "--clean" ] ; then
   shift
 fi
 
+. ./scripts/set-env.sh
+
+docker="./gradlew mssqlCompose"
+
+${docker}Down
+
+export SPRING_PROFILES_ACTIVE=mssql,EventuatePolling
+
 ./gradlew ${GRADLE_OPTS} $* testClasses
 
-. ./scripts/set-env-mssql-polling.sh
-
-docker-compose -f docker-compose-mssql.yml  up --build -d
-
-./scripts/wait-for-mssql.sh
+${docker}Up
 
 ./gradlew $* :eventuate-local-java-cdc-connector-polling:cleanTest
-./gradlew $* :eventuate-local-java-cdc-connector-polling:test -Dtest.single=PollingCdcProcessorEventsTest
-./gradlew $* :eventuate-local-java-cdc-connector-polling:test -Dtest.single=PollingDaoIntegrationTest
+./gradlew $* :eventuate-local-java-cdc-connector-polling:test --tests=io.eventuate.local.polling.PollingCdcProcessorEventsTest
+./gradlew $* :eventuate-local-java-cdc-connector-polling:test --tests=io.eventuate.local.polling.PollingDaoIntegrationTest
 
-docker-compose -f docker-compose-mssql.yml down -v --remove-orphans
+${docker}Down

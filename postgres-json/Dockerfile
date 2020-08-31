@@ -1,3 +1,5 @@
-FROM eventuateio/eventuate-postgres:0.9.0.RC3
+ARG eventuateCommonVersion
+
+FROM eventuateio/eventuate-postgres:$eventuateCommonVersion
 
 COPY 4.initialize-database.sql /docker-entrypoint-initdb.d

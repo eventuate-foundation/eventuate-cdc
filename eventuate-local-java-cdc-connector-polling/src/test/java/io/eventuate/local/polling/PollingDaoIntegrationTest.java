@@ -32,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@ActiveProfiles("EventuatePolling")
+@ActiveProfiles("${SPRING_PROFILES_ACTIVE:EventuatePolling}")
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = PollingIntegrationTestConfiguration.class)
 @EnableAutoConfiguration

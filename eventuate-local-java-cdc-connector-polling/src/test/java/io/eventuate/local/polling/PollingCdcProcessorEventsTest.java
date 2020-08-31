@@ -11,7 +11,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.concurrent.TimeUnit;
 
-@ActiveProfiles("EventuatePolling")
+@ActiveProfiles("${SPRING_PROFILES_ACTIVE:EventuatePolling}")
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = PollingIntegrationTestConfiguration.class)
 public class PollingCdcProcessorEventsTest extends AbstractPollingCdcProcessorEventsTest {

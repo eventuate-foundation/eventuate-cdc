@@ -2,42 +2,37 @@
 
 set -e
 
-if [ -z "$DOCKER_COMPOSE" ]; then
-    echo setting DOCKER_COMPOSE
-    export DOCKER_COMPOSE="docker-compose -f docker-compose-${DATABASE}.yml -f docker-compose-cdc-${DATABASE}-${MODE}.yml"
-else
-    echo using existing DOCKER_COMPOSE = $DOCKER_COMPOSE
-fi
-
 ./gradlew $GRADLE_OPTIONS $* :eventuate-cdc-service:clean :eventuate-cdc-service:assemble
 
-. ./scripts/set-env-${DATABASE}-${MODE}.sh
+. ./scripts/set-env.sh
 
-$DOCKER_COMPOSE stop
-$DOCKER_COMPOSE rm --force -v
+docker="./gradlew tram${DATABASE}${MODE}Compose"
 
-$DOCKER_COMPOSE build
-$DOCKER_COMPOSE up -d ${DATABASE} zookeeper kafka
+export COMPOSE_SERVICES=","
+${docker}Down
 
-./scripts/wait-for-${DATABASE}.sh
+export COMPOSE_SERVICES="${DATABASE},zookeeper,kafka,eventuate-cdc-service"
+${docker}Up
 
-$DOCKER_COMPOSE up -d cdcservice
-./scripts/wait-for-services.sh $DOCKER_HOST_IP "actuator/health" 8099
+if [[ "${DATABASE}" == "mysql" ]]; then
+    export COMPOSE_SERVICES="redis,activemq,rabbitmq"
+else
+    export COMPOSE_SERVICES="redis"
+fi
 
-./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-e2e-tests:cleanTest :eventuate-tram-cdc-connector-e2e-tests:test -Dtest.single=EventuateTramCdcKafkaTest
+if [[ "${DATABASE}" != "mssql" ]]; then
+    ${docker}Down
+fi
+
+./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-e2e-tests:cleanTest :eventuate-tram-cdc-connector-e2e-tests:test --tests=io.eventuate.tram.connector.EventuateTramCdcKafkaTest
+
 
 if [[ "${DATABASE}" != "mssql" ]]; then
 
-    $DOCKER_COMPOSE stop kafka
+    export COMPOSE_SERVICES="eventuate-cdc-service"
+    ${docker}Down
 
     if [[ "${DATABASE}" == "mysql" ]]; then
-        $DOCKER_COMPOSE up -d activemq
-        $DOCKER_COMPOSE stop cdcservice
-        $DOCKER_COMPOSE rm --force cdcservice
-
-        #Testing cdc start with stopped database
-        $DOCKER_COMPOSE stop mysql
-        $DOCKER_COMPOSE rm --force mysql
 
         if [ -z "$SPRING_PROFILES_ACTIVE" ] ; then
           export SPRING_PROFILES_ACTIVE=ActiveMQ
@@ -45,30 +40,31 @@ if [[ "${DATABASE}" != "mssql" ]]; then
           export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE},ActiveMQ
         fi
 
-        $DOCKER_COMPOSE up  -d cdcservice
-        ./scripts/wait-for-services.sh $DOCKER_HOST_IP "actuator/health" 8099
+        export COMPOSE_SERVICES="eventuate-cdc-service"
+        ${docker}Up
 
-        # See whether waiting fixes CircleCI test failure
+        export COMPOSE_SERVICES="redis,kafka,rabbitmq"
+        ${docker}Down
 
-        sleep 30
+        ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-e2e-tests:cleanTest :eventuate-tram-cdc-connector-e2e-tests:test --tests=io.eventuate.tram.connector.EventuateTramCdcActiveMQTest
 
-        ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-e2e-tests:cleanTest :eventuate-tram-cdc-connector-e2e-tests:test -Dtest.single=EventuateTramCdcActiveMQTest
-
-        $DOCKER_COMPOSE stop activemq
-        $DOCKER_COMPOSE up -d rabbitmq
-        $DOCKER_COMPOSE stop cdcservice
-        $DOCKER_COMPOSE rm --force cdcservice
+        export COMPOSE_SERVICES="eventuate-cdc-service"
+        ${docker}Down
 
         export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE/ActiveMQ/RabbitMQ}
 
-        $DOCKER_COMPOSE up -d cdcservice
-        ./scripts/wait-for-services.sh $DOCKER_HOST_IP "actuator/health" 8099
+        export COMPOSE_SERVICES="eventuate-cdc-service"
+        ${docker}Up
 
-        ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-e2e-tests:cleanTest :eventuate-tram-cdc-connector-e2e-tests:test -Dtest.single=EventuateTramCdcRabbitMQTest
+        export COMPOSE_SERVICES="redis,kafka,activemq"
+        ${docker}Down
 
+        ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-e2e-tests:cleanTest :eventuate-tram-cdc-connector-e2e-tests:test --tests=io.eventuate.tram.connector.EventuateTramCdcRabbitMQTest
 
-        $DOCKER_COMPOSE stop rabbitmq
         export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE/RabbitMQ/Redis}
+
+        export COMPOSE_SERVICES="eventuate-cdc-service"
+        ${docker}Down
     else
         if [ -z "$SPRING_PROFILES_ACTIVE" ] ; then
           export SPRING_PROFILES_ACTIVE=Redis
@@ -77,25 +73,27 @@ if [[ "${DATABASE}" != "mssql" ]]; then
         fi
     fi
 
-    $DOCKER_COMPOSE stop zookeeper
-    $DOCKER_COMPOSE up -d redis
-    $DOCKER_COMPOSE stop cdcservice
-    $DOCKER_COMPOSE rm --force cdcservice
+    export COMPOSE_SERVICES="eventuate-cdc-service"
+    ${docker}Up
 
+    if [[ "${DATABASE}" == "mysql" ]]; then
+        export COMPOSE_SERVICES="rabbitmq,kafka,activemq"
+    else
+        export COMPOSE_SERVICES="kafka"
+    fi
+    ${docker}Down
 
-    $DOCKER_COMPOSE up -d cdcservice
-    ./scripts/wait-for-services.sh $DOCKER_HOST_IP "actuator/health" 8099
+    ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-e2e-tests:cleanTest :eventuate-tram-cdc-connector-e2e-tests:test --tests=io.eventuate.tram.connector.EventuateTramCdcRedisTest
 
-    ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-e2e-tests:cleanTest :eventuate-tram-cdc-connector-e2e-tests:test -Dtest.single=EventuateTramCdcRedisTest
+    export COMPOSE_SERVICES="redis"
 
-    $DOCKER_COMPOSE stop redis
+    ${docker}Down
     sleep 10
-    $DOCKER_COMPOSE start redis
+    ${docker}Up
 
-    ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-e2e-tests:cleanTest :eventuate-tram-cdc-connector-e2e-tests:test -Dtest.single=EventuateTramCdcRedisTest
-
+    ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-e2e-tests:cleanTest :eventuate-tram-cdc-connector-e2e-tests:test --tests=io.eventuate.tram.connector.EventuateTramCdcRedisTest
 fi
 
-$DOCKER_COMPOSE stop
-$DOCKER_COMPOSE rm --force -v
+export COMPOSE_SERVICES=","
+${docker}Down
 
