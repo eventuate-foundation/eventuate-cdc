@@ -460,6 +460,7 @@ workflows:
             - build-eventuate-tram-cdc-postgres-polling
             - build-eventuate-tram-cdc-postgres-wal
             - build-eventuate-tram-cdc-mssql-polling
+            - build-and-test-mysql-migration
       - publish:
           requires:
             - build-cdc-unified
