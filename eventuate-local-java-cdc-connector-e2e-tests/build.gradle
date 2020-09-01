@@ -1,4 +1,5 @@
 apply plugin: PublicModulePlugin
+apply plugin: 'docker-compose'
 
 dependencies {
     compile project (":eventuate-cdc-common-e2e-tests")
@@ -12,3 +13,31 @@ dependencies {
 test {
     forkEvery 1
 }
+
+def services = { ->
+    if (!project.ext.has("composeServices")) {
+        return System.env.COMPOSE_SERVICES == null || System.env.COMPOSE_SERVICES == "" ? [] : "$System.env.COMPOSE_SERVICES".split(",")
+    } else {
+        return "$composeServices".split(",")
+    }
+}
+
+dockerCompose {
+    environment.put "EVENTUATE_COMMON_VERSION", eventuateCommonImageVersion
+    environment.put "EVENTUATE_ACTIVE_MQ_VERSION", eventuateActiveMQImageVersion
+    environment.put "EVENTUATE_RABBIT_MQ_VERSION", eventuateRabbitMQImageVersion
+
+    removeOrphans = true
+
+    eventuatelocalcdc {
+        projectName = null
+        removeContainers = project.ext.removeContainers
+        upAdditionalArgs = ['--no-deps']
+        useComposeFiles = ["../${databaseDockerFile}", "../${databaseDockerCdcFile}"]
+        if (mode != "unified") {
+            startedServices = services()
+        }
+    }
+}
+
+test.dependsOn(eventuatelocalcdcComposeUp)

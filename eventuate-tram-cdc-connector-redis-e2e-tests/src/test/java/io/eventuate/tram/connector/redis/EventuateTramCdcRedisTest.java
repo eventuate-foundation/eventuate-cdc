@@ -1,4 +1,4 @@
-package io.eventuate.tram.connector;
+package io.eventuate.tram.connector.redis;
 
 import com.google.common.collect.ImmutableSet;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
@@ -6,8 +6,13 @@ import io.eventuate.messaging.partitionmanagement.CoordinatorFactory;
 import io.eventuate.messaging.partitionmanagement.CoordinatorFactoryImpl;
 import io.eventuate.messaging.redis.spring.common.CommonRedisConfiguration;
 import io.eventuate.messaging.redis.spring.common.RedissonClients;
-import io.eventuate.messaging.redis.spring.consumer.*;
+import io.eventuate.messaging.redis.spring.consumer.MessageConsumerRedisImpl;
+import io.eventuate.messaging.redis.spring.consumer.RedisAssignmentListener;
+import io.eventuate.messaging.redis.spring.consumer.RedisAssignmentManager;
+import io.eventuate.messaging.redis.spring.consumer.RedisGroupMember;
+import io.eventuate.messaging.redis.spring.consumer.RedisMemberGroupManager;
 import io.eventuate.messaging.redis.spring.leadership.RedisLeaderSelector;
+import io.eventuate.tram.connector.AbstractTramCdcTest;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

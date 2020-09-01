@@ -1,4 +1,4 @@
-package io.eventuate.tram.connector;
+package io.eventuate.tram.connector.kafka;
 
 import com.google.common.collect.ImmutableSet;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
@@ -8,6 +8,7 @@ import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties
 import io.eventuate.messaging.kafka.spring.common.EventuateKafkaPropertiesConfiguration;
 import io.eventuate.messaging.kafka.consumer.MessageConsumerKafkaImpl;
 import io.eventuate.messaging.kafka.spring.consumer.KafkaConsumerFactoryConfiguration;
+import io.eventuate.tram.connector.AbstractTramCdcTest;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

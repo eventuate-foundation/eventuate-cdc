@@ -6,94 +6,29 @@ set -e
 
 . ./scripts/set-env.sh
 
-docker="./gradlew tram${DATABASE}${MODE}Compose"
+./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:tramcdcComposeDown
 
-export COMPOSE_SERVICES=","
-${docker}Down
-
-export COMPOSE_SERVICES="${DATABASE},zookeeper,kafka,eventuate-cdc-service"
-${docker}Up
+./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:cleanTest :eventuate-tram-cdc-connector-kafka-e2e-tests:test
+./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:tramcdcComposeDown
 
 if [[ "${DATABASE}" == "mysql" ]]; then
-    export COMPOSE_SERVICES="redis,activemq,rabbitmq"
-else
-    export COMPOSE_SERVICES="redis"
-fi
-
-if [[ "${DATABASE}" != "mssql" ]]; then
-    ${docker}Down
-fi
-
-./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-e2e-tests:cleanTest :eventuate-tram-cdc-connector-e2e-tests:test --tests=io.eventuate.tram.connector.EventuateTramCdcKafkaTest
-
-
-if [[ "${DATABASE}" != "mssql" ]]; then
-
-    export COMPOSE_SERVICES="eventuate-cdc-service"
-    ${docker}Down
-
-    if [[ "${DATABASE}" == "mysql" ]]; then
-
-        if [ -z "$SPRING_PROFILES_ACTIVE" ] ; then
-          export SPRING_PROFILES_ACTIVE=ActiveMQ
-        else
-          export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE},ActiveMQ
-        fi
-
-        export COMPOSE_SERVICES="eventuate-cdc-service"
-        ${docker}Up
-
-        export COMPOSE_SERVICES="redis,kafka,rabbitmq"
-        ${docker}Down
-
-        ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-e2e-tests:cleanTest :eventuate-tram-cdc-connector-e2e-tests:test --tests=io.eventuate.tram.connector.EventuateTramCdcActiveMQTest
-
-        export COMPOSE_SERVICES="eventuate-cdc-service"
-        ${docker}Down
-
-        export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE/ActiveMQ/RabbitMQ}
-
-        export COMPOSE_SERVICES="eventuate-cdc-service"
-        ${docker}Up
-
-        export COMPOSE_SERVICES="redis,kafka,activemq"
-        ${docker}Down
-
-        ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-e2e-tests:cleanTest :eventuate-tram-cdc-connector-e2e-tests:test --tests=io.eventuate.tram.connector.EventuateTramCdcRabbitMQTest
-
-        export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE/RabbitMQ/Redis}
-
-        export COMPOSE_SERVICES="eventuate-cdc-service"
-        ${docker}Down
+    if [ -z "$SPRING_PROFILES_ACTIVE" ] ; then
+      export SPRING_PROFILES_ACTIVE=ActiveMQ
     else
-        if [ -z "$SPRING_PROFILES_ACTIVE" ] ; then
-          export SPRING_PROFILES_ACTIVE=Redis
-        else
-          export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE},Redis
-        fi
+      export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE},ActiveMQ
     fi
 
-    export COMPOSE_SERVICES="eventuate-cdc-service"
-    ${docker}Up
+    ./gradlew $GRADLE_OPTIONS -P database=${DATABASE} :eventuate-tram-cdc-connector-activemq-e2e-tests:cleanTest :eventuate-tram-cdc-connector-activemq-e2e-tests:test
+    ./gradlew $GRADLE_OPTIONS -P database=${DATABASE} :eventuate-tram-cdc-connector-activemq-e2e-tests:tramcdcComposeDown
 
-    if [[ "${DATABASE}" == "mysql" ]]; then
-        export COMPOSE_SERVICES="rabbitmq,kafka,activemq"
-    else
-        export COMPOSE_SERVICES="kafka"
-    fi
-    ${docker}Down
+    export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE/ActiveMQ/RabbitMQ}
 
-    ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-e2e-tests:cleanTest :eventuate-tram-cdc-connector-e2e-tests:test --tests=io.eventuate.tram.connector.EventuateTramCdcRedisTest
+    ./gradlew $GRADLE_OPTIONS -P database=${DATABASE} :eventuate-tram-cdc-connector-rabbitmq-e2e-tests:cleanTest :eventuate-tram-cdc-connector-rabbitmq-e2e-tests:test
+    ./gradlew $GRADLE_OPTIONS -P database=${DATABASE} :eventuate-tram-cdc-connector-rabbitmq-e2e-tests:tramcdcComposeDown
 
-    export COMPOSE_SERVICES="redis"
+    export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE/RabbitMQ/Redis}
 
-    ${docker}Down
-    sleep 10
-    ${docker}Up
-
-    ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-e2e-tests:cleanTest :eventuate-tram-cdc-connector-e2e-tests:test --tests=io.eventuate.tram.connector.EventuateTramCdcRedisTest
+    ./gradlew $GRADLE_OPTIONS -P database=${DATABASE} :eventuate-tram-cdc-connector-redis-e2e-tests:cleanTest :eventuate-tram-cdc-connector-redis-e2e-tests:test
+    ./gradlew $GRADLE_OPTIONS -P database=${DATABASE} :eventuate-tram-cdc-connector-redis-e2e-tests:tramcdcComposeDown
 fi
-
-export COMPOSE_SERVICES=","
-${docker}Down
 

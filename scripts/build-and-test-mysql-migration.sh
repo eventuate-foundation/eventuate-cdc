@@ -7,20 +7,17 @@ set -e
 docker="./gradlew mysqlmigrationCompose"
 
 ./gradlew assemble
-export COMPOSE_SERVICES=","
+
 ${docker}Down
 
-export COMPOSE_SERVICES="old-cdc-service"
-${docker}Up
+${docker}Up -P composeServices=old-cdc-service
 
 ./gradlew :eventuate-local-java-migration:cleanTest
 ./gradlew eventuate-local-java-migration:test --tests "io.eventuate.local.cdc.debezium.migration.MigrationOldCdcPhaseE2ETest"
 
-${docker}Down
-export COMPOSE_SERVICES="eventuate-cdc-service"
-${docker}Up
+${docker}Down -P composeServices=old-cdc-service
+${docker}Up -P composeServices=eventuate-cdc-service
 
 ./gradlew eventuate-local-java-migration:test --tests "io.eventuate.local.cdc.debezium.migration.MigrationNewCdcPhaseE2ETest"
 
-export COMPOSE_SERVICES=","
 ${docker}Down

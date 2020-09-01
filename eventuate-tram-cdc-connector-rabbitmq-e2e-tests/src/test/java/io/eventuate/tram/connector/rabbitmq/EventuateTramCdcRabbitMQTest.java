@@ -1,8 +1,10 @@
-package io.eventuate.tram.connector;
+package io.eventuate.tram.connector.rabbitmq;
 
 import com.google.common.collect.ImmutableSet;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
-import io.eventuate.messaging.rabbitmq.spring.consumer.*;
+import io.eventuate.messaging.rabbitmq.spring.consumer.MessageConsumerRabbitMQConfiguration;
+import io.eventuate.messaging.rabbitmq.spring.consumer.MessageConsumerRabbitMQImpl;
+import io.eventuate.tram.connector.AbstractTramCdcTest;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

@@ -86,6 +86,30 @@ subprojects {
     }
 }
 
+if (!project.ext.has("database")) {
+    project.ext.set("database", System.env.DATABASE == null || System.env.DATABASE == "" ? "mysql" : "$System.env.DATABASE")
+}
+
+if (!project.ext.has("mode")) {
+    project.ext.set("mode", System.env.MODE == null || System.env.DATABASE == "" ? "binlog" : "$System.env.MODE")
+}
+
+if (mode == "unified") {
+    project.ext.set("databaseDockerFile", "docker-compose-unified.yml")
+    project.ext.set("databaseDockerCdcFile", "docker-compose-cdc-unified.yml")
+} else {
+    project.ext.set("databaseDockerFile", "docker-compose-${database}.yml")
+    project.ext.set("databaseDockerCdcFile", "docker-compose-cdc-${database}-${mode}.yml")
+}
+
+def services = { ->
+    if (!project.ext.has("composeServices")) {
+        return System.env.COMPOSE_SERVICES == null || System.env.COMPOSE_SERVICES == "" ? [] : "$System.env.COMPOSE_SERVICES".split(",")
+    } else {
+        return "$composeServices".split(",")
+    }
+}
+
 dockerCompose {
     environment.put "EVENTUATE_COMMON_VERSION", eventuateCommonImageVersion
     environment.put "EVENTUATE_ACTIVE_MQ_VERSION", eventuateActiveMQImageVersion
@@ -103,7 +127,7 @@ dockerCompose {
         projectName = null
         removeContainers = project.ext.removeContainers
         useComposeFiles = ["docker-compose-eventuate-local-mysql-for-migration.yml"]
-        startedServices = System.env.COMPOSE_SERVICES == null || System.env.COMPOSE_SERVICES == '' ? [] :"$System.env.COMPOSE_SERVICES".split(",")
+        startedServices = services()
     }
 
     mariadb {
@@ -146,62 +170,6 @@ dockerCompose {
         projectName = null
         useComposeFiles = ["docker-compose-postgres-json.yml"]
         removeContainers = project.ext.removeContainers
-    }
-
-    mysqlbinlog {
-        projectName = null
-        removeContainers = project.ext.removeContainers
-        useComposeFiles = ["docker-compose-mysql.yml", "docker-compose-cdc-mysql-binlog.yml"]
-        startedServices = System.env.COMPOSE_SERVICES == null || System.env.COMPOSE_SERVICES == '' ? [] :"$System.env.COMPOSE_SERVICES".split(",")
-    }
-
-    mariadbbinlog {
-        projectName = null
-        useComposeFiles = ["docker-compose-mariadb.yml", "docker-compose-cdc-mariadb-binlog.yml"]
-        removeContainers = project.ext.removeContainers
-        startedServices = System.env.COMPOSE_SERVICES == null || System.env.COMPOSE_SERVICES == '' ? [] :"$System.env.COMPOSE_SERVICES".split(",")
-    }
-
-    postgrespolling {
-        projectName = null
-        removeContainers = project.ext.removeContainers
-        useComposeFiles = ["docker-compose-postgres.yml", "docker-compose-cdc-postgres-polling.yml"]
-        startedServices = System.env.COMPOSE_SERVICES == null || System.env.COMPOSE_SERVICES == '' ? [] :"$System.env.COMPOSE_SERVICES".split(",")
-    }
-
-    postgreswal {
-        projectName = null
-        removeContainers = project.ext.removeContainers
-        useComposeFiles = ["docker-compose-postgres.yml", "docker-compose-cdc-postgres-wal.yml"]
-        startedServices = System.env.COMPOSE_SERVICES == null || System.env.COMPOSE_SERVICES == '' ? [] :"$System.env.COMPOSE_SERVICES".split(",")
-    }
-
-    trammysqlbinlog {
-        projectName = null
-        removeContainers = project.ext.removeContainers
-        useComposeFiles = ["docker-compose-mysql.yml", "docker-compose-cdc-mysql-binlog.yml"]
-        startedServices = System.env.COMPOSE_SERVICES == null || System.env.COMPOSE_SERVICES == '' ? [] :"$System.env.COMPOSE_SERVICES".split(",")
-    }
-
-    trampostgrespolling {
-        projectName = null
-        removeContainers = project.ext.removeContainers
-        useComposeFiles = ["docker-compose-postgres.yml", "docker-compose-cdc-postgres-polling.yml"]
-        startedServices = System.env.COMPOSE_SERVICES == null || System.env.COMPOSE_SERVICES == '' ? [] :"$System.env.COMPOSE_SERVICES".split(",")
-    }
-
-    trampostgreswal {
-        projectName = null
-        removeContainers = project.ext.removeContainers
-        useComposeFiles = ["docker-compose-postgres.yml", "docker-compose-cdc-postgres-wal.yml"]
-        startedServices = System.env.COMPOSE_SERVICES == null || System.env.COMPOSE_SERVICES == '' ? [] :"$System.env.COMPOSE_SERVICES".split(",")
-    }
-
-    trammssqlpolling {
-        projectName = null
-        removeContainers = project.ext.removeContainers
-        useComposeFiles = ["docker-compose-mssql.yml", "docker-compose-cdc-mssql-polling.yml"]
-        startedServices = System.env.COMPOSE_SERVICES == null || System.env.COMPOSE_SERVICES == '' ? [] :"$System.env.COMPOSE_SERVICES".split(",")
     }
 
     unified {
