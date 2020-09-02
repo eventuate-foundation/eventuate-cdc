@@ -18,17 +18,17 @@ if [[ "${DATABASE}" == "mysql" ]]; then
       export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE},ActiveMQ
     fi
 
-    ./gradlew $GRADLE_OPTIONS -P database=${DATABASE} :eventuate-tram-cdc-connector-activemq-e2e-tests:cleanTest :eventuate-tram-cdc-connector-activemq-e2e-tests:test
-    ./gradlew $GRADLE_OPTIONS -P database=${DATABASE} :eventuate-tram-cdc-connector-activemq-e2e-tests:tramcdcComposeDown
+    ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-activemq-e2e-tests:cleanTest :eventuate-tram-cdc-connector-activemq-e2e-tests:test
+    ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-activemq-e2e-tests:tramcdcComposeDown
 
     export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE/ActiveMQ/RabbitMQ}
 
-    ./gradlew $GRADLE_OPTIONS -P database=${DATABASE} :eventuate-tram-cdc-connector-rabbitmq-e2e-tests:cleanTest :eventuate-tram-cdc-connector-rabbitmq-e2e-tests:test
-    ./gradlew $GRADLE_OPTIONS -P database=${DATABASE} :eventuate-tram-cdc-connector-rabbitmq-e2e-tests:tramcdcComposeDown
+    ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-rabbitmq-e2e-tests:cleanTest :eventuate-tram-cdc-connector-rabbitmq-e2e-tests:test
+    ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-rabbitmq-e2e-tests:tramcdcComposeDown
 
     export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE/RabbitMQ/Redis}
 
-    ./gradlew $GRADLE_OPTIONS -P database=${DATABASE} :eventuate-tram-cdc-connector-redis-e2e-tests:cleanTest :eventuate-tram-cdc-connector-redis-e2e-tests:test
-    ./gradlew $GRADLE_OPTIONS -P database=${DATABASE} :eventuate-tram-cdc-connector-redis-e2e-tests:tramcdcComposeDown
+    ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-redis-e2e-tests:cleanTest :eventuate-tram-cdc-connector-redis-e2e-tests:test
+    ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-redis-e2e-tests:tramcdcComposeDown
 fi
 

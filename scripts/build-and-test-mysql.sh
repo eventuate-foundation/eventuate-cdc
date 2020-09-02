@@ -1,5 +1,5 @@
 #!/bin/bash -e
 
-export database=mysql
+export DATABASE=mysql
 
 ./scripts/_build-and-test-mysql.sh build

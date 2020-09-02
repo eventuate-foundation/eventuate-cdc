@@ -15,6 +15,7 @@ plugins {
 }
 
 apply plugin: 'docker-compose'
+apply plugin: DockerServicesPlugin
 
 allprojects {
     group = "io.eventuate.cdc"
@@ -91,7 +92,7 @@ if (!project.ext.has("database")) {
 }
 
 if (!project.ext.has("mode")) {
-    project.ext.set("mode", System.env.MODE == null || System.env.DATABASE == "" ? "binlog" : "$System.env.MODE")
+    project.ext.set("mode", System.env.MODE == null || System.env.MODE == "" ? "binlog" : "$System.env.MODE")
 }
 
 if (mode == "unified") {
@@ -100,14 +101,6 @@ if (mode == "unified") {
 } else {
     project.ext.set("databaseDockerFile", "docker-compose-${database}.yml")
     project.ext.set("databaseDockerCdcFile", "docker-compose-cdc-${database}-${mode}.yml")
-}
-
-def services = { ->
-    if (!project.ext.has("composeServices")) {
-        return System.env.COMPOSE_SERVICES == null || System.env.COMPOSE_SERVICES == "" ? [] : "$System.env.COMPOSE_SERVICES".split(",")
-    } else {
-        return "$composeServices".split(",")
-    }
 }
 
 dockerCompose {
@@ -127,7 +120,7 @@ dockerCompose {
         projectName = null
         removeContainers = project.ext.removeContainers
         useComposeFiles = ["docker-compose-eventuate-local-mysql-for-migration.yml"]
-        startedServices = services()
+        startedServices = project.ext.composeStartedServices()
     }
 
     mariadb {

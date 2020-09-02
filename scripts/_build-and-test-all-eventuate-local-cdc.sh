@@ -12,7 +12,7 @@ export EVENTUATE_CDC_TYPE=EventuateLocal
 
 echo testing database and zookeeper restart scenario $(date)
 
-./gradlew -P composeServices=zookeeper,kafka,${database} :eventuate-local-java-cdc-connector-e2e-tests:eventuatelocalcdcComposeDown
+./gradlew -P composeServices=zookeeper,kafka,${DATABASE} :eventuate-local-java-cdc-connector-e2e-tests:eventuatelocalcdcComposeDown
 sleep 10
 
 ./gradlew $GRADLE_OPTIONS :eventuate-local-java-cdc-connector-e2e-tests:cleanTest :eventuate-local-java-cdc-connector-e2e-tests:test
