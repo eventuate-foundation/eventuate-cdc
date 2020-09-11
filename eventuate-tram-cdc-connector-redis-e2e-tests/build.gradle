@@ -1,0 +1,34 @@
+apply plugin: PublicModulePlugin
+apply plugin: 'docker-compose'
+
+dependencies {
+    compile project (":eventuate-tram-cdc-connector-e2e-tests")
+
+    testCompile "io.eventuate.messaging.redis:eventuate-messaging-redis-spring-consumer:$eventuateMessagingRedisVersion"
+    testCompile "io.eventuate.messaging.redis:eventuate-messaging-redis-spring-common:$eventuateMessagingRedisVersion"
+    testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+    testCompile "junit:junit:4.11"
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+}
+
+test {
+    forkEvery 1
+}
+
+dockerCompose {
+    environment.put "EVENTUATE_COMMON_VERSION", eventuateCommonImageVersion
+
+    removeOrphans = true
+
+    tramcdc {
+        projectName = null
+        removeContainers = project.ext.removeContainers
+        upAdditionalArgs = ['--no-deps']
+        useComposeFiles = ["../${databaseDockerFile}", "../${databaseDockerCdcFile}"]
+        startedServices = ["zookeeper", "redis", database, "eventuate-cdc-service"]
+    }
+}
+
+test.dependsOn(tramcdcComposeUp)
+
+

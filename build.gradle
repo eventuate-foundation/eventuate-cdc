@@ -1,10 +1,12 @@
 buildscript {
     repositories {
+        jcenter()
         mavenCentral()
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootPluginVersion")
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath "com.avast.gradle:gradle-docker-compose-plugin:0.12.0"
     }
 }
 
@@ -12,12 +14,14 @@ plugins {
     id "com.github.hierynomus.license" version "0.12.1"
 }
 
+apply plugin: 'docker-compose'
+apply plugin: DockerServicesPlugin
+
 allprojects {
     group = "io.eventuate.cdc"
 }
 
 projects {
-
     license {
         header rootProject.file('src/license/HEADER')
     }
@@ -83,14 +87,95 @@ subprojects {
     }
 }
 
+if (!project.ext.has("database")) {
+    project.ext.set("database", System.env.DATABASE == null || System.env.DATABASE == "" ? "mysql" : "$System.env.DATABASE")
+}
+
+if (!project.ext.has("mode")) {
+    project.ext.set("mode", System.env.MODE == null || System.env.MODE == "" ? "binlog" : "$System.env.MODE")
+}
+
+if (mode == "unified") {
+    project.ext.set("databaseDockerFile", "docker-compose-unified.yml")
+    project.ext.set("databaseDockerCdcFile", "docker-compose-cdc-unified.yml")
+} else {
+    project.ext.set("databaseDockerFile", "docker-compose-${database}.yml")
+    project.ext.set("databaseDockerCdcFile", "docker-compose-cdc-${database}-${mode}.yml")
+}
+
+dockerCompose {
+    environment.put "EVENTUATE_COMMON_VERSION", eventuateCommonImageVersion
+    environment.put "EVENTUATE_ACTIVE_MQ_VERSION", eventuateActiveMQImageVersion
+    environment.put "EVENTUATE_RABBIT_MQ_VERSION", eventuateRabbitMQImageVersion
+
+    removeOrphans = true
+
+    mysql {
+        projectName = null
+        useComposeFiles = ["docker-compose-mysql.yml"]
+        removeContainers = project.ext.removeContainers
+    }
+
+    mysqlmigration {
+        projectName = null
+        removeContainers = project.ext.removeContainers
+        useComposeFiles = ["docker-compose-eventuate-local-mysql-for-migration.yml"]
+        startedServices = project.ext.composeStartedServices()
+    }
+
+    mariadb {
+        projectName = null
+        useComposeFiles = ["docker-compose-mariadb.yml"]
+        removeContainers = project.ext.removeContainers
+    }
+
+    mssql {
+        projectName = null
+        useComposeFiles = ["docker-compose-mssql.yml"]
+        removeContainers = project.ext.removeContainers
+    }
+
+    postgres {
+        projectName = null
+        useComposeFiles = ["docker-compose-postgres.yml"]
+        removeContainers = project.ext.removeContainers
+    }
+
+    mysqljson {
+        projectName = null
+        useComposeFiles = ["docker-compose-mysql-json.yml"]
+        removeContainers = project.ext.removeContainers
+    }
+
+    mariadbjson {
+        projectName = null
+        useComposeFiles = ["docker-compose-mariadb-json.yml"]
+        removeContainers = project.ext.removeContainers
+    }
+
+    mssqljson {
+        projectName = null
+        useComposeFiles = ["docker-compose-mssql-json.yml"]
+        removeContainers = project.ext.removeContainers
+    }
+
+    postgresjson {
+        projectName = null
+        useComposeFiles = ["docker-compose-postgres-json.yml"]
+        removeContainers = project.ext.removeContainers
+    }
+
+    unified {
+        projectName = null
+        useComposeFiles = ["docker-compose-unified.yml", "docker-compose-cdc-unified.yml"]
+        removeContainers = project.ext.removeContainers
+    }
+}
+
 task aggregatedTestReport(type: TestReport) {
   destinationDir = file("$buildDir/reports/allTests")
   // Include the results from the 'test' task in all subprojects
   reportOn subprojects*.test
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = "4.4"
 }
 
 gradle.projectsEvaluated {

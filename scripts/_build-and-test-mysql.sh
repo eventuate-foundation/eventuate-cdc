@@ -4,7 +4,7 @@ export TERM=dumb
 
 set -e
 
-. ./scripts/set-env-mysql-binlog.sh
+. ./scripts/set-env.sh
 
 GRADLE_OPTS=""
 
@@ -15,13 +15,19 @@ fi
 
 ./gradlew ${GRADLE_OPTS} testClasses
 
-docker-compose -f docker-compose-${database}.yml down -v --remove-orphans
+docker="./gradlew ${DATABASE}Compose"
 
-docker-compose -f docker-compose-${database}.yml build
-docker-compose -f docker-compose-${database}.yml up -d
+${docker}Down
+${docker}Up
 
-./scripts/wait-for-mysql.sh
 
-./gradlew $* -x :eventuate-local-java-cdc-connector-postgres-wal:test -x :eventuate-local-java-cdc-connector-postgres-wal:test -x eventuate-local-java-cdc-connector-e2e-tests:test -x eventuate-tram-cdc-connector-e2e-tests:test
+./gradlew $* -x :eventuate-local-java-cdc-connector-postgres-wal:test \
+             -x :eventuate-local-java-cdc-connector-postgres-wal:test \
+             -x :eventuate-local-java-cdc-connector-e2e-tests:test \
+             -x :eventuate-tram-cdc-connector-e2e-tests:test \
+             -x :eventuate-tram-cdc-connector-kafka-e2e-tests:test \
+             -x :eventuate-tram-cdc-connector-activemq-e2e-tests:test \
+             -x :eventuate-tram-cdc-connector-rabbitmq-e2e-tests:test \
+             -x :eventuate-tram-cdc-connector-redis-e2e-tests:test
 
-docker-compose -f docker-compose-${database}.yml down -v --remove-orphans
+${docker}Down

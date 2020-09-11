@@ -1,8 +1,13 @@
-mariadb:
-  build: ./mariadb-json
-  ports:
-    - 3306:3306
-  environment:
-    - MYSQL_ROOT_PASSWORD=rootpassword
-    - MYSQL_USER=mysqluser
-    - MYSQL_PASSWORD=mysqlpw
+version: '3'
+services:
+  mariadb:
+    build:
+      context: ./mariadb-json/
+      args:
+        eventuateCommonVersion: ${EVENTUATE_COMMON_VERSION?}
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_USER=mysqluser
+      - MYSQL_PASSWORD=mysqlpw

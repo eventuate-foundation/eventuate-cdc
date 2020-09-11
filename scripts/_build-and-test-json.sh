@@ -8,16 +8,14 @@ if [ -z "$ACTUAL_DATABASE" ]; then
     export ACTUAL_DATABASE=${DATABASE}
 fi
 
-. ./scripts/set-env-${DATABASE}-${MODE}.sh
+. ./scripts/set-env.sh
 
-DOCKER_COMPOSE="docker-compose -f docker-compose-${ACTUAL_DATABASE}-json.yml"
+docker="./gradlew ${ACTUAL_DATABASE}jsonCompose"
 
-$DOCKER_COMPOSE down
+${docker}Down
 
-$DOCKER_COMPOSE up --build -d
-
-./scripts/wait-for-${DATABASE}.sh
+${docker}Up
 
 ./gradlew :${TEST_MODULE}:cleanTest ${TEST_MODULE}:test --tests "${TEST_CLASS}"
 
-$DOCKER_COMPOSE down
+${docker}Down

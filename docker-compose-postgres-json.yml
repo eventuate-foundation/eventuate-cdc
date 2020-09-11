@@ -1,8 +1,13 @@
-postgres:
-  build: ./postgres-json
-  ports:
-    - 5432:5432
-  environment:
-    POSTGRES_USER: eventuate
-    POSTGRES_PASSWORD: eventuate
+version: '3'
+services:
+  postgres:
+    build:
+      context: ./postgres-json/
+      args:
+        eventuateCommonVersion: ${EVENTUATE_COMMON_VERSION?}
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: eventuate
+      POSTGRES_PASSWORD: eventuate
 
