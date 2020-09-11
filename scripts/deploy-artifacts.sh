@@ -41,7 +41,7 @@ DOCKER_REPO=eventuateio
 DOCKER_COMPOSE_PREFIX=eventuatecdc_
 
 $PREFIX ./gradlew :eventuate-cdc-service:clean :eventuate-cdc-service:assemble
-docker-compose -f docker-compose-mysql.yml -f docker-compose-cdc-mysql-binlog.yml build cdcservice
+docker-compose -f docker-compose-mysql.yml -f docker-compose-cdc-mysql-binlog.yml build eventuate-cdc-service
 
 
 function tagAndPush() {
@@ -58,4 +58,4 @@ $PREFIX docker login -u ${DOCKER_USER_ID?} -p ${DOCKER_PASSWORD?}
 
 docker images
 
-tagAndPush "cdcservice" "eventuate-cdc-service"
+tagAndPush "eventuate-cdc-service" "eventuate-cdc-service"
