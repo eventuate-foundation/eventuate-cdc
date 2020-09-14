@@ -1,466 +1,115 @@
-version: 2
-jobs:
-  build:
-    machine: true
-    working_directory: ~/eventuate-cdc
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - eventuate-cdc-{{ checksum "gradle.properties" }}
-            - eventuate-cdc-
-      - run: TERM=dumb ./gradlew testClasses aggregateJavaDocs
-      - run: TERM=dumb ./.circleci/upgrade-docker-compose.sh
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./scripts/build-and-test-mysql.sh
-      - run:
-          name: Save test results
-          command: ./scripts/save-containers-and-tests.sh
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  build-and-test-mysql-migration:
-    machine: true
-    working_directory: ~/eventuate-cdc
-    steps:
-      - checkout
-      - restore_cache:
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./gradlew testClasses aggregateJavaDocs
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./scripts/build-and-test-mysql-migration.sh
-      - run:
-          name: Save test results
-          command: ./scripts/save-containers-and-tests.sh
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  build-mariadb:
-    machine: true
-    working_directory: ~/eventuate-cdc
-    steps:
-      - checkout
-      - restore_cache:
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./gradlew testClasses aggregateJavaDocs
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./scripts/build-and-test-mariadb.sh
-      - run:
-          name: Save test results
-          command: ./scripts/save-containers-and-tests.sh
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  build-postgres-wal:
-    machine: true
-    working_directory: ~/eventuate-cdc
-    steps:
-      - checkout
-      - restore_cache:
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./scripts/build-and-test-postgres-wal.sh
-      - run:
-          name: Save test results
-          command: ./scripts/save-containers-and-tests.sh
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  build-mssql-polling:
-    machine: true
-    working_directory: ~/eventuate-cdc
-    steps:
-      - checkout
-      - restore_cache:
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./scripts/build-and-test-mssql-polling.sh
-      - run:
-          name: Save test results
-          command: ./scripts/save-containers-and-tests.sh
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  build-postgres-polling:
-    machine: true
-    working_directory: ~/eventuate-cdc
-    steps:
-      - checkout
-      - restore_cache:
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./scripts/build-and-test-postgres-polling.sh
-      - run:
-          name: Save test results
-          command: ./scripts/save-containers-and-tests.sh
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  build-mysql-json:
-    machine: true
-    working_directory: ~/eventuate-cdc
-    steps:
-      - checkout
-      - restore_cache:
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./scripts/build-and-test-mysql-json.sh
-      - run:
-          name: Save test results
-          command: ./scripts/save-containers-and-tests.sh
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  build-mariadb-json:
-    machine: true
-    working_directory: ~/eventuate-cdc
-    steps:
-      - checkout
-      - restore_cache:
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./scripts/build-and-test-mariadb-json.sh
-      - run:
-          name: Save test results
-          command: ./scripts/save-containers-and-tests.sh
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  build-mssql-polling-json:
-    machine: true
-    working_directory: ~/eventuate-cdc
-    steps:
-      - checkout
-      - restore_cache:
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./scripts/build-and-test-mssql-polling-json.sh
-      - run:
-          name: Save test results
-          command: ./scripts/save-containers-and-tests.sh
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  build-postgres-polling-json:
-    machine: true
-    working_directory: ~/eventuate-cdc
-    steps:
-      - checkout
-      - restore_cache:
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./scripts/build-and-test-postgres-polling-json.sh
-      - run:
-          name: Save test results
-          command: ./scripts/save-containers-and-tests.sh
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  build-postgres-wal-json:
-    machine: true
-    working_directory: ~/eventuate-cdc
-    steps:
-      - checkout
-      - restore_cache:
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./scripts/build-and-test-postgres-wal-json.sh
-      - run:
-          name: Save test results
-          command: ./scripts/save-containers-and-tests.sh
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  build-eventuate-local-cdc-mysql:
-    machine: true
-    working_directory: ~/eventuate-cdc
-    steps:
-      - checkout
-      - restore_cache:
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./scripts/build-and-test-all-eventuate-local-cdc-mysql-binlog.sh
-      - run:
-          name: Save test results
-          command: ./scripts/save-containers-and-tests.sh
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  build-eventuate-local-cdc-mariadb:
-    machine: true
-    working_directory: ~/eventuate-cdc
-    steps:
-      - checkout
-      - restore_cache:
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./scripts/build-and-test-all-eventuate-local-cdc-mariadb-binlog.sh
-      - run:
-          name: Save test results
-          command: ./scripts/save-containers-and-tests.sh
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  build-eventuate-local-cdc-postgres-polling:
-    machine: true
-    working_directory: ~/eventuate-cdc
-    steps:
-      - checkout
-      - restore_cache:
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./scripts/build-and-test-all-eventuate-local-cdc-postgres-polling.sh
-      - run:
-          name: Save test results
-          command: ./scripts/save-containers-and-tests.sh
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  build-eventuate-local-cdc-postgres-wal:
-    machine: true
-    working_directory: ~/eventuate-cdc
-    steps:
-      - checkout
-      - restore_cache:
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./scripts/build-and-test-all-eventuate-local-cdc-postgres-wal.sh
-      - run:
-          name: Save test results
-          command: ./scripts/save-containers-and-tests.sh
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  build-eventuate-tram-cdc-mysql:
-    machine: true
-    working_directory: ~/eventuate-cdc
-    steps:
-      - checkout
-      - restore_cache:
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./scripts/build-and-test-all-tram-cdc-mysql-binlog.sh
-      - run:
-          name: Save test results
-          command: ./scripts/save-containers-and-tests.sh
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  build-eventuate-tram-cdc-postgres-polling:
-    machine: true
-    working_directory: ~/eventuate-cdc
-    steps:
-      - checkout
-      - restore_cache:
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./scripts/build-and-test-all-tram-cdc-postgres-polling.sh
-      - run:
-          name: Save test results
-          command: ./scripts/save-containers-and-tests.sh
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  build-eventuate-tram-cdc-postgres-wal:
-    machine: true
-    working_directory: ~/eventuate-cdc
-    steps:
-      - checkout
-      - restore_cache:
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./scripts/build-and-test-all-tram-cdc-postgres-wal.sh
-      - run:
-          name: Save test results
-          command: ./scripts/save-containers-and-tests.sh
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  build-eventuate-tram-cdc-mssql-polling:
-    machine: true
-    working_directory: ~/eventuate-cdc
-    steps:
-      - checkout
-      - restore_cache:
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./scripts/build-and-test-all-tram-cdc-mssql-polling.sh
-      - run:
-          name: Save test results
-          command: ./scripts/save-containers-and-tests.sh
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  build-cdc-unified:
-    machine: true
-    working_directory: ~/eventuate-cdc
-    steps:
-      - checkout
-      - restore_cache:
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./scripts/build-and-test-all-cdc-unified.sh
-      - run:
-          name: Save test results
-          command: ./scripts/save-containers-and-tests.sh
-          when: always
-      - store_test_results:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/junit
-      - store_artifacts:
-          path: ~/container-logs
-  publish:
-    machine: true
-    working_directory: ~/eventuate-cdc
-    steps:
-      - checkout
-      - restore_cache:
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run: TERM=dumb ./gradlew testClasses aggregateJavaDocs
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: eventuate-cdc-{{ checksum "gradle.properties" }}
-      - run:
-          name: Publish artifacts
-          command: |
-            TERM=dumb ./scripts/deploy-artifacts.sh
-          when: on_success
+version: 2.1
+orbs:
+  build-and-test:
+    jobs:
+      build-and-test:
+        parameters:
+          script:
+            description: the script to execute
+            type: string
+        machine: true
+        working_directory: ~/eventuate-cdc
+        steps:
+          - checkout
+          - restore_cache:
+              keys:
+                - eventuate-cdc-{{ checksum "gradle.properties" }}
+                - eventuate-cdc-
+          - run:
+              command: |
+                ./.circleci/upgrade-docker-compose.sh
+                ./gradlew testClasses aggregateJavaDocs
+          - save_cache:
+              paths:
+                - ~/.gradle
+              key: eventuate-cdc-{{ checksum "gradle.properties" }}
+          - run: <<parameters.script>>
+          - run:
+              name: Save test results
+              command: ./scripts/save-containers-and-tests.sh
+              when: always
+          - store_test_results:
+              path: ~/junit
+          - store_artifacts:
+              path: ~/junit
+          - store_artifacts:
+              path: ~/container-logs
 workflows:
-  version: 2
+  version: 2.1
   build-test-and-deploy:
     jobs:
-      - build
-      - build-mariadb
-      - build-and-test-mysql-migration
-      - build-postgres-wal:
+      - build-and-test/build-and-test:
+          name: build-and-test-mysql
+          script: ./scripts/build-and-test-mysql.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-mysql-migration
+          script: ./scripts/build-and-test-mysql-migration.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-mariadb
+          script: ./scripts/build-and-test-mariadb.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-postgres-wal
+          script: ./scripts/build-and-test-postgres-wal.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-mssql-polling
+          script: ./scripts/build-and-test-mssql-polling.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-postgres-polling
+          script: ./scripts/build-and-test-postgres-polling.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-mysql-json
+          script: ./scripts/build-and-test-mysql-json.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-mariadb-json
+          script: ./scripts/build-and-test-mariadb-json.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-mssql-polling-json
+          script: ./scripts/build-and-test-mssql-polling-json.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-postgres-polling-json
+          script: ./scripts/build-and-test-postgres-polling-json.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-postgres-wal-json
+          script: ./scripts/build-and-test-postgres-wal-json.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-all-eventuate-local-cdc-mysql-binlog
+          script: ./scripts/build-and-test-all-eventuate-local-cdc-mysql-binlog.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-all-eventuate-local-cdc-mariadb-binlog
+          script: ./scripts/build-and-test-all-eventuate-local-cdc-mariadb-binlog.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-all-eventuate-local-cdc-postgres-polling
+          script: ./scripts/build-and-test-all-eventuate-local-cdc-postgres-polling.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-all-eventuate-local-cdc-postgres-wal
+          script: ./scripts/build-and-test-all-eventuate-local-cdc-postgres-wal.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-all-tram-cdc-mysql-binlog
+          script: ./scripts/build-and-test-all-tram-cdc-mysql-binlog.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-all-tram-cdc-postgres-polling
+          script: ./scripts/build-and-test-all-tram-cdc-postgres-polling.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-all-tram-cdc-postgres-wal
+          script: ./scripts/build-and-test-all-tram-cdc-postgres-wal.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-all-tram-cdc-mssql-polling
+          script: ./scripts/build-and-test-all-tram-cdc-mssql-polling.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-all-cdc-unified
           requires:
-            - build
-      - build-mssql-polling:
-          requires:
-            - build
-      - build-postgres-polling:
-          requires:
-            - build
-      - build-mysql-json:
-          requires:
-            - build
-      - build-mariadb-json:
-          requires:
-            - build
-      - build-mssql-polling-json:
-          requires:
-            - build
-      - build-postgres-polling-json:
-          requires:
-            - build
-      - build-postgres-wal-json:
-          requires:
-            - build
-      - build-eventuate-local-cdc-mysql:
-          requires:
-            - build
-      - build-eventuate-local-cdc-mariadb:
-          requires:
-            - build-mariadb
-      - build-eventuate-local-cdc-postgres-wal:
-          requires:
-            - build-postgres-wal
-      - build-eventuate-local-cdc-postgres-polling:
-          requires:
-            - build
-      - build-eventuate-tram-cdc-mysql:
-          requires:
-            - build
-      - build-eventuate-tram-cdc-postgres-polling:
-          requires:
-            - build
-      - build-eventuate-tram-cdc-postgres-wal:
-          requires:
-            - build
-      - build-eventuate-tram-cdc-mssql-polling:
-          requires:
-            - build
-      - build-cdc-unified:
-          requires:
-            - build-eventuate-local-cdc-mysql
-            - build-eventuate-local-cdc-mariadb
-            - build-eventuate-local-cdc-postgres-wal
-            - build-eventuate-local-cdc-postgres-polling
-            - build-eventuate-tram-cdc-mysql
-            - build-eventuate-tram-cdc-postgres-polling
-            - build-eventuate-tram-cdc-postgres-wal
-            - build-eventuate-tram-cdc-mssql-polling
+            - build-and-test-all-eventuate-local-cdc-mysql-binlog
+            - build-and-test-all-eventuate-local-cdc-mariadb-binlog
+            - build-and-test-all-eventuate-local-cdc-postgres-polling
+            - build-and-test-all-eventuate-local-cdc-postgres-wal
+            - build-and-test-all-tram-cdc-mysql-binlog
+            - build-and-test-all-tram-cdc-postgres-polling
+            - build-and-test-all-tram-cdc-postgres-wal
+            - build-and-test-all-tram-cdc-mssql-polling
             - build-and-test-mysql-migration
-      - publish:
+          script: ./scripts/build-and-test-all-cdc-unified.sh
+      - build-and-test/build-and-test:
+          name: deploy-artifacts
           requires:
-            - build-cdc-unified
+            - build-and-test-all-cdc-unified
+          script: ./scripts/deploy-artifacts.sh
