@@ -33,6 +33,5 @@ configurations {
     }
 }
 
-uploadArchives.dependsOn(tasks.findByName('bootRepackage') == null ? tasks['bootJar'] : tasks['bootRepackage'])
+publish.dependsOn(tasks.findByName('bootRepackage') == null ? tasks['bootJar'] : tasks['bootRepackage'])
 bintrayUpload.dependsOn(tasks.findByName('bootRepackage') == null ? tasks['bootJar'] : tasks['bootRepackage'])
-
