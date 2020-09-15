@@ -98,6 +98,17 @@ workflows:
       - build-and-test/build-and-test:
           name: build-and-test-all-cdc-unified
           requires:
+            - build-and-test-mysql
+            - build-and-test-mysql-migration
+            - build-and-test-mariadb
+            - build-and-test-postgres-wal
+            - build-and-test-mssql-polling
+            - build-and-test-postgres-polling
+            - build-and-test-mysql-json
+            - build-and-test-mariadb-json
+            - build-and-test-mssql-polling-json
+            - build-and-test-postgres-polling-json
+            - build-and-test-postgres-wal-json
             - build-and-test-all-eventuate-local-cdc-mysql-binlog
             - build-and-test-all-eventuate-local-cdc-mariadb-binlog
             - build-and-test-all-eventuate-local-cdc-postgres-polling
@@ -106,7 +117,6 @@ workflows:
             - build-and-test-all-tram-cdc-postgres-polling
             - build-and-test-all-tram-cdc-postgres-wal
             - build-and-test-all-tram-cdc-mssql-polling
-            - build-and-test-mysql-migration
           script: ./scripts/build-and-test-all-cdc-unified.sh
       - build-and-test/build-and-test:
           name: deploy-artifacts
