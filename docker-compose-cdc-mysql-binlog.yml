@@ -1,7 +1,9 @@
 version: '3'
 services:
   eventuate-cdc-service:
-    build: ./eventuate-cdc-service
+    build:
+      context: ./eventuate-cdc-service/
+    image: eventuateio/eventuate-cdc-service:${DOCKER_IMAGE_TAG:-latest}
     ports:
       - "8099:8080"
     links:
