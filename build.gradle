@@ -134,7 +134,7 @@ dockerCompose {
     publish {
         environment.put "DOCKER_IMAGE_TAG", dockerImageTag
         projectName = null
-        useComposeFiles = ["docker-compose-cdc-mysql-binlog.yml"]
+        useComposeFiles = ["docker-compose-mysql.yml", "docker-compose-cdc-mysql-binlog.yml"]
         removeContainers = project.ext.removeContainers
     }
 }
