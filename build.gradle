@@ -20,6 +20,7 @@ plugins {
 apply plugin: 'docker-compose'
 apply plugin: DockerServicesPlugin
 apply plugin: "io.eventuate.plugins.gradle.publish.EventuatePublish"
+apply plugin: "io.eventuate.plugins.gradle.publish.EventuatePublishDockerImages"
 
 allprojects {
     group = "io.eventuate.cdc"
@@ -127,6 +128,13 @@ dockerCompose {
     unified {
         projectName = null
         useComposeFiles = ["docker-compose-unified.yml", "docker-compose-cdc-unified.yml"]
+        removeContainers = project.ext.removeContainers
+    }
+
+    publish {
+        environment.put "DOCKER_IMAGE_TAG", dockerImageTag
+        projectName = null
+        useComposeFiles = ["docker-compose-cdc-mysql-binlog.yml"]
         removeContainers = project.ext.removeContainers
     }
 }
