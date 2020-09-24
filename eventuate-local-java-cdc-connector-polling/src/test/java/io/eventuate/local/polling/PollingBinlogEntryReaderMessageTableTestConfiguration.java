@@ -49,7 +49,8 @@ public class PollingBinlogEntryReaderMessageTableTestConfiguration {
             eventuateConfigurationProperties.getPollingRetryIntervalInMilliseconds(),
             eventuateConfigurationProperties.getPollingIntervalInMilliseconds(),
             eventuateConfigurationProperties.getReaderName(),
-            sqlDialectSelector.getDialect(driver));
+            sqlDialectSelector.getDialect(driver),
+            eventuateConfigurationProperties.getReaderId());
   }
 
   @Bean

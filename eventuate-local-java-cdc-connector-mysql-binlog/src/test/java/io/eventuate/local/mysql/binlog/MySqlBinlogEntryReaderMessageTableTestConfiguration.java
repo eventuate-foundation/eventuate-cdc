@@ -53,7 +53,8 @@ public class MySqlBinlogEntryReaderMessageTableTestConfiguration {
             eventuateConfigurationProperties.getReplicationLagMeasuringIntervalInMilliseconds(),
             eventuateConfigurationProperties.getMonitoringRetryIntervalInMilliseconds(),
             eventuateConfigurationProperties.getMonitoringRetryAttempts(),
-            new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
+            new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA),
+            eventuateConfigurationProperties.getReaderId());
   }
 
   @Bean

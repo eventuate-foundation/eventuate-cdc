@@ -1,6 +1,7 @@
 package io.eventuate.tram.cdc.connector.pipeline;
 
 import io.eventuate.cdc.producer.wrappers.DataProducerFactory;
+import io.eventuate.common.id.DatabaseIdGenerator;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.common.PublishingFilter;
 import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
@@ -28,6 +29,6 @@ public class DefaultTramCdcPipelineFactoryConfiguration {
                     publishingFilter,
                     new MessageWithDestinationPublishingStrategy(),
                     meterRegistry),
-            new BinlogEntryToMessageConverter());
+            readerId -> new BinlogEntryToMessageConverter(new DatabaseIdGenerator(readerId)));
   }
 }

@@ -31,5 +31,6 @@ public class CommonCdcDefaultPipelineReaderConfiguration {
     cdcPipelineReaderProperties.setDataSourceDriverClassName(dataSourceDriverClassName);
     cdcPipelineReaderProperties.setLeadershipLockPath(eventuateConfigurationProperties.getLeadershipLockPath());
     cdcPipelineReaderProperties.setReaderName(eventuateConfigurationProperties.getReaderName());
+    cdcPipelineReaderProperties.setReaderId(eventuateConfigurationProperties.getReaderId());
   }
 }

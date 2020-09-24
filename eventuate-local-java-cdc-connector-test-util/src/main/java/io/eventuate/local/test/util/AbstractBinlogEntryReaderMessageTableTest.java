@@ -1,6 +1,7 @@
 package io.eventuate.local.test.util;
 
 import com.google.common.collect.ImmutableMap;
+import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogEntryReader;
 import io.eventuate.local.common.CdcDataPublisher;
@@ -27,6 +28,9 @@ public abstract class AbstractBinlogEntryReaderMessageTableTest {
   @Autowired
   private BinlogEntryReader binlogEntryReader;
 
+  @Autowired
+  private IdGenerator idGenerator;
+
   @Test
   public void testMessageHandled() {
 
@@ -34,7 +38,7 @@ public abstract class AbstractBinlogEntryReaderMessageTableTest {
 
     binlogEntryReader.addBinlogEntryHandler(eventuateSchema,
             "message",
-            new BinlogEntryToMessageConverter(), new CdcDataPublisher<MessageWithDestination>(null, null, null, null) {
+            new BinlogEntryToMessageConverter(idGenerator), new CdcDataPublisher<MessageWithDestination>(null, null, null, null) {
               @Override
               public CompletableFuture<?> sendMessage(MessageWithDestination messageWithDestination)
                       throws EventuateLocalPublishingException {
@@ -43,13 +47,12 @@ public abstract class AbstractBinlogEntryReaderMessageTableTest {
               }
             });
 
-    String messageId = testHelper.generateId();
-    String payload = testHelper.generateId();
+    String payload = "payload-" + testHelper.generateId();
     String rawPayload = "\"" + payload + "\"";
-    String destination = testHelper.generateId();
+    String destination = "destination-" + testHelper.generateId();
     Map<String, String> headers = ImmutableMap.of("key", "value");
 
-    testHelper.saveMessage(messageId, rawPayload, destination, "0", headers, eventuateSchema);
+    String messageId = testHelper.saveMessage(idGenerator, rawPayload, destination, "0", headers, eventuateSchema);
 
     testHelper.runInSeparateThread(binlogEntryReader::start);
 
@@ -58,6 +61,8 @@ public abstract class AbstractBinlogEntryReaderMessageTableTest {
 
       Assert.assertNotNull(message);
       Assert.assertTrue(message.getPayload().contains(payload));
+      Assert.assertEquals(messageId, message.getHeader("ID").get());
+      message.removeHeader("ID");
       Assert.assertEquals(headers, message.getHeaders());
     });
 

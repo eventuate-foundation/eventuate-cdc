@@ -22,6 +22,7 @@ public abstract class BinlogEntryReader {
   protected String dataSourceUrl;
   protected DataSource dataSource;
   protected String readerName;
+  protected Long readerId;
   protected CommonCdcMetrics commonCdcMetrics;
   protected volatile Optional<String> processingError = Optional.empty();
 
@@ -32,12 +33,14 @@ public abstract class BinlogEntryReader {
   public BinlogEntryReader(MeterRegistry meterRegistry,
                            String dataSourceUrl,
                            DataSource dataSource,
-                           String readerName) {
+                           String readerName,
+                           Long readerId) {
 
     this.meterRegistry = meterRegistry;
     this.dataSourceUrl = dataSourceUrl;
     this.dataSource = dataSource;
     this.readerName = readerName;
+    this.readerId = readerId;
 
     commonCdcMetrics = new CommonCdcMetrics(meterRegistry, readerName);
   }
@@ -50,6 +53,10 @@ public abstract class BinlogEntryReader {
 
   public String getReaderName() {
     return readerName;
+  }
+
+  public Long getReaderId() {
+    return readerId;
   }
 
   public long getLastEventTime() {

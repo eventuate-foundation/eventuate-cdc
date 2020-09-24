@@ -72,6 +72,21 @@ workflows:
           name: build-and-test-postgres-wal-json
           script: ./scripts/build-and-test-postgres-wal-json.sh
       - build-and-test/build-and-test:
+          name: build-and-test-mysql-database-id
+          script: ./scripts/build-and-test-mysql-database-id.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-mariadb-database-id
+          script: ./scripts/build-and-test-mariadb-database-id.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-mssql-polling-database-id
+          script: ./scripts/build-and-test-mssql-polling-database-id.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-postgres-polling-database-id
+          script: ./scripts/build-and-test-postgres-polling-database-id.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-postgres-wal-database-id
+          script: ./scripts/build-and-test-postgres-wal-database-id.sh
+      - build-and-test/build-and-test:
           name: build-and-test-all-eventuate-local-cdc-mysql-binlog
           script: ./scripts/build-and-test-all-eventuate-local-cdc-mysql-binlog.sh
       - build-and-test/build-and-test:
@@ -109,6 +124,11 @@ workflows:
             - build-and-test-mssql-polling-json
             - build-and-test-postgres-polling-json
             - build-and-test-postgres-wal-json
+            - build-and-test-mysql-database-id
+            - build-and-test-mariadb-database-id
+            - build-and-test-mssql-polling-database-id
+            - build-and-test-postgres-polling-database-id
+            - build-and-test-postgres-wal-database-id
             - build-and-test-all-eventuate-local-cdc-mysql-binlog
             - build-and-test-all-eventuate-local-cdc-mariadb-binlog
             - build-and-test-all-eventuate-local-cdc-postgres-polling

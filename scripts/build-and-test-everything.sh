@@ -14,6 +14,11 @@ SCRIPTS="
 ./scripts/build-and-test-mssql-polling-json.sh
 ./scripts/build-and-test-postgres-polling-json.sh
 ./scripts/build-and-test-postgres-wal-json.sh
+./scripts/build-and-test-mysql-database-id.sh
+./scripts/build-and-test-mariadb-database-id.sh
+./scripts/build-and-test-mssql-polling-database-id.sh
+./scripts/build-and-test-postgres-polling-database-id.sh
+./scripts/build-and-test-postgres-wal-database-id.sh
 ./scripts/build-and-test-all-eventuate-local-cdc-mysql-binlog.sh
 ./scripts/build-and-test-all-eventuate-local-cdc-mariadb-binlog.sh
 ./scripts/build-and-test-all-eventuate-local-cdc-postgres-polling.sh

@@ -1,5 +1,5 @@
 ARG eventuateCommonVersion
 
-FROM eventuateio/eventuate-mssql:$eventuateCommonVersion
+FROM test-eventuate-mssql
 
 COPY . /usr/src/app

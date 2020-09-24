@@ -3,6 +3,7 @@ package io.eventuate.local.test.util;
 import io.eventuate.common.common.spring.jdbc.EventuateSpringJdbcStatementExecutor;
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.eventuate.local.PublishedEvent;
+import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
@@ -136,13 +137,13 @@ public class TestHelper {
     return new EventIdEntityId(eventId, entityId);
   }
 
-  public void saveMessage(String messageId,
+  public String saveMessage(IdGenerator idGenerator,
                           String payload,
                           String destination,
                           String currentTimeInMillisecondsSql,
                           Map<String, String> headers,
                           EventuateSchema eventuateSchema) {
-    eventuateCommonJdbcOperations.insertIntoMessageTable(messageId, payload, destination, currentTimeInMillisecondsSql, headers, eventuateSchema);
+    return eventuateCommonJdbcOperations.insertIntoMessageTable(idGenerator, payload, destination, currentTimeInMillisecondsSql, headers, eventuateSchema);
   }
 
   public EventIdEntityId updateEvent(String entityId, String eventData) {

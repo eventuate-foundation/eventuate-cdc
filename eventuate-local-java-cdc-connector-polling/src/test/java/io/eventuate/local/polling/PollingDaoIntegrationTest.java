@@ -6,6 +6,7 @@ import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.local.common.BinlogEntryHandler;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.CdcDataPublisher;
+import io.eventuate.local.common.EventuateConfigurationProperties;
 import io.eventuate.local.common.exception.EventuateLocalPublishingException;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
 import io.eventuate.local.test.util.TestHelper;
@@ -65,6 +66,9 @@ public class PollingDaoIntegrationTest {
 
   @Autowired
   private TestHelper testHelper;
+
+  @Autowired
+  private EventuateConfigurationProperties eventuateConfigurationProperties;
 
   private AtomicInteger processedEvents;
 
@@ -139,7 +143,8 @@ public class PollingDaoIntegrationTest {
             100,
             1000,
             testHelper.generateId(),
-            sqlDialectSelector.getDialect(driver));
+            sqlDialectSelector.getDialect(driver),
+            eventuateConfigurationProperties.getReaderId());
   }
 
   private void assertEventsArePublished(List<String> eventIds) {

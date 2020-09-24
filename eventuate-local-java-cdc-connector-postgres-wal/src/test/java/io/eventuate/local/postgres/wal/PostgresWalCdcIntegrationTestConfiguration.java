@@ -90,7 +90,8 @@ public class PostgresWalCdcIntegrationTestConfiguration {
             eventuateConfigurationProperties.getMonitoringRetryAttempts(),
             eventuateConfigurationProperties.getAdditionalServiceReplicationSlotName(),
             eventuateConfigurationProperties.getWaitForOffsetSyncTimeoutInMilliseconds(),
-            new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
+            new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA),
+            eventuateConfigurationProperties.getReaderId());
   }
 
 

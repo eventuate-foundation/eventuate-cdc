@@ -25,7 +25,7 @@ services:
       KAFKA_HEAP_OPTS: -Xmx192m
 
   mysqlbinlogpipeline:
-    image: eventuateio/eventuate-mysql:0.9.0.RC3
+    image: test-eventuate-mysql
     ports:
       - 3306:3306
     environment:
@@ -34,7 +34,7 @@ services:
       - MYSQL_PASSWORD=mysqlpw
 
   postgrespollingpipeline:
-    image: eventuateio/eventuate-postgres:0.9.0.RC3
+    image: test-eventuate-postgres
     ports:
       - 5432:5432
     environment:
@@ -42,7 +42,7 @@ services:
       POSTGRES_PASSWORD: eventuate
 
   postgreswalpipeline:
-    image: eventuateio/eventuate-postgres:0.9.0.RC3
+    image: test-eventuate-postgres
     ports:
       - 5433:5432
     environment:

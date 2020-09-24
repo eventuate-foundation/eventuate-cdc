@@ -25,7 +25,7 @@ services:
       KAFKA_HEAP_OPTS: -Xmx192m
 
   postgres:
-    image: eventuateio/eventuate-postgres:$EVENTUATE_COMMON_VERSION
+    image: test-eventuate-postgres
     ports:
       - 5432:5432
     environment:
@@ -36,4 +36,3 @@ services:
     image: redis:5.0.3
     ports:
       - 6379:6379
-

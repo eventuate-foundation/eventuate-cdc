@@ -29,12 +29,14 @@ public abstract class DbLogClient extends BinlogEntryReader {
                      long replicationLagMeasuringIntervalInMilliseconds,
                      int monitoringRetryIntervalInMilliseconds,
                      int monitoringRetryAttempts,
-                     EventuateSchema monitoringSchema) {
+                     EventuateSchema monitoringSchema,
+                     Long readerId) {
 
     super(meterRegistry,
             dataSourceUrl,
             dataSource,
-            readerName);
+            readerName,
+            readerId);
 
     cdcMonitoringDao = new CdcMonitoringDao(dataSource,
             monitoringSchema,

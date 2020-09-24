@@ -58,6 +58,7 @@ public class PostgresWalCdcPipelineReaderFactory
             readerProperties.getMonitoringRetryAttempts(),
             readerProperties.getAdditionalServiceReplicationSlotName(),
             readerProperties.getWaitForOffsetSyncTimeoutInMilliseconds(),
-            new EventuateSchema(readerProperties.getMonitoringSchema()));
+            new EventuateSchema(readerProperties.getMonitoringSchema()),
+            readerProperties.getReaderId());
   }
 }

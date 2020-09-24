@@ -20,6 +20,6 @@ public class DefaultEventuateLocalCdcPipelineFactoryConfiguration {
     return new CdcPipelineFactory<>("eventuate-local",
             binlogEntryReaderProvider,
             cdcDataPublisher,
-            new BinlogEntryToPublishedEventConverter());
+            readerId -> new BinlogEntryToPublishedEventConverter());
   }
 }

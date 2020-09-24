@@ -10,6 +10,19 @@ public interface BinlogEntry {
     return getStringColumn(name);
   }
 
+  default Long getLongColumn(String name) {
+    Object columnValue = getColumn(name);
+
+    if (columnValue == null) {
+      return null;
+    }
+
+    if (columnValue instanceof Long) return (Long)columnValue; //mysql
+    if (columnValue instanceof String) return Long.parseLong((String)columnValue); //postgres
+
+    throw new IllegalArgumentException(String.format("Unexpected type %s of column %s, should be String", columnValue.getClass(), name));
+  }
+
   default String getStringColumn(String name) {
     Object columnValue = getColumn(name);
 

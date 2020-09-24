@@ -107,9 +107,21 @@ dockerCompose {
         removeContainers = project.ext.removeContainers
     }
 
+    mysqldatabaseid {
+        projectName = null
+        useComposeFiles = ["docker-compose-mysql-database-id.yml"]
+        removeContainers = project.ext.removeContainers
+    }
+
     mariadbjson {
         projectName = null
         useComposeFiles = ["docker-compose-mariadb-json.yml"]
+        removeContainers = project.ext.removeContainers
+    }
+
+    mariadbdatabaseid {
+        projectName = null
+        useComposeFiles = ["docker-compose-mariadb-database-id.yml"]
         removeContainers = project.ext.removeContainers
     }
 
@@ -119,9 +131,21 @@ dockerCompose {
         removeContainers = project.ext.removeContainers
     }
 
+    mssqldatabaseid {
+        projectName = null
+        useComposeFiles = ["docker-compose-mssql-database-id.yml"]
+        removeContainers = project.ext.removeContainers
+    }
+
     postgresjson {
         projectName = null
         useComposeFiles = ["docker-compose-postgres-json.yml"]
+        removeContainers = project.ext.removeContainers
+    }
+
+    postgresdatabaseid {
+        projectName = null
+        useComposeFiles = ["docker-compose-postgres-database-id.yml"]
         removeContainers = project.ext.removeContainers
     }
 
