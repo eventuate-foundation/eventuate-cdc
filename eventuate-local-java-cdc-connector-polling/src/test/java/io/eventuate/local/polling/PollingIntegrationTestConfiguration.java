@@ -98,7 +98,7 @@ public class PollingIntegrationTestConfiguration {
             eventuateConfigurationProperties.getPollingIntervalInMilliseconds(),
             eventuateConfigurationProperties.getReaderName(),
             sqlDialectSelector.getDialect(driver),
-            eventuateConfigurationProperties.getReaderId());
+            eventuateConfigurationProperties.getOutboxId());
   }
 
   @Bean

@@ -1,13 +1,15 @@
 version: '3'
 services:
   mariadb:
-    image: test-eventuate-mariadb
+    image: eventuateio/eventuate-mariadb:0.13.0.DB_ID_GEN.BUILD-SNAPSHOT
     ports:
       - 3306:3306
     environment:
       - MYSQL_ROOT_PASSWORD=rootpassword
       - MYSQL_USER=mysqluser
       - MYSQL_PASSWORD=mysqlpw
+      - USE_DB_ID=${USE_DB_ID}
+      - USE_JSON_PAYLOAD_AND_HEADERS=${USE_JSON_PAYLOAD_AND_HEADERS}
 
   zookeeper:
     image: confluentinc/cp-zookeeper:5.2.4

@@ -54,7 +54,7 @@ public class MySqlBinlogEntryReaderMessageTableTestConfiguration {
             eventuateConfigurationProperties.getMonitoringRetryIntervalInMilliseconds(),
             eventuateConfigurationProperties.getMonitoringRetryAttempts(),
             new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA),
-            eventuateConfigurationProperties.getReaderId());
+            eventuateConfigurationProperties.getOutboxId());
   }
 
   @Bean

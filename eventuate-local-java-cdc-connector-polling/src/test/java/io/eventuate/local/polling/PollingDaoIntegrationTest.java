@@ -144,7 +144,7 @@ public class PollingDaoIntegrationTest {
             1000,
             testHelper.generateId(),
             sqlDialectSelector.getDialect(driver),
-            eventuateConfigurationProperties.getReaderId());
+            eventuateConfigurationProperties.getOutboxId());
   }
 
   private void assertEventsArePublished(List<String> eventIds) {

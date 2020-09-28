@@ -43,7 +43,7 @@ public class PollingCdcPipelineReaderFactory extends CommonCdcPipelineReaderFact
             readerProperties.getPollingIntervalInMilliseconds(),
             readerProperties.getReaderName(),
             sqlDialectSelector.getDialect(readerProperties.getDataSourceDriverClassName()),
-            readerProperties.getReaderId());
+            readerProperties.getOutboxId());
   }
 
   @Override

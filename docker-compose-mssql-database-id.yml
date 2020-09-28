@@ -1,9 +1,0 @@
-version: '3'
-services:
-  mssql:
-    build: ./mssql-database-id
-    ports:
-      - 1433:1433
-    environment:
-      SA_PASSWORD: Eventuate123!
-      ACCEPT_EULA: Y

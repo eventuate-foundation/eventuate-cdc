@@ -3,13 +3,10 @@ package io.eventuate.local.unified.cdc.pipeline.common.factory;
 import io.eventuate.common.eventuate.local.BinLogEvent;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogEntryReader;
-import io.eventuate.local.common.BinlogEntryToEventConverter;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.CdcPipeline;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineProperties;
-
-import java.util.function.Function;
 
 public class CdcPipelineFactory<EVENT extends BinLogEvent> {
 
@@ -39,7 +36,7 @@ public class CdcPipelineFactory<EVENT extends BinLogEvent> {
 
     binlogEntryReader.addBinlogEntryHandler(new EventuateSchema(cdcPipelineProperties.getEventuateDatabaseSchema()),
             cdcPipelineProperties.getSourceTableName(),
-            binlogEntryToEventConverterFactory.apply(binlogEntryReader.getReaderId()),
+            binlogEntryToEventConverterFactory.apply(binlogEntryReader.getOutboxId()),
             cdcDataPublisher);
 
     return new CdcPipeline<>(cdcDataPublisher);

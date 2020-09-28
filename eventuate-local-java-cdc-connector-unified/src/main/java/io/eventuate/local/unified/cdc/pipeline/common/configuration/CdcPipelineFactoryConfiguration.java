@@ -16,6 +16,6 @@ public class CdcPipelineFactoryConfiguration {
     return new CdcPipelineFactory<>("eventuate-local",
             binlogEntryReaderProvider,
             cdcDataPublisher,
-            readerId -> new BinlogEntryToPublishedEventConverter());
+            outboxId -> new BinlogEntryToPublishedEventConverter());
   }
 }

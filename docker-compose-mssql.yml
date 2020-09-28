@@ -25,9 +25,11 @@ services:
       KAFKA_HEAP_OPTS: -Xmx192m
 
   mssql:
-    image: test-eventuate-mssql
+    image: eventuateio/eventuate-mssql:0.13.0.DB_ID_GEN.BUILD-SNAPSHOT
     ports:
       - 1433:1433
     environment:
       SA_PASSWORD: Eventuate123!
       ACCEPT_EULA: Y
+      USE_DB_ID: ${USE_DB_ID}
+      USE_JSON_PAYLOAD_AND_HEADERS: ${USE_JSON_PAYLOAD_AND_HEADERS}

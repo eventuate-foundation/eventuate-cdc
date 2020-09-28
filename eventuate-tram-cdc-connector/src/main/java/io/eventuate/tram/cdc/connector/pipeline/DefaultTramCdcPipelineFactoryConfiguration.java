@@ -29,6 +29,6 @@ public class DefaultTramCdcPipelineFactoryConfiguration {
                     publishingFilter,
                     new MessageWithDestinationPublishingStrategy(),
                     meterRegistry),
-            readerId -> new BinlogEntryToMessageConverter(new DatabaseIdGenerator(readerId)));
+            outboxId -> new BinlogEntryToMessageConverter(new DatabaseIdGenerator(outboxId)));
   }
 }

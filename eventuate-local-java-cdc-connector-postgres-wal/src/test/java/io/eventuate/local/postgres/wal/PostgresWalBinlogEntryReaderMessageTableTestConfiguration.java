@@ -54,7 +54,7 @@ public class PostgresWalBinlogEntryReaderMessageTableTestConfiguration {
             eventuateConfigurationProperties.getAdditionalServiceReplicationSlotName(),
             eventuateConfigurationProperties.getWaitForOffsetSyncTimeoutInMilliseconds(),
             new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA),
-            eventuateConfigurationProperties.getReaderId());
+            eventuateConfigurationProperties.getOutboxId());
   }
 
   @Bean

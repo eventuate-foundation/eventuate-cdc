@@ -25,13 +25,15 @@ services:
       KAFKA_HEAP_OPTS: -Xmx192m
 
   mysql:
-    image: test-eventuate-mysql
+    image: eventuateio/eventuate-mysql:0.13.0.DB_ID_GEN.BUILD-SNAPSHOT
     ports:
       - 3306:3306
     environment:
       - MYSQL_ROOT_PASSWORD=rootpassword
       - MYSQL_USER=mysqluser
       - MYSQL_PASSWORD=mysqlpw
+      - USE_DB_ID=${USE_DB_ID}
+      - USE_JSON_PAYLOAD_AND_HEADERS=${USE_JSON_PAYLOAD_AND_HEADERS}
 
   activemq:
     image: eventuateio/eventuate-activemq:$EVENTUATE_ACTIVE_MQ_VERSION
