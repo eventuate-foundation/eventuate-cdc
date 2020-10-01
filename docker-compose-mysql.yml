@@ -25,7 +25,7 @@ services:
       KAFKA_HEAP_OPTS: -Xmx192m
 
   mysql:
-    image: eventuateio/eventuate-mysql:0.13.0.DB_ID_GEN.BUILD-SNAPSHOT
+    image: eventuateio/eventuate-mysql:$EVENTUATE_COMMON_VERSION
     ports:
       - 3306:3306
     environment:

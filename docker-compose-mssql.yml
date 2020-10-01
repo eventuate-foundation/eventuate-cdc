@@ -25,7 +25,7 @@ services:
       KAFKA_HEAP_OPTS: -Xmx192m
 
   mssql:
-    image: eventuateio/eventuate-mssql:0.13.0.DB_ID_GEN.BUILD-SNAPSHOT
+    image: eventuateio/eventuate-mssql:$EVENTUATE_COMMON_VERSION
     ports:
       - 1433:1433
     environment:

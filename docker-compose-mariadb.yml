@@ -1,7 +1,7 @@
 version: '3'
 services:
   mariadb:
-    image: eventuateio/eventuate-mariadb:0.13.0.DB_ID_GEN.BUILD-SNAPSHOT
+    image: eventuateio/eventuate-mariadb:$EVENTUATE_COMMON_VERSION
     ports:
       - 3306:3306
     environment:
