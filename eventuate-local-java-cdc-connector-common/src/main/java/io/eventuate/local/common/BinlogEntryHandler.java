@@ -2,6 +2,7 @@ package io.eventuate.local.common;
 
 import io.eventuate.common.eventuate.local.BinLogEvent;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class BinlogEntryHandler<EVENT extends BinLogEvent> {
@@ -31,6 +32,9 @@ public class BinlogEntryHandler<EVENT extends BinLogEvent> {
   }
 
   public CompletableFuture<?> publish(BinlogEntry binlogEntry) {
-    return cdcDataPublisher.sendMessage(binlogEntryToEventConverter.convert(binlogEntry));
+    return binlogEntryToEventConverter
+            .convert(binlogEntry)
+            .map(cdcDataPublisher::sendMessage)
+            .orElse(CompletableFuture.completedFuture(null));
   }
 }

@@ -4,15 +4,11 @@ import io.eventuate.cdc.e2e.common.AbstractEventuateCdcTest;
 import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
-import io.eventuate.common.json.mapper.JSonMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.function.Consumer;
-
-import static org.junit.Assert.assertEquals;
 
 public abstract class AbstractTramCdcTest extends AbstractEventuateCdcTest {
 
@@ -26,13 +22,14 @@ public abstract class AbstractTramCdcTest extends AbstractEventuateCdcTest {
   private IdGenerator idGenerator;
 
   @Override
-  protected String saveEvent(String eventData, String entityType, EventuateSchema eventuateSchema) {
+  protected String saveEvent(String eventData, String entityType, EventuateSchema eventuateSchema, boolean published) {
     return eventuateCommonJdbcOperations.insertIntoMessageTable(idGenerator,
             eventData,
             entityType,
             sqlDialectSelector.getDialect(driver).getCurrentTimeInMillisecondsExpression(),
             Collections.emptyMap(),
-            eventuateSchema);
+            eventuateSchema,
+            published);
   }
 
   @Override

@@ -7,6 +7,7 @@ import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.util.test.async.Eventually;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +16,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public abstract class AbstractEventuateCdcTest {
 
@@ -53,23 +53,22 @@ public abstract class AbstractEventuateCdcTest {
     String data = generateId() + getClass().getName();
     String rawData = "\"" + data + "\"";
 
-    BlockingQueue<String> blockingQueue = new LinkedBlockingDeque<>();
+    ConcurrentLinkedQueue<String> messageQueue = new ConcurrentLinkedQueue<>();
 
-    createConsumer(destination, blockingQueue::add);
-    String eventId = saveEvent(rawData, destination, new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
+    createConsumer(destination, messageQueue::add);
+    saveEvent(rawData, destination, new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA), true);
+    String eventId = saveEvent(rawData, destination, new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA), false);
 
-    Eventually.eventually(120, 500, TimeUnit.MILLISECONDS, () -> {
-      try {
-        String m = blockingQueue.poll(100, TimeUnit.MILLISECONDS);
+    Eventually.eventually(120, 500, TimeUnit.MILLISECONDS, () -> assertTrue(messageQueue.size() > 0));
 
-        Map<String, Object> message = JSonMapper.fromJson(m, Map.class);
+    Assert.assertEquals(1, messageQueue.size());
 
-        assertEquals(eventId, extractEventId(message));
-        assertEquals(rawData, extractEventPayload(message));
-      } catch (InterruptedException e) {
-        throw new RuntimeException(e);
-      }
-    });
+    String m = messageQueue.poll();
+
+    Map<String, Object> message = JSonMapper.fromJson(m, Map.class);
+
+    assertEquals(eventId, extractEventId(message));
+    assertEquals(rawData, extractEventPayload(message));
   }
 
   protected String generateId() {
@@ -77,7 +76,7 @@ public abstract class AbstractEventuateCdcTest {
   }
 
   protected abstract void createConsumer(String topic, Consumer<String> consumer) throws Exception;
-  protected abstract String saveEvent(String eventData, String eventType, EventuateSchema eventuateSchema);
+  protected abstract String saveEvent(String eventData, String eventType, EventuateSchema eventuateSchema, boolean published);
 
   protected abstract String extractEventId(Map<String, Object> eventAsMap);
   protected abstract String extractEventPayload(Map<String, Object> eventAsMap);

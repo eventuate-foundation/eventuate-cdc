@@ -8,6 +8,7 @@ import io.eventuate.local.common.BinlogEntryToEventConverter;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class BinlogEntryToMessageConverter implements BinlogEntryToEventConverter<MessageWithDestination> {
 
@@ -18,7 +19,11 @@ public class BinlogEntryToMessageConverter implements BinlogEntryToEventConverte
   }
 
   @Override
-  public MessageWithDestination convert(BinlogEntry binlogEntry) {
+  public Optional<MessageWithDestination> convert(BinlogEntry binlogEntry) {
+
+    if (binlogEntry.getBooleanColumn("published")) {
+      return Optional.empty();
+    }
 
     Map<String, String> headers = JSonMapper.fromJson(binlogEntry.getJsonColumn("headers"), Map.class);
 
@@ -32,9 +37,11 @@ public class BinlogEntryToMessageConverter implements BinlogEntryToEventConverte
       headers.put("ID", generatedId);
     }
 
-    return new MessageWithDestination(binlogEntry.getStringColumn("destination"),
+    MessageWithDestination message = new MessageWithDestination(binlogEntry.getStringColumn("destination"),
             binlogEntry.getJsonColumn("payload"),
             headers,
             binlogEntry.getBinlogFileOffset());
+
+    return Optional.of(message);
   }
 }

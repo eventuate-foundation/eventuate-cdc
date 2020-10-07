@@ -4,6 +4,7 @@ import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
 import org.apache.commons.lang.StringUtils;
+import org.apache.zookeeper.Op;
 
 import java.util.Optional;
 
@@ -16,7 +17,11 @@ public class BinlogEntryToPublishedEventConverter implements BinlogEntryToEventC
   }
 
   @Override
-  public PublishedEvent convert(BinlogEntry binlogEntry) {
+  public Optional<PublishedEvent> convert(BinlogEntry binlogEntry) {
+
+    if (binlogEntry.getBooleanColumn("published")) {
+      return Optional.empty();
+    }
 
     String eventId = binlogEntry.getStringColumn("event_id");
 
@@ -25,7 +30,7 @@ public class BinlogEntryToPublishedEventConverter implements BinlogEntryToEventC
       eventId = idGenerator.genId(dbId).asString();
     }
 
-    return new PublishedEvent(
+    PublishedEvent publishedEvent = new PublishedEvent(
             eventId,
             binlogEntry.getStringColumn("entity_id"),
             binlogEntry.getStringColumn("entity_type"),
@@ -33,5 +38,7 @@ public class BinlogEntryToPublishedEventConverter implements BinlogEntryToEventC
             binlogEntry.getStringColumn("event_type"),
             binlogEntry.getBinlogFileOffset(),
             Optional.ofNullable(binlogEntry.getStringColumn("metadata")));
+
+    return Optional.of(publishedEvent);
   }
 }
