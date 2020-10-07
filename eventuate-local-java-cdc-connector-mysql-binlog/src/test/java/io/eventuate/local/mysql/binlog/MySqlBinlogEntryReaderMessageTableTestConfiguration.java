@@ -1,6 +1,7 @@
 package io.eventuate.local.mysql.binlog;
 
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.spring.id.IdGeneratorConfiguration;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.common.EventuateConfigurationProperties;
 import io.eventuate.local.db.log.common.OffsetStore;
@@ -18,7 +19,7 @@ import java.util.Optional;
 
 @Configuration
 @EnableAutoConfiguration
-@Import({SqlDialectConfiguration.class, OffsetStoreMockConfiguration.class})
+@Import({SqlDialectConfiguration.class, OffsetStoreMockConfiguration.class, IdGeneratorConfiguration.class})
 public class MySqlBinlogEntryReaderMessageTableTestConfiguration {
 
   @Bean

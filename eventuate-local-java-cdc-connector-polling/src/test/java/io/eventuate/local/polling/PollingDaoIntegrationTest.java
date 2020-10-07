@@ -1,6 +1,7 @@
 package io.eventuate.local.polling;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
+import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.local.common.BinlogEntryHandler;
@@ -75,6 +76,9 @@ public class PollingDaoIntegrationTest {
   private CdcDataPublisher<PublishedEvent> cdcDataPublisher;
 
   private PollingDao pollingDao;
+
+  @Autowired
+  protected IdGenerator idGenerator;
 
   @Before
   public void init() {
@@ -167,7 +171,7 @@ public class PollingDaoIntegrationTest {
 
     return pollingDao.addBinlogEntryHandler(eventuateSchema,
             sourceTableNameSupplier.getSourceTableName(),
-            new BinlogEntryToPublishedEventConverter(),
+            new BinlogEntryToPublishedEventConverter(idGenerator),
             cdcDataPublisher);
   }
 

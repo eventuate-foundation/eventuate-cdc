@@ -1,6 +1,7 @@
 package io.eventuate.local.postgres.wal;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
+import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.CdcDataPublisher;
@@ -39,6 +40,9 @@ public abstract class AbstractPostgresWalCdcIntegrationEventsTest {
   @Autowired
   private TestHelper testHelper;
 
+  @Autowired
+  private IdGenerator idGenerator;
+
   @Test
   public void shouldGetEvents() throws InterruptedException{
 
@@ -47,7 +51,7 @@ public abstract class AbstractPostgresWalCdcIntegrationEventsTest {
     postgresWalClient.addBinlogEntryHandler(
             eventuateSchema,
             sourceTableNameSupplier.getSourceTableName(),
-            new BinlogEntryToPublishedEventConverter(),
+            new BinlogEntryToPublishedEventConverter(idGenerator),
             new CdcDataPublisher<PublishedEvent>(null, null, null, null) {
               @Override
               public CompletableFuture<?> sendMessage(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {

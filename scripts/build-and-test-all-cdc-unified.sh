@@ -11,34 +11,37 @@ export MODE=unified
 ./gradlew $GRADLE_OPTIONS :eventuate-local-java-cdc-connector-e2e-tests:eventuatelocalcdcComposeDown
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:tramcdcComposeDown
 
+function runE2ETests() {
+  ./gradlew $GRADLE_OPTIONS :eventuate-local-java-cdc-connector-e2e-tests:cleanTest :eventuate-local-java-cdc-connector-e2e-tests:test
+  ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:cleanTest :eventuate-tram-cdc-connector-kafka-e2e-tests:test
+}
 
+echo "TESTING KAFKA MYSQL BINLOG"
+runE2ETests
 
-echo TESTING KAFKA MYSQL BINLOG
-
-
-
-./gradlew $GRADLE_OPTIONS :eventuate-local-java-cdc-connector-e2e-tests:cleanTest :eventuate-local-java-cdc-connector-e2e-tests:test
-./gradlew $GRADLE_OPTIONS :eventuate-local-java-cdc-connector-e2e-tests:eventuatelocalcdcComposeDown
-./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:cleanTest :eventuate-tram-cdc-connector-kafka-e2e-tests:test
-./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:tramcdcComposeDown
-
-
-
-echo TESTING KAFKA POSTGRES POLLING
+echo "TESTING KAFKA POSTGRES POLLING"
 export SPRING_PROFILES_ACTIVE=postgres,EventuatePolling
+runE2ETests
 
-./gradlew $GRADLE_OPTIONS :eventuate-local-java-cdc-connector-e2e-tests:cleanTest :eventuate-local-java-cdc-connector-e2e-tests:test
-./gradlew $GRADLE_OPTIONS :eventuate-local-java-cdc-connector-e2e-tests:eventuatelocalcdcComposeDown
-./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:cleanTest :eventuate-tram-cdc-connector-kafka-e2e-tests:test
-./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:tramcdcComposeDown
-
-
-
-echo TESTING KAFKA POSTGRES WAL
+echo "TESTING KAFKA POSTGRES WAL"
 export SPRING_PROFILES_ACTIVE=postgres,PostgresWal
 export SPRING_DATASOURCE_URL=jdbc:postgresql://${DOCKER_HOST_IP}:5433/eventuate
+runE2ETests
 
-./gradlew $GRADLE_OPTIONS :eventuate-local-java-cdc-connector-e2e-tests:cleanTest :eventuate-local-java-cdc-connector-e2e-tests:test
-./gradlew $GRADLE_OPTIONS :eventuate-local-java-cdc-connector-e2e-tests:eventuatelocalcdcComposeDown
-./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:cleanTest :eventuate-tram-cdc-connector-kafka-e2e-tests:test
-./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:tramcdcComposeDown
+unset SPRING_PROFILES_ACTIVE
+unset SPRING_DATASOURCE_URL
+
+export EVENTUATE_OUTBOX_ID=1
+echo "TESTING KAFKA MYSQL BINLOG (DATABASE ID)"
+runE2ETests
+
+export EVENTUATE_OUTBOX_ID=2
+echo "TESTING KAFKA POSTGRES POLLING (DATABASE ID)"
+export SPRING_PROFILES_ACTIVE=postgres,EventuatePolling
+runE2ETests
+
+export EVENTUATE_OUTBOX_ID=3
+echo "TESTING KAFKA POSTGRES WAL (DATABASE ID)"
+export SPRING_PROFILES_ACTIVE=postgres,PostgresWal
+export SPRING_DATASOURCE_URL=jdbc:postgresql://${DOCKER_HOST_IP}:5433/eventuate
+runE2ETests

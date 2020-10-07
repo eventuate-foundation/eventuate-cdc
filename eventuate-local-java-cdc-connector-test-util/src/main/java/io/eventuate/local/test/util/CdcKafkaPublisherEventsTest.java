@@ -1,6 +1,7 @@
 package io.eventuate.local.test.util;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
+import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.common.EventuateConfigurationProperties;
@@ -44,6 +45,9 @@ public abstract class CdcKafkaPublisherEventsTest {
 
   @Autowired
   protected TestHelper testHelper;
+
+  @Autowired
+  protected IdGenerator idGenerator;
 
   @Before
   public void init() {

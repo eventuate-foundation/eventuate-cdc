@@ -1,6 +1,7 @@
 package io.eventuate.local.cdc.debezium.migration;
 
 import io.eventuate.common.common.spring.jdbc.EventuateSpringJdbcStatementExecutor;
+import io.eventuate.common.id.ApplicationIdGenerator;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
@@ -62,9 +63,7 @@ public abstract class AbstractE2EMigrationTest {
   }
 
   protected String sendEvent() {
-    String id = UUID.randomUUID().toString();
-
-    eventuateCommonJdbcOperations.insertIntoEventsTable(id,
+    return eventuateCommonJdbcOperations.insertIntoEventsTable(new ApplicationIdGenerator(),
             generateId(),
             "",
             generateId(),
@@ -72,8 +71,6 @@ public abstract class AbstractE2EMigrationTest {
             Optional.empty(),
             Optional.empty(),
             new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
-
-    return id;
   }
 
   private String generateId() {

@@ -39,6 +39,9 @@ public class TestHelper {
   @Autowired
   private SqlDialectSelector sqlDialectSelector;
 
+  @Autowired
+  private IdGenerator idGenerator;
+
   @Value("${spring.datasource.driver-class-name}")
   private String driver;
 
@@ -118,14 +121,13 @@ public class TestHelper {
   }
 
   public EventIdEntityId saveEvent(String entityType, String eventType, String eventData, EventuateSchema eventuateSchema) {
-    String eventId = generateId();
     String entityId = generateId();
 
-    return saveEvent(entityType, eventType, eventData, eventId, entityId, eventuateSchema);
+    return saveEvent(entityType, eventType, eventData, entityId, eventuateSchema);
   }
 
-  public EventIdEntityId saveEvent(String entityType, String eventType, String eventData, String eventId, String entityId, EventuateSchema eventuateSchema) {
-    eventuateCommonJdbcOperations.insertIntoEventsTable(eventId,
+  public EventIdEntityId saveEvent(String entityType, String eventType, String eventData, String entityId, EventuateSchema eventuateSchema) {
+    String eventId = eventuateCommonJdbcOperations.insertIntoEventsTable(idGenerator,
             entityId,
             eventData,
             eventType,
@@ -151,9 +153,7 @@ public class TestHelper {
   }
 
   public EventIdEntityId updateEvent(String entityType, String eventType, String entityId, String eventData) {
-    String eventId = generateId();
-
-    eventuateCommonJdbcOperations.insertIntoEventsTable(eventId,
+    String eventId = eventuateCommonJdbcOperations.insertIntoEventsTable(idGenerator,
             entityId,
             eventData,
             eventType,

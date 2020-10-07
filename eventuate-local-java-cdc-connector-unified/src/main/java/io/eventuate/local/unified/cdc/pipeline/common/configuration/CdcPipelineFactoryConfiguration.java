@@ -1,6 +1,7 @@
 package io.eventuate.local.unified.cdc.pipeline.common.configuration;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
+import io.eventuate.common.id.DatabaseIdGenerator;
 import io.eventuate.local.common.*;
 import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.CdcPipelineFactory;
@@ -16,6 +17,6 @@ public class CdcPipelineFactoryConfiguration {
     return new CdcPipelineFactory<>("eventuate-local",
             binlogEntryReaderProvider,
             cdcDataPublisher,
-            outboxId -> new BinlogEntryToPublishedEventConverter());
+            outboxId -> new BinlogEntryToPublishedEventConverter(new DatabaseIdGenerator(outboxId)));
   }
 }

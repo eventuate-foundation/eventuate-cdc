@@ -1,6 +1,7 @@
 package io.eventuate.local.postgres.wal;
 
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.spring.id.IdGeneratorConfiguration;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.common.EventuateConfigurationProperties;
 import io.eventuate.local.test.util.TestHelper;
@@ -15,7 +16,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableAutoConfiguration
-@Import(SqlDialectConfiguration.class)
+@Import({SqlDialectConfiguration.class, IdGeneratorConfiguration.class})
 public class PostgresWalBinlogEntryReaderMessageTableTestConfiguration {
 
 
