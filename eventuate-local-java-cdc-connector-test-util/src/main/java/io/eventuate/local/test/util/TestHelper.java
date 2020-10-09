@@ -142,10 +142,9 @@ public class TestHelper {
   public String saveMessage(IdGenerator idGenerator,
                           String payload,
                           String destination,
-                          String currentTimeInMillisecondsSql,
                           Map<String, String> headers,
                           EventuateSchema eventuateSchema) {
-    return eventuateCommonJdbcOperations.insertIntoMessageTable(idGenerator, payload, destination, currentTimeInMillisecondsSql, headers, eventuateSchema);
+    return eventuateCommonJdbcOperations.insertIntoMessageTable(idGenerator, payload, destination, headers, eventuateSchema);
   }
 
   public EventIdEntityId updateEvent(String entityId, String eventData) {

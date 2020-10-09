@@ -52,7 +52,7 @@ public abstract class AbstractBinlogEntryReaderMessageTableTest {
     String destination = "destination-" + testHelper.generateId();
     Map<String, String> headers = ImmutableMap.of("key", "value");
 
-    String messageId = testHelper.saveMessage(idGenerator, rawPayload, destination, "0", headers, eventuateSchema);
+    String messageId = testHelper.saveMessage(idGenerator, rawPayload, destination, headers, eventuateSchema);
 
     testHelper.runInSeparateThread(binlogEntryReader::start);
 
