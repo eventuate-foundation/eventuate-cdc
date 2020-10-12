@@ -15,12 +15,11 @@ public abstract class AbstractTramCdcTest extends AbstractEventuateCdcTest {
 
   @Override
   protected String saveEvent(String eventData, String entityType, EventuateSchema eventuateSchema, boolean published) {
-    return eventuateCommonJdbcOperations.insertIntoMessageTable(idGenerator,
+    return eventuateCommonJdbcOperations.insertPublishedMessageIntoMessageTable(idGenerator,
             eventData,
             entityType,
             Collections.emptyMap(),
-            eventuateSchema,
-            published);
+            eventuateSchema);
   }
 
   @Override
