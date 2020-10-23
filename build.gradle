@@ -68,6 +68,8 @@ dockerCompose {
     environment.put "EVENTUATE_ACTIVE_MQ_VERSION", eventuateActiveMQImageVersion
     environment.put "EVENTUATE_RABBIT_MQ_VERSION", eventuateRabbitMQImageVersion
 
+    environment.put "DOCKER_IMAGE_TAG", dockerImageTag
+
     removeOrphans = true
 
     mysql {
@@ -140,7 +142,6 @@ dockerCompose {
     }
 
     publish {
-        environment.put "DOCKER_IMAGE_TAG", dockerImageTag
         projectName = null
         useComposeFiles = ["docker-compose-mysql.yml", "docker-compose-cdc-mysql-binlog.yml"]
         removeContainers = project.ext.removeContainers
