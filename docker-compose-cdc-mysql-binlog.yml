@@ -1,7 +1,9 @@
 version: '3'
 services:
   eventuate-cdc-service:
-    build: ./eventuate-cdc-service
+    build:
+      context: ./eventuate-cdc-service/
+    image: eventuateio/eventuate-cdc-service:${DOCKER_IMAGE_TAG:-latest}
     ports:
       - "8099:8080"
     links:
@@ -21,6 +23,7 @@ services:
       EVENTUATELOCAL_CDC_DB_USER_NAME: root
       EVENTUATELOCAL_CDC_DB_PASSWORD: rootpassword
       EVENTUATELOCAL_CDC_READER_NAME: MySqlReader
+      EVENTUATE_OUTBOX_ID: 1
       EVENTUATELOCAL_CDC_MYSQL_BINLOG_CLIENT_UNIQUE_ID: 1234567890
       EVENTUATELOCAL_CDC_READ_OLD_DEBEZIUM_DB_OFFSET_STORAGE_TOPIC: "false"
       EVENTUATE_CDC_TYPE: ${EVENTUATE_CDC_TYPE}

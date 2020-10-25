@@ -31,9 +31,10 @@ services:
     environment:
       POSTGRES_USER: eventuate
       POSTGRES_PASSWORD: eventuate
+      USE_DB_ID: ${USE_DB_ID}
+      USE_JSON_PAYLOAD_AND_HEADERS: ${USE_JSON_PAYLOAD_AND_HEADERS}
 
   redis:
     image: redis:5.0.3
     ports:
       - 6379:6379
-

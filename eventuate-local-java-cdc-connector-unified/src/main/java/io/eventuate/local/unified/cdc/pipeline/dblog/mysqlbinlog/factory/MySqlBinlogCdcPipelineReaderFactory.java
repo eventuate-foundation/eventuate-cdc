@@ -75,6 +75,7 @@ public class MySqlBinlogCdcPipelineReaderFactory extends CommonCdcPipelineReader
             readerProperties.getReplicationLagMeasuringIntervalInMilliseconds(),
             readerProperties.getMonitoringRetryIntervalInMilliseconds(),
             readerProperties.getMonitoringRetryAttempts(),
-            new EventuateSchema(readerProperties.getMonitoringSchema()));
+            new EventuateSchema(readerProperties.getMonitoringSchema()),
+            readerProperties.getOutboxId());
   }
 }

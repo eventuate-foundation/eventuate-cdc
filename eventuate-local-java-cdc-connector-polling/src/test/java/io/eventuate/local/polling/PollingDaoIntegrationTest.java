@@ -1,11 +1,13 @@
 package io.eventuate.local.polling;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
+import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.local.common.BinlogEntryHandler;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.CdcDataPublisher;
+import io.eventuate.local.common.EventuateConfigurationProperties;
 import io.eventuate.local.common.exception.EventuateLocalPublishingException;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
 import io.eventuate.local.test.util.TestHelper;
@@ -66,11 +68,17 @@ public class PollingDaoIntegrationTest {
   @Autowired
   private TestHelper testHelper;
 
+  @Autowired
+  private EventuateConfigurationProperties eventuateConfigurationProperties;
+
   private AtomicInteger processedEvents;
 
   private CdcDataPublisher<PublishedEvent> cdcDataPublisher;
 
   private PollingDao pollingDao;
+
+  @Autowired
+  protected IdGenerator idGenerator;
 
   @Before
   public void init() {
@@ -139,7 +147,8 @@ public class PollingDaoIntegrationTest {
             100,
             1000,
             testHelper.generateId(),
-            sqlDialectSelector.getDialect(driver));
+            sqlDialectSelector.getDialect(driver),
+            eventuateConfigurationProperties.getOutboxId());
   }
 
   private void assertEventsArePublished(List<String> eventIds) {
@@ -162,7 +171,7 @@ public class PollingDaoIntegrationTest {
 
     return pollingDao.addBinlogEntryHandler(eventuateSchema,
             sourceTableNameSupplier.getSourceTableName(),
-            new BinlogEntryToPublishedEventConverter(),
+            new BinlogEntryToPublishedEventConverter(idGenerator),
             cdcDataPublisher);
   }
 

@@ -44,12 +44,14 @@ public class PollingDao extends BinlogEntryReader {
                     int pollingRetryIntervalInMilliseconds,
                     int pollingIntervalInMilliseconds,
                     String readerName,
-                    EventuateSqlDialect eventuateSqlDialect) {
+                    EventuateSqlDialect eventuateSqlDialect,
+                    Long outboxId) {
 
     super(meterRegistry,
             dataSourceUrl,
             dataSource,
-            readerName);
+            readerName,
+            outboxId);
 
     if (maxEventsPerPolling <= 0) {
       throw new IllegalArgumentException("Max events per polling parameter should be greater than 0.");

@@ -1,6 +1,7 @@
 package io.eventuate.tram.connector.activemq;
 
 import com.google.common.collect.ImmutableSet;
+import io.eventuate.common.spring.id.IdGeneratorConfiguration;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.messaging.activemq.spring.common.EventuateActiveMQCommonConfiguration;
 import io.eventuate.messaging.activemq.spring.common.EventuateActiveMQConfigurationProperties;
@@ -19,7 +20,7 @@ import java.util.function.Consumer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {EventuateTramCdcActiveMQTest.Config.class,
-        EventuateActiveMQCommonConfiguration.class})
+        EventuateActiveMQCommonConfiguration.class, IdGeneratorConfiguration.class})
 public class EventuateTramCdcActiveMQTest extends AbstractTramCdcTest {
 
   @Configuration

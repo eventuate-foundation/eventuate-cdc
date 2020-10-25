@@ -26,5 +26,8 @@ public class CommonPipelineReaderPropertyValidationTest extends CommonPropertyVa
     assertExceptionMessage(propertyBuilder.toString(), propertyClass, "readerName must not be null");
 
     propertyBuilder.addString("readerName", UUID.randomUUID().toString());
+    assertExceptionMessage(propertyBuilder.toString(), propertyClass, "outboxId must not be null");
+
+    propertyBuilder.addString("outboxId", "1");
   }
 }

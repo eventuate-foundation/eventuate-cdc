@@ -1,5 +1,6 @@
 package io.eventuate.local.polling;
 
+import io.eventuate.common.spring.id.IdGeneratorConfiguration;
 import io.eventuate.local.test.util.AbstractBinlogEntryReaderMessageTableTest;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;

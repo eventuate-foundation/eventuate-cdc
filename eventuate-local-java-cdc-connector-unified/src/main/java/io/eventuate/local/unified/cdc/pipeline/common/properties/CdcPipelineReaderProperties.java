@@ -14,6 +14,7 @@ public class CdcPipelineReaderProperties implements ValidatableProperties {
   private String dataSourceDriverClassName;
   private String leadershipLockPath;
   private String readerName;
+  private Long outboxId;
   private int monitoringRetryIntervalInMilliseconds = 500;
   private int monitoringRetryAttempts = 1000;
 
@@ -26,6 +27,7 @@ public class CdcPipelineReaderProperties implements ValidatableProperties {
     Assert.notNull(dataSourceDriverClassName, "dataSourceDriverClassName must not be null");
     Assert.notNull(leadershipLockPath, "leadershipLockPath must not be null");
     Assert.notNull(readerName, "readerName must not be null");
+    Assert.notNull(outboxId, "outboxId must not be null");
   }
 
   public String getType() {
@@ -84,6 +86,13 @@ public class CdcPipelineReaderProperties implements ValidatableProperties {
     this.readerName = readerName;
   }
 
+  public Long getOutboxId() {
+    return outboxId;
+  }
+
+  public void setOutboxId(Long outboxId) {
+    this.outboxId = outboxId;
+  }
 
   public int getMonitoringRetryIntervalInMilliseconds() {
     return monitoringRetryIntervalInMilliseconds;

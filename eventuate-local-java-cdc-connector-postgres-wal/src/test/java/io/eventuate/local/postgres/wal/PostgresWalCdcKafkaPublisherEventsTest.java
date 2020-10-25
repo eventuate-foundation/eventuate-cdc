@@ -9,7 +9,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 
-@ActiveProfiles("${SPRING_PROFILES_ACTIVE:PostgresWal}")
+@ActiveProfiles("${SPRING_PROFILES_ACTIVE:PostgresWal,postgres}")
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = PostgresWalCdcIntegrationTestConfiguration.class)
 public class PostgresWalCdcKafkaPublisherEventsTest extends AbstractDbLogBasedCdcKafkaPublisherEventsTest {
@@ -23,7 +23,7 @@ public class PostgresWalCdcKafkaPublisherEventsTest extends AbstractDbLogBasedCd
 
     postgresWalClient.addBinlogEntryHandler(eventuateSchema,
             sourceTableNameSupplier.getSourceTableName(),
-            new BinlogEntryToPublishedEventConverter(),
+            new BinlogEntryToPublishedEventConverter(idGenerator),
             cdcDataPublisher);
 
     testHelper.runInSeparateThread(postgresWalClient::start);

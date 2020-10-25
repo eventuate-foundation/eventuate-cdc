@@ -16,6 +16,9 @@ public class EventuateConfigurationProperties {
   @Value("${eventuatelocal.cdc.reader.name:#{null}}")
   private String readerName;
 
+  @Value("${eventuate.outbox.id:#{null}}")
+  private Long outboxId;
+
   @Value("${eventuatelocal.cdc.source.table.name:#{null}}")
   private String sourceTableName;
 
@@ -93,6 +96,10 @@ public class EventuateConfigurationProperties {
 
   public String getReaderName() {
     return readerName;
+  }
+
+  public Long getOutboxId() {
+    return outboxId;
   }
 
   public String getSourceTableName() {

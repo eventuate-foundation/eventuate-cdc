@@ -4,6 +4,7 @@ import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.json.mapper.JSonMapper;
+import io.eventuate.common.spring.id.IdGeneratorConfiguration;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.common.DuplicatePublishingDetector;
 import io.eventuate.local.test.util.TestHelper;
@@ -36,7 +37,10 @@ import static org.junit.Assert.assertTrue;
 public class DuplicatePublishingDetectorTest {
 
   @Configuration
-  @Import({EventuateKafkaPropertiesConfiguration.class, KafkaConsumerFactoryConfiguration.class, SqlDialectConfiguration.class})
+  @Import({EventuateKafkaPropertiesConfiguration.class,
+          KafkaConsumerFactoryConfiguration.class,
+          SqlDialectConfiguration.class,
+          IdGeneratorConfiguration.class})
   public static class Config {
 
     @Bean

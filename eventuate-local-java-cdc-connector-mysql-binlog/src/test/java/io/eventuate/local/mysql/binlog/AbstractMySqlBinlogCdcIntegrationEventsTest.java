@@ -1,6 +1,7 @@
 package io.eventuate.local.mysql.binlog;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
+import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.CdcDataPublisher;
@@ -47,6 +48,9 @@ public abstract class AbstractMySqlBinlogCdcIntegrationEventsTest {
 
   @Value("${spring.datasource.driver.class.name}")
   private String driverClassName;
+
+  @Autowired
+  private IdGenerator idGenerator;
 
   @Test
   public void shouldGetEvents() throws InterruptedException {
@@ -133,7 +137,7 @@ public abstract class AbstractMySqlBinlogCdcIntegrationEventsTest {
   protected void prepareBinlogEntryHandler(Consumer<PublishedEvent> consumer) {
     mySqlBinaryLogClient.addBinlogEntryHandler(eventuateSchema,
             sourceTableNameSupplier.getSourceTableName(),
-            new BinlogEntryToPublishedEventConverter(),
+            new BinlogEntryToPublishedEventConverter(idGenerator),
             new CdcDataPublisher<PublishedEvent>(null, null, null, null) {
               @Override
               public CompletableFuture<?> sendMessage(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {

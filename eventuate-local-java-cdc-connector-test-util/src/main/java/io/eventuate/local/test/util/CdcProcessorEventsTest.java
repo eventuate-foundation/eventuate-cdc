@@ -1,6 +1,7 @@
 package io.eventuate.local.test.util;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
+import io.eventuate.common.id.IdGenerator;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -17,6 +18,9 @@ public abstract class CdcProcessorEventsTest implements CdcProcessorCommon {
 
   @Autowired
   protected TestHelper testHelper;
+
+  @Autowired
+  protected IdGenerator idGenerator;
 
   @Test
   public void shouldReadNewEventsOnly() throws InterruptedException {

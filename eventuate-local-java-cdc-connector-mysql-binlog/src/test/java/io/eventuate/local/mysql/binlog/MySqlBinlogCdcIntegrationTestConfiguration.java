@@ -4,6 +4,7 @@ import io.eventuate.cdc.producer.wrappers.DataProducerFactory;
 import io.eventuate.cdc.producer.wrappers.kafka.EventuateKafkaDataProducerWrapper;
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.spring.id.IdGeneratorConfiguration;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.coordination.leadership.zookeeper.ZkLeaderSelector;
@@ -43,7 +44,8 @@ import java.util.Optional;
         EventuateKafkaProducerSpringConfigurationPropertiesConfiguration.class,
         EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration.class,
         KafkaConsumerFactoryConfiguration.class,
-        SqlDialectConfiguration.class})
+        SqlDialectConfiguration.class,
+        IdGeneratorConfiguration.class})
 public class MySqlBinlogCdcIntegrationTestConfiguration {
 
   @Bean
@@ -94,7 +96,8 @@ public class MySqlBinlogCdcIntegrationTestConfiguration {
             eventuateConfigurationProperties.getReplicationLagMeasuringIntervalInMilliseconds(),
             eventuateConfigurationProperties.getMonitoringRetryIntervalInMilliseconds(),
             eventuateConfigurationProperties.getMonitoringRetryAttempts(),
-            new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
+            new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA),
+            eventuateConfigurationProperties.getOutboxId());
   }
 
   @Bean

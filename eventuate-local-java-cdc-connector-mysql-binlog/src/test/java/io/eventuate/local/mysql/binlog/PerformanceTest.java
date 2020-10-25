@@ -1,6 +1,7 @@
 package io.eventuate.local.mysql.binlog;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
+import io.eventuate.common.id.ApplicationIdGenerator;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.CdcDataPublisher;
@@ -180,7 +181,6 @@ public class PerformanceTest {
       testHelper.saveEvent(entityTypeAndId.getType(),
               generateId(),
               generateId(),
-              generateId(),
               entityTypeAndId.getId(),
               new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
     });
@@ -193,7 +193,7 @@ public class PerformanceTest {
 
     mySqlBinaryLogClient.addBinlogEntryHandler(new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA),
             sourceTableNameSupplier.getSourceTableName(),
-            new BinlogEntryToPublishedEventConverter(),
+            new BinlogEntryToPublishedEventConverter(new ApplicationIdGenerator()),
             cdcDataPublisher);
 
     testHelper.runInSeparateThread(mySqlBinaryLogClient::start);

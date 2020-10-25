@@ -2,7 +2,7 @@ apply plugin: PublicModulePlugin
 apply plugin: 'docker-compose'
 
 dependencies {
-    compile project (":eventuate-tram-cdc-connector-e2e-tests")
+    testCompile project (":eventuate-tram-cdc-connector-e2e-tests")
 
     testCompile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-consumer:$eventuateMessagingKafkaVersion"
     testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"

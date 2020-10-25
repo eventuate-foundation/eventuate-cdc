@@ -56,7 +56,8 @@ public class PostgresWalClient extends DbLogClient {
                            int monitoringRetryAttempts,
                            String additionalServiceReplicationSlotName,
                            long waitForOffsetSyncTimeoutInMilliseconds,
-                           EventuateSchema monitoringSchema) {
+                           EventuateSchema monitoringSchema,
+                           Long outboxId) {
 
     super(meterRegistry,
             user,
@@ -67,7 +68,8 @@ public class PostgresWalClient extends DbLogClient {
             replicationLagMeasuringIntervalInMilliseconds,
             monitoringRetryIntervalInMilliseconds,
             monitoringRetryAttempts,
-            monitoringSchema);
+            monitoringSchema,
+            outboxId);
 
     this.walIntervalInMilliseconds = walIntervalInMilliseconds;
     this.connectionTimeoutInMilliseconds = connectionTimeoutInMilliseconds;

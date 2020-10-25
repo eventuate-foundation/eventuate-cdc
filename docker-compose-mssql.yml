@@ -31,3 +31,5 @@ services:
     environment:
       SA_PASSWORD: Eventuate123!
       ACCEPT_EULA: Y
+      USE_DB_ID: ${USE_DB_ID}
+      USE_JSON_PAYLOAD_AND_HEADERS: ${USE_JSON_PAYLOAD_AND_HEADERS}

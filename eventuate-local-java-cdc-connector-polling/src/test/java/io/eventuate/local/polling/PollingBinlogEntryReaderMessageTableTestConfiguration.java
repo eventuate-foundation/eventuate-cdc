@@ -2,6 +2,7 @@ package io.eventuate.local.polling;
 
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
+import io.eventuate.common.spring.id.IdGeneratorConfiguration;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.common.EventuateConfigurationProperties;
 import io.eventuate.local.test.util.TestHelper;
@@ -18,7 +19,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableAutoConfiguration
-@Import(SqlDialectConfiguration.class)
+@Import({SqlDialectConfiguration.class, IdGeneratorConfiguration.class})
 public class PollingBinlogEntryReaderMessageTableTestConfiguration {
 
   @Bean
@@ -49,7 +50,8 @@ public class PollingBinlogEntryReaderMessageTableTestConfiguration {
             eventuateConfigurationProperties.getPollingRetryIntervalInMilliseconds(),
             eventuateConfigurationProperties.getPollingIntervalInMilliseconds(),
             eventuateConfigurationProperties.getReaderName(),
-            sqlDialectSelector.getDialect(driver));
+            sqlDialectSelector.getDialect(driver),
+            eventuateConfigurationProperties.getOutboxId());
   }
 
   @Bean

@@ -17,7 +17,6 @@ ${docker}Down
 ./gradlew ${GRADLE_OPTS} $* testClasses
 
 . ./scripts/set-env.sh
-export SPRING_PROFILES_ACTIVE=postgres,PostgresWal
 
 ${docker}Up
 

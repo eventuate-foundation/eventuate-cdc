@@ -34,7 +34,7 @@ public abstract class AbstractPollingCdcProcessorEventsTest extends CdcProcessor
   protected void prepareBinlogEntryHandler(Consumer<PublishedEvent> consumer) {
     pollingDao.addBinlogEntryHandler(eventuateSchema,
             sourceTableNameSupplier.getSourceTableName(),
-            new BinlogEntryToPublishedEventConverter(),
+            new BinlogEntryToPublishedEventConverter(idGenerator),
             new CdcDataPublisher<PublishedEvent>(null, null, null, null) {
               @Override
               public CompletableFuture<?> sendMessage(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {

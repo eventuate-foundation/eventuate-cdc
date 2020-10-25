@@ -1,7 +1,9 @@
 package io.eventuate.local.connector;
 
 import io.eventuate.cdc.e2e.common.AbstractEventuateCdcTest;
+import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.spring.id.IdGeneratorConfiguration;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumer;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
@@ -18,13 +20,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.nio.charset.Charset;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {EventuateLocalCdcTest.Config.class, KafkaConsumerFactoryConfiguration.class, SqlDialectConfiguration.class})
+@SpringBootTest(classes = {EventuateLocalCdcTest.Config.class,
+        KafkaConsumerFactoryConfiguration.class,
+        SqlDialectConfiguration.class,
+        IdGeneratorConfiguration.class})
 public class EventuateLocalCdcTest extends AbstractEventuateCdcTest {
 
   @Import(EventuateKafkaPropertiesConfiguration.class)
@@ -58,14 +63,25 @@ public class EventuateLocalCdcTest extends AbstractEventuateCdcTest {
   }
 
   @Override
-  protected void saveEvent(String eventData, String entityType, EventuateSchema eventuateSchema) {
-    eventuateCommonJdbcOperations.insertIntoEventsTable(generateId(),
+  protected String saveEvent(String eventData, String entityType, EventuateSchema eventuateSchema, boolean published) {
+    return eventuateCommonJdbcOperations.insertIntoEventsTable(idGenerator,
             generateId(),
             eventData,
             generateId(),
             entityType,
             Optional.empty(),
             Optional.empty(),
-            eventuateSchema);
+            eventuateSchema,
+            published);
+  }
+
+  @Override
+  protected String extractEventId(Map<String, Object> eventAsMap) {
+    return (String) eventAsMap.get("id");
+  }
+
+  @Override
+  protected String extractEventPayload(Map<String, Object> eventAsMap) {
+    return (String) eventAsMap.get("eventData");
   }
 }

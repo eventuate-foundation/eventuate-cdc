@@ -1,6 +1,8 @@
 apply plugin: PublicModulePlugin
 
 dependencies {
+    compile "io.eventuate.common:eventuate-common-spring-id:$eventuateCommonVersion"
+
     compile project (":eventuate-local-java-cdc-connector-common")
     compile project (":eventuate-cdc-common-e2e-tests")
 }

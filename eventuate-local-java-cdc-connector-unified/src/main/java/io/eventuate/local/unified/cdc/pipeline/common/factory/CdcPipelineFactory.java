@@ -3,7 +3,6 @@ package io.eventuate.local.unified.cdc.pipeline.common.factory;
 import io.eventuate.common.eventuate.local.BinLogEvent;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogEntryReader;
-import io.eventuate.local.common.BinlogEntryToEventConverter;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.CdcPipeline;
@@ -14,16 +13,16 @@ public class CdcPipelineFactory<EVENT extends BinLogEvent> {
   private String type;
   private BinlogEntryReaderProvider binlogEntryReaderProvider;
   private CdcDataPublisher<EVENT> cdcDataPublisher;
-  private BinlogEntryToEventConverter<EVENT> binlogEntryToEventConverter;
+  private BinlogEntryToEventConverterFactory<EVENT> binlogEntryToEventConverterFactory;
 
   public CdcPipelineFactory(String type,
                             BinlogEntryReaderProvider binlogEntryReaderProvider,
                             CdcDataPublisher<EVENT> cdcDataPublisher,
-                            BinlogEntryToEventConverter<EVENT> binlogEntryToEventConverter) {
+                            BinlogEntryToEventConverterFactory<EVENT> binlogEntryToEventConverterFactory) {
     this.type = type;
     this.binlogEntryReaderProvider = binlogEntryReaderProvider;
     this.cdcDataPublisher = cdcDataPublisher;
-    this.binlogEntryToEventConverter = binlogEntryToEventConverter;
+    this.binlogEntryToEventConverterFactory = binlogEntryToEventConverterFactory;
   }
 
   public boolean supports(String type) {
@@ -37,7 +36,7 @@ public class CdcPipelineFactory<EVENT extends BinLogEvent> {
 
     binlogEntryReader.addBinlogEntryHandler(new EventuateSchema(cdcPipelineProperties.getEventuateDatabaseSchema()),
             cdcPipelineProperties.getSourceTableName(),
-            binlogEntryToEventConverter,
+            binlogEntryToEventConverterFactory.apply(binlogEntryReader.getOutboxId()),
             cdcDataPublisher);
 
     return new CdcPipeline<>(cdcDataPublisher);

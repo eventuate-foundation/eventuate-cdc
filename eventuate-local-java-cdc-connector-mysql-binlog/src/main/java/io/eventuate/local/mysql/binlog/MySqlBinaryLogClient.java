@@ -72,7 +72,8 @@ public class MySqlBinaryLogClient extends DbLogClient {
                               long replicationLagMeasuringIntervalInMilliseconds,
                               int monitoringRetryIntervalInMilliseconds,
                               int monitoringRetryAttempts,
-                              EventuateSchema monitoringSchema) {
+                              EventuateSchema monitoringSchema,
+                              Long outboxId) {
 
     super(meterRegistry,
             dbUserName,
@@ -83,7 +84,8 @@ public class MySqlBinaryLogClient extends DbLogClient {
             replicationLagMeasuringIntervalInMilliseconds,
             monitoringRetryIntervalInMilliseconds,
             monitoringRetryAttempts,
-            monitoringSchema);
+            monitoringSchema,
+            outboxId);
 
     this.extractor = new MySqlBinlogEntryExtractor(dataSource);
     this.timestampExtractor = new MySqlBinlogCdcMonitoringTimestampExtractor(dataSource);

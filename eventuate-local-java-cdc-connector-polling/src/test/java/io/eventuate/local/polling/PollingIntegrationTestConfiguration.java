@@ -3,6 +3,7 @@ package io.eventuate.local.polling;
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
+import io.eventuate.common.spring.id.IdGeneratorConfiguration;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.coordination.leadership.zookeeper.ZkLeaderSelector;
@@ -39,7 +40,8 @@ import javax.sql.DataSource;
         EventuateKafkaProducerSpringConfigurationPropertiesConfiguration.class,
         EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration.class,
         SqlDialectConfiguration.class,
-        KafkaConsumerFactoryConfiguration.class})
+        KafkaConsumerFactoryConfiguration.class,
+        IdGeneratorConfiguration.class})
 public class PollingIntegrationTestConfiguration {
 
   @Bean
@@ -97,7 +99,8 @@ public class PollingIntegrationTestConfiguration {
             eventuateConfigurationProperties.getPollingRetryIntervalInMilliseconds(),
             eventuateConfigurationProperties.getPollingIntervalInMilliseconds(),
             eventuateConfigurationProperties.getReaderName(),
-            sqlDialectSelector.getDialect(driver));
+            sqlDialectSelector.getDialect(driver),
+            eventuateConfigurationProperties.getOutboxId());
   }
 
   @Bean

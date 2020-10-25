@@ -1,6 +1,7 @@
 package io.eventuate.tram.connector.redis;
 
 import com.google.common.collect.ImmutableSet;
+import io.eventuate.common.spring.id.IdGeneratorConfiguration;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.messaging.partitionmanagement.CoordinatorFactory;
 import io.eventuate.messaging.partitionmanagement.CoordinatorFactoryImpl;
@@ -25,7 +26,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.function.Consumer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {EventuateTramCdcRedisTest.Config.class})
+@SpringBootTest(classes = {EventuateTramCdcRedisTest.Config.class, IdGeneratorConfiguration.class})
 public class EventuateTramCdcRedisTest extends AbstractTramCdcTest {
 
   @Configuration

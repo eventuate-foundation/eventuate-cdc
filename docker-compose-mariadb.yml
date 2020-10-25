@@ -8,6 +8,8 @@ services:
       - MYSQL_ROOT_PASSWORD=rootpassword
       - MYSQL_USER=mysqluser
       - MYSQL_PASSWORD=mysqlpw
+      - USE_DB_ID=${USE_DB_ID}
+      - USE_JSON_PAYLOAD_AND_HEADERS=${USE_JSON_PAYLOAD_AND_HEADERS}
 
   zookeeper:
     image: confluentinc/cp-zookeeper:5.2.4
