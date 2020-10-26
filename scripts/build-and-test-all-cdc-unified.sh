@@ -31,6 +31,11 @@ runE2ETests
 unset SPRING_PROFILES_ACTIVE
 unset SPRING_DATASOURCE_URL
 
+./gradlew $GRADLE_OPTIONS :eventuate-local-java-cdc-connector-e2e-tests:eventuatelocalcdcComposeDown
+./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:tramcdcComposeDown
+
+export USE_DB_ID=true
+
 export EVENTUATE_OUTBOX_ID=1
 echo "TESTING KAFKA MYSQL BINLOG (DATABASE ID)"
 runE2ETests
