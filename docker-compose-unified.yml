@@ -32,6 +32,7 @@ services:
       - MYSQL_ROOT_PASSWORD=rootpassword
       - MYSQL_USER=mysqluser
       - MYSQL_PASSWORD=mysqlpw
+      - USE_DB_ID=${USE_DB_ID}
 
   postgrespollingpipeline:
     image: eventuateio/eventuate-postgres:$EVENTUATE_COMMON_VERSION
@@ -40,6 +41,7 @@ services:
     environment:
       POSTGRES_USER: eventuate
       POSTGRES_PASSWORD: eventuate
+      USE_DB_ID: ${USE_DB_ID}
 
   postgreswalpipeline:
     image: eventuateio/eventuate-postgres:$EVENTUATE_COMMON_VERSION
@@ -48,3 +50,4 @@ services:
     environment:
       POSTGRES_USER: eventuate
       POSTGRES_PASSWORD: eventuate
+      USE_DB_ID: ${USE_DB_ID}

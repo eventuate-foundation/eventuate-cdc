@@ -64,15 +64,25 @@ public class EventuateLocalCdcTest extends AbstractEventuateCdcTest {
 
   @Override
   protected String saveEvent(String eventData, String entityType, EventuateSchema eventuateSchema, boolean published) {
-    return eventuateCommonJdbcOperations.insertIntoEventsTable(idGenerator,
-            generateId(),
-            eventData,
-            generateId(),
-            entityType,
-            Optional.empty(),
-            Optional.empty(),
-            eventuateSchema,
-            published);
+    if (published) {
+      return eventuateCommonJdbcOperations.insertPublishedEventIntoEventsTable(idGenerator,
+              generateId(),
+              eventData,
+              generateId(),
+              entityType,
+              Optional.empty(),
+              Optional.empty(),
+              eventuateSchema);
+    } else {
+      return eventuateCommonJdbcOperations.insertIntoEventsTable(idGenerator,
+              generateId(),
+              eventData,
+              generateId(),
+              entityType,
+              Optional.empty(),
+              Optional.empty(),
+              eventuateSchema);
+    }
   }
 
   @Override
