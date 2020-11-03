@@ -219,6 +219,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
         if (shouldHandleTable) {
           tableMapEventByTableId.put(tableMapEvent.getTableId(), tableMapEvent);
+          extractor.refreshColumnOrder();
         } else {
           tableMapEventByTableId.remove(tableMapEvent.getTableId());
         }

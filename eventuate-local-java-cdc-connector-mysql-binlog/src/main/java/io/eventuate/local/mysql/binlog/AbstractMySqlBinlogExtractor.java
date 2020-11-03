@@ -14,13 +14,19 @@ public abstract class AbstractMySqlBinlogExtractor {
 
   private Map<SchemaAndTable, Map<String, Integer>> columnOrders = new HashMap<>();
   private ColumnOrderExtractor columnOrderExtractor;
+  private boolean columnOrderShouldBeRefreshed;
 
   public AbstractMySqlBinlogExtractor(DataSource dataSource) {
     this.columnOrderExtractor = new ColumnOrderExtractor(dataSource);
   }
 
+  public void refreshColumnOrder() {
+    columnOrderShouldBeRefreshed = true;
+  }
+
   protected void updateColumnOrders(SchemaAndTable schemaAndTable) {
-    if (!columnOrders.containsKey(schemaAndTable)) {
+    if (!columnOrders.containsKey(schemaAndTable) || columnOrderShouldBeRefreshed) {
+      columnOrderShouldBeRefreshed = false;
       try {
         columnOrders.put(schemaAndTable, columnOrderExtractor.extractColumnOrders(schemaAndTable));
       } catch (SQLException e) {
