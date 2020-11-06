@@ -35,10 +35,10 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
   private Long uniqueId;
   private BinaryLogClient client;
-  private final Map<Long, TableMapEventData> tableMapEventByTableId = new HashMap<>();
   private String binlogFilename;
-  private MySqlBinlogEntryExtractor extractor;
+  private MySqlBinlogEntryExtractor mySqlBinlogEntryExtractor;
   private MySqlBinlogCdcMonitoringTimestampExtractor timestampExtractor;
+  private TableMapper tableMapper;
   private int connectionTimeoutInMilliseconds;
   private int maxAttemptsForBinlogConnection;
   private Optional<DebeziumBinlogOffsetKafkaStore> debeziumBinlogOffsetKafkaStore;
@@ -52,7 +52,6 @@ public class MySqlBinaryLogClient extends DbLogClient {
   private Optional<Runnable> callbackOnStop = Optional.empty();
   private OffsetProcessor<BinlogFileOffset> offsetProcessor;
   private Long eventProcessingStartTime;
-
   private AtomicLong timeOfFirstMessage = new AtomicLong();
   private AtomicLong timeOfLatestMessage = new AtomicLong();;
   private Timer messagePublishingTimer;
@@ -87,13 +86,15 @@ public class MySqlBinaryLogClient extends DbLogClient {
             monitoringSchema,
             outboxId);
 
-    this.extractor = new MySqlBinlogEntryExtractor(dataSource);
-    this.timestampExtractor = new MySqlBinlogCdcMonitoringTimestampExtractor(dataSource);
     this.uniqueId = uniqueId;
     this.connectionTimeoutInMilliseconds = connectionTimeoutInMilliseconds;
     this.maxAttemptsForBinlogConnection = maxAttemptsForBinlogConnection;
     this.offsetStore = offsetStore;
     this.debeziumBinlogOffsetKafkaStore = debeziumBinlogOffsetKafkaStore;
+
+    timestampExtractor = new MySqlBinlogCdcMonitoringTimestampExtractor(dataSource);
+    mySqlBinlogEntryExtractor = new MySqlBinlogEntryExtractor(dataSource);
+    tableMapper = new TableMapper(mySqlBinlogEntryExtractor);
 
     offsetProcessor = new OffsetProcessor<>(offsetStore);
 
@@ -204,7 +205,6 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
         if (cdcMonitoringDao.isMonitoringTableChange(tableMapEvent.getDatabase(), tableMapEvent.getTable())) {
           cdcMonitoringTableId = Optional.of(tableMapEvent.getTableId());
-          tableMapEventByTableId.put(tableMapEvent.getTableId(), tableMapEvent);
           break;
         }
 
@@ -218,10 +218,9 @@ public class MySqlBinaryLogClient extends DbLogClient {
                 .anyMatch(schemaAndTable::equals);
 
         if (shouldHandleTable) {
-          tableMapEventByTableId.put(tableMapEvent.getTableId(), tableMapEvent);
-          extractor.refreshColumnOrder();
+          tableMapper.addMapping(tableMapEvent);
         } else {
-          tableMapEventByTableId.remove(tableMapEvent.getTableId());
+          tableMapper.removeMapping(tableMapEvent);
         }
 
         dbLogMetrics.onBinlogEntryProcessed();
@@ -299,12 +298,11 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
     if (isCdcMonitoringTableId(eventData.getTableId())) {
       onLagMeasurementEventReceived(eventData);
-    } else if (tableMapEventByTableId.containsKey(eventData.getTableId())) {
-      TableMapEventData tableMapEventData = tableMapEventByTableId.get(eventData.getTableId());
+    } else if (tableMapper.isTableMapped(eventData.getTableId())) {
 
-      SchemaAndTable schemaAndTable = new SchemaAndTable(tableMapEventData.getDatabase(), tableMapEventData.getTable());
+      SchemaAndTable schemaAndTable = tableMapper.getSchemaAndTable(eventData.getTableId());
 
-      BinlogEntry entry = extractor.extract(schemaAndTable, eventData, binlogFilename, offset);
+      BinlogEntry entry = mySqlBinlogEntryExtractor.extract(schemaAndTable, eventData, binlogFilename, offset);
 
       if (!shouldSkipEntry(startingBinlogFileOffset, entry.getBinlogFileOffset())) {
         binlogEntryHandlers
@@ -428,16 +426,16 @@ public class MySqlBinaryLogClient extends DbLogClient {
     });
 
     eventDeserializer.setEventDataDeserializer(EventType.WRITE_ROWS,
-            new WriteRowsDeserializer(tableMapEventByTableId, dbLogMetrics));
+            new WriteRowsDeserializer(tableMapper, dbLogMetrics));
 
     eventDeserializer.setEventDataDeserializer(EventType.EXT_WRITE_ROWS,
-            new WriteRowsDeserializer(tableMapEventByTableId, dbLogMetrics).setMayContainExtraInformation(true));
+            new WriteRowsDeserializer(tableMapper, dbLogMetrics).setMayContainExtraInformation(true));
 
     eventDeserializer.setEventDataDeserializer(EventType.UPDATE_ROWS,
-            new UpdateRowsDeserializer(tableMapEventByTableId, dbLogMetrics));
+            new UpdateRowsDeserializer(tableMapper, dbLogMetrics));
 
     eventDeserializer.setEventDataDeserializer(EventType.EXT_UPDATE_ROWS,
-            new UpdateRowsDeserializer(tableMapEventByTableId, dbLogMetrics).setMayContainExtraInformation(true));
+            new UpdateRowsDeserializer(tableMapper, dbLogMetrics).setMayContainExtraInformation(true));
 
     return eventDeserializer;
   }
@@ -450,7 +448,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
       return;
     }
 
-    tableMapEventByTableId.clear();
+    tableMapper.clearMappings();
     cdcMonitoringTableId = Optional.empty();
 
     client.unregisterEventListener(eventListener);
