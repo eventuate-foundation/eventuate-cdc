@@ -7,8 +7,13 @@ import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
+import io.eventuate.local.common.BinlogEntryReader;
+import io.eventuate.local.common.CdcDataPublisher;
+import io.eventuate.local.common.exception.EventuateLocalPublishingException;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessage;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
+import io.eventuate.tram.cdc.connector.BinlogEntryToMessageConverter;
+import io.eventuate.tram.cdc.connector.MessageWithDestination;
 import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -27,6 +32,8 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 
 public class TestHelper {
@@ -210,6 +217,22 @@ public class TestHelper {
       }
     }
     throw new RuntimeException("entity not found: " + entityId);
+  }
+
+  public ConcurrentLinkedQueue<MessageWithDestination> prepareBinlogEntryHandlerMessageQueue(BinlogEntryReader binlogEntryReader) {
+    ConcurrentLinkedQueue<MessageWithDestination> messages = new ConcurrentLinkedQueue<>();
+
+    binlogEntryReader.addBinlogEntryHandler(eventuateSchema,
+            "message",
+            new BinlogEntryToMessageConverter(idGenerator), new CdcDataPublisher<MessageWithDestination>(null, null, null, null) {
+              @Override
+              public CompletableFuture<?> sendMessage(MessageWithDestination messageWithDestination)
+                      throws EventuateLocalPublishingException {
+                messages.add(messageWithDestination);
+                return CompletableFuture.completedFuture(null);
+              }
+            });
+    return messages;
   }
 
   public void sleep(long millis) {

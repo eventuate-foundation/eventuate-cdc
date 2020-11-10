@@ -94,7 +94,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
     timestampExtractor = new MySqlBinlogCdcMonitoringTimestampExtractor(dataSource);
     mySqlBinlogEntryExtractor = new MySqlBinlogEntryExtractor(dataSource);
-    tableMapper = new TableMapper(mySqlBinlogEntryExtractor);
+    tableMapper = new TableMapper();
 
     offsetProcessor = new OffsetProcessor<>(offsetStore);
 
@@ -218,7 +218,9 @@ public class MySqlBinaryLogClient extends DbLogClient {
                 .anyMatch(schemaAndTable::equals);
 
         if (shouldHandleTable) {
-          tableMapper.addMapping(tableMapEvent);
+          if (tableMapper.addMapping(tableMapEvent)) {
+           mySqlBinlogEntryExtractor.refreshColumnOrder();
+          }
         } else {
           tableMapper.removeMapping(tableMapEvent);
         }

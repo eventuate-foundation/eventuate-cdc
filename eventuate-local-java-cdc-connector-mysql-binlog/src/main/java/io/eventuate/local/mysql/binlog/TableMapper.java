@@ -11,12 +11,6 @@ import java.util.Map;
 public class TableMapper {
   private final Map<Long, TableMapEventData> tableMapEventByTableId = new HashMap<>();
 
-  private MySqlBinlogEntryExtractor mySqlBinlogEntryExtractor;
-
-  public TableMapper(MySqlBinlogEntryExtractor mySqlBinlogEntryExtractor) {
-    this.mySqlBinlogEntryExtractor = mySqlBinlogEntryExtractor;
-  }
-
   public Map<Long, TableMapEventData> getMappings() {
     return Collections.unmodifiableMap(tableMapEventByTableId);
   }
@@ -27,17 +21,12 @@ public class TableMapper {
     return new SchemaAndTable(tableMapEventData.getDatabase(), tableMapEventData.getTable());
   }
 
-  public void addMapping(TableMapEventData tableMapEventData) {
-    if (tableMapEventByTableId.containsKey(tableMapEventData.getTableId())) {
-      TableMapEventData currentData = tableMapEventByTableId.get(tableMapEventData.getTableId());
-      if (shouldRefreshColumns(currentData, tableMapEventData)) {
-        mySqlBinlogEntryExtractor.refreshColumnOrder();
-      }
-    } else {
-      mySqlBinlogEntryExtractor.refreshColumnOrder();
-    }
+  public boolean addMapping(TableMapEventData tableMapEventData) {
+    boolean refresh = shouldRefreshColumns(tableMapEventData);
 
     tableMapEventByTableId.put(tableMapEventData.getTableId(), tableMapEventData);
+
+    return refresh;
   }
 
   public boolean isTableMapped(long tableId) {
@@ -52,7 +41,17 @@ public class TableMapper {
     tableMapEventByTableId.clear();
   }
 
-  private boolean shouldRefreshColumns(TableMapEventData currentData, TableMapEventData updatedData) {
+
+  private boolean shouldRefreshColumns(TableMapEventData updatedData) {
+    if (tableMapEventByTableId.containsKey(updatedData.getTableId())) {
+      TableMapEventData currentData = tableMapEventByTableId.get(updatedData.getTableId());
+      return isTableSchemaChanged(currentData, updatedData);
+    } else {
+      return true;
+    }
+  }
+
+  private boolean isTableSchemaChanged(TableMapEventData currentData, TableMapEventData updatedData) {
     return !(Arrays.equals(currentData.getColumnTypes(), updatedData.getColumnTypes()) &&
             Arrays.equals(currentData.getColumnMetadata(), updatedData.getColumnMetadata()));
   }
