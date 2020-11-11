@@ -60,9 +60,6 @@ workflows:
           name: build-and-test-all-database-id-jsonschema
           script: ./scripts/build-and-test-all-database-id-jsonschema.sh
       - build-and-test/build-and-test:
-          name: build-and-test-all-message-table-migration
-          script: ./build-and-test-all-message-table-migration.sh
-      - build-and-test/build-and-test:
           name: build-and-test-all-eventuate-local-cdc-mysql-binlog
           script: ./scripts/build-and-test-all-eventuate-local-cdc-mysql-binlog.sh
       - build-and-test/build-and-test:
@@ -96,7 +93,6 @@ workflows:
             - build-and-test-mssql-polling
             - build-and-test-postgres-polling
             - build-and-test-all-database-id-jsonschema
-            - build-and-test-all-message-table-migration
             - build-and-test-all-eventuate-local-cdc-mysql-binlog
             - build-and-test-all-eventuate-local-cdc-mariadb-binlog
             - build-and-test-all-eventuate-local-cdc-postgres-polling

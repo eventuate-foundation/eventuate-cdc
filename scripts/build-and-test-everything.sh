@@ -10,7 +10,6 @@ SCRIPTS="
 ./scripts/build-and-test-postgres-polling.sh
 ./scripts/build-and-test-postgres-wal.sh
 ./scripts/build-and-test-all-database-id-jsonschema.sh
-./scripts/build-and-test-all-message-table-migration.sh
 ./scripts/build-and-test-all-eventuate-local-cdc-mysql-binlog.sh
 ./scripts/build-and-test-all-eventuate-local-cdc-mariadb-binlog.sh
 ./scripts/build-and-test-all-eventuate-local-cdc-postgres-polling.sh
