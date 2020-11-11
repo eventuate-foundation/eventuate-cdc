@@ -14,12 +14,14 @@ import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessage;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
 import io.eventuate.tram.cdc.connector.BinlogEntryToMessageConverter;
 import io.eventuate.tram.cdc.connector.MessageWithDestination;
+import io.eventuate.util.test.async.Eventually;
 import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
+import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -219,7 +221,8 @@ public class TestHelper {
     throw new RuntimeException("entity not found: " + entityId);
   }
 
-  public ConcurrentLinkedQueue<MessageWithDestination> prepareBinlogEntryHandlerMessageQueue(BinlogEntryReader binlogEntryReader) {
+  //TODO: Use in all tests where is possible.
+  public MessageAssertion prepareBinlogEntryHandlerMessageQueue(BinlogEntryReader binlogEntryReader) {
     ConcurrentLinkedQueue<MessageWithDestination> messages = new ConcurrentLinkedQueue<>();
 
     binlogEntryReader.addBinlogEntryHandler(eventuateSchema,
@@ -232,7 +235,8 @@ public class TestHelper {
                 return CompletableFuture.completedFuture(null);
               }
             });
-    return messages;
+
+    return new MessageAssertion(messages);
   }
 
   public void sleep(long millis) {
@@ -240,6 +244,23 @@ public class TestHelper {
       Thread.sleep(millis);
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  //TODO: generalize to use with events too.
+  public static class MessageAssertion {
+    private ConcurrentLinkedQueue<MessageWithDestination> messages;
+
+    public MessageAssertion(ConcurrentLinkedQueue<MessageWithDestination> messages) {
+      this.messages = messages;
+    }
+
+    //TODO: extend to other fields
+    public void assertMessageReceived(String payload) {
+      Eventually.eventually(() -> {
+        MessageWithDestination message = messages.poll();
+        Assert.assertTrue(message.getPayload().contains(payload));
+      });
     }
   }
 

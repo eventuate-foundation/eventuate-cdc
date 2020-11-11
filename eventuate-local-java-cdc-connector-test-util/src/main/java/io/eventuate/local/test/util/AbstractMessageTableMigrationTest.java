@@ -3,16 +3,23 @@ package io.eventuate.local.test.util;
 import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogEntryReader;
-import io.eventuate.tram.cdc.connector.MessageWithDestination;
-import io.eventuate.util.test.async.Eventually;
-import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Scanner;
 
 public abstract class AbstractMessageTableMigrationTest {
+
+  @Autowired
+  private Environment env;
+
+  @Autowired
+  protected JdbcTemplate jdbcTemplate;
 
   @Autowired
   private TestHelper testHelper;
@@ -26,37 +33,26 @@ public abstract class AbstractMessageTableMigrationTest {
   @Autowired
   private IdGenerator idGenerator;
 
-  @Autowired
-  private JdbcTemplate jdbcTemplate;
-
-  private ConcurrentLinkedQueue<MessageWithDestination> messages;
+  private TestHelper.MessageAssertion messageAssertion;
   private String payload;
 
   public void testNewMessageHandledAfterColumnReordering() {
-    messages = testHelper.prepareBinlogEntryHandlerMessageQueue(binlogEntryReader);
-
-    testHelper.runInSeparateThread(binlogEntryReader::start);
-
-    sendMessage();
-    assertMessageReceived();
-
-    reorderMessageColumns();
-
-    sendMessage();
-    assertMessageReceived();
-
-    binlogEntryReader.stop();
+    executeMigrationTest(this::reorderMessageColumns);
   }
 
   public void testNewMessageHandledAfterTableRecreation() {
-    messages = testHelper.prepareBinlogEntryHandlerMessageQueue(binlogEntryReader);
+    executeMigrationTest(this::recreateMessageTable);
+  }
+
+  private void executeMigrationTest(Runnable migrationCallback) {
+    messageAssertion = testHelper.prepareBinlogEntryHandlerMessageQueue(binlogEntryReader);
 
     testHelper.runInSeparateThread(binlogEntryReader::start);
 
     sendMessage();
     assertMessageReceived();
 
-    recreateMessageTable();
+    migrationCallback.run();
 
     sendMessage();
     assertMessageReceived();
@@ -65,31 +61,15 @@ public abstract class AbstractMessageTableMigrationTest {
   }
 
   private void reorderMessageColumns() {
-    jdbcTemplate.execute("ALTER TABLE eventuate.message drop destination;");
-    jdbcTemplate.execute("ALTER TABLE eventuate.message drop payload;");
-    jdbcTemplate.execute("ALTER TABLE eventuate.message add destination LONGTEXT;");
-    jdbcTemplate.execute("ALTER TABLE eventuate.message add payload LONGTEXT;");
+    executeSql(loadColumnReorderingSql());
   }
 
   private void recreateMessageTable() {
-    jdbcTemplate.execute("DROP TABLE eventuate.message;");
-
-    jdbcTemplate.execute("CREATE TABLE message (\n" +
-            "  id VARCHAR(767) PRIMARY KEY,\n" +
-            "  headers LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
-            "  published SMALLINT DEFAULT 0,\n" +
-            "  creation_time BIGINT,\n" +
-            "  destination LONGTEXT NOT NULL,\n" +
-            "  payload LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL\n" +
-            ");");
+    executeSql(loadTableRecreationSql());
   }
 
   private void assertMessageReceived() {
-    Eventually.eventually(() -> {
-      MessageWithDestination message = messages.poll();
-      //checking payload is enough, because in case of migration failure, cdc fails during message parsing, so message will not be delivered
-      Assert.assertTrue(message.getPayload().contains(payload));
-    });
+    messageAssertion.assertMessageReceived(payload);
   }
 
   private void sendMessage() {
@@ -97,5 +77,39 @@ public abstract class AbstractMessageTableMigrationTest {
     String rawPayload = "\"" + payload + "\"";
 
     testHelper.saveMessage(idGenerator, rawPayload, testHelper.generateId(), Collections.emptyMap(), eventuateSchema);
+  }
+
+  private void executeSql(String sql) {
+    Arrays.stream(sql.split(";")).forEach(jdbcTemplate::execute);
+  }
+
+  private String loadColumnReorderingSql() {
+    return loadResource(String.format("/reorder_message_columns.%s.sql", getDatabase()));
+  }
+
+  private String loadTableRecreationSql() {
+    return loadResource(String.format("/recreate_message_table.%s.sql", getDatabase()));
+  }
+
+  private String getDatabase() {
+    String[] databaseProfiles = {"postgres", "mssql"};
+
+    for (String database : databaseProfiles) {
+      if (Arrays.stream(env.getActiveProfiles()).anyMatch(database::equals)) {
+        return database;
+      }
+    }
+
+    return "mysql";
+  }
+
+  private String loadResource(String resource) {
+    try (InputStream resourceStream = getClass().getResourceAsStream(resource)) {
+      Scanner scanner = new Scanner(resourceStream);
+      scanner.useDelimiter("//Z");
+      return scanner.next();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

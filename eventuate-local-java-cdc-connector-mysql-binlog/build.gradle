@@ -18,7 +18,7 @@ test {
     exclude '**/PerformanceTest.class'
 
     if (!project.ext.has("testMessageTableRecreation")) {
-        exclude '**/MySqlBinlogSchemaMigrationTableRecreationTest**'
+        exclude '**/MySqlBinlogMessageTableRecreationTest**'
     }
 
     if (!project.ext.has("testMessageTableColumnReordering")) {

@@ -14,5 +14,13 @@ dependencies {
 }
 
 test {
+    if (!project.ext.has("testMessageTableRecreation")) {
+        exclude '**/PollingMessageTableRecreationTest**'
+    }
+
+    if (!project.ext.has("testMessageTableColumnReordering")) {
+        exclude '**/PollingMessageTableColumnReorderdingTest**'
+    }
+
     forkEvery 1
 }
