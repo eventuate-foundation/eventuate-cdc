@@ -4,18 +4,14 @@ import com.google.common.collect.ImmutableMap;
 import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogEntryReader;
-import io.eventuate.local.common.CdcDataPublisher;
-import io.eventuate.local.common.exception.EventuateLocalPublishingException;
-import io.eventuate.tram.cdc.connector.BinlogEntryToMessageConverter;
+import io.eventuate.local.test.util.assertion.BinlogAssertion;
 import io.eventuate.tram.cdc.connector.MessageWithDestination;
-import io.eventuate.util.test.async.Eventually;
-import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentLinkedQueue;
+
+import static io.eventuate.local.test.util.assertion.MessageAssertOperationBuilder.assertion;
 
 public abstract class AbstractBinlogEntryReaderMessageTableTest {
 
@@ -34,37 +30,24 @@ public abstract class AbstractBinlogEntryReaderMessageTableTest {
   @Test
   public void testMessageHandled() {
 
-    ConcurrentLinkedQueue<MessageWithDestination> messages = new ConcurrentLinkedQueue<>();
+    BinlogAssertion<MessageWithDestination> binlogAssertion = testHelper.prepareBinlogEntryHandlerMessageAssertion(binlogEntryReader);
 
-    binlogEntryReader.addBinlogEntryHandler(eventuateSchema,
-            "message",
-            new BinlogEntryToMessageConverter(idGenerator), new CdcDataPublisher<MessageWithDestination>(null, null, null, null) {
-              @Override
-              public CompletableFuture<?> sendMessage(MessageWithDestination messageWithDestination)
-                      throws EventuateLocalPublishingException {
-                messages.add(messageWithDestination);
-                return CompletableFuture.completedFuture(null);
-              }
-            });
-
-    String payload = "payload-" + testHelper.generateId();
-    String rawPayload = "\"" + payload + "\"";
+    String payload = "\"" + "payload-" + testHelper.generateId() + "\"";
     String destination = "destination-" + testHelper.generateId();
     Map<String, String> headers = ImmutableMap.of("key", "value");
 
-    String messageId = testHelper.saveMessage(idGenerator, rawPayload, destination, headers, eventuateSchema);
+    String messageId = testHelper.saveMessage(idGenerator, payload, destination, headers, eventuateSchema);
 
     testHelper.runInSeparateThread(binlogEntryReader::start);
 
-    Eventually.eventually(() -> {
-      MessageWithDestination message = messages.poll();
-
-      Assert.assertNotNull(message);
-      Assert.assertTrue(message.getPayload().contains(payload));
-      Assert.assertEquals(messageId, message.getHeader("ID").get());
-      message.removeHeader("ID");
-      Assert.assertEquals(headers, message.getHeaders());
-    });
+    binlogAssertion
+            .assertEventReceived(
+                    assertion()
+                            .withId(messageId)
+                            .withDestination(destination)
+                            .withPayload(payload)
+                            .withHeaders(headers)
+                            .build());
 
     binlogEntryReader.stop();
   }

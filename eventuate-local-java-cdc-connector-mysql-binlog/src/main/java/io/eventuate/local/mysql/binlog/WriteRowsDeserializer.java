@@ -1,6 +1,5 @@
 package io.eventuate.local.mysql.binlog;
 
-import com.github.shyiko.mysql.binlog.event.TableMapEventData;
 import com.github.shyiko.mysql.binlog.event.deserialization.WriteRowsEventDataDeserializer;
 import com.github.shyiko.mysql.binlog.io.ByteArrayInputStream;
 import io.eventuate.local.db.log.common.DbLogMetrics;
@@ -8,14 +7,13 @@ import io.eventuate.local.db.log.common.DbLogMetrics;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.BitSet;
-import java.util.Map;
 
 public class WriteRowsDeserializer extends WriteRowsEventDataDeserializer {
 
   private DbLogMetrics dbLogMetrics;
 
-  public WriteRowsDeserializer(Map<Long, TableMapEventData> tableMapEventByTableId, DbLogMetrics dbLogMetrics) {
-    super(tableMapEventByTableId);
+  public WriteRowsDeserializer(TableMapper tableMapper, DbLogMetrics dbLogMetrics) {
+    super(tableMapper.getMappings());
     this.dbLogMetrics = dbLogMetrics;
   }
 

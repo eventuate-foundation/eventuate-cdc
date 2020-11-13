@@ -9,9 +9,11 @@ import org.slf4j.LoggerFactory;
 import javax.sql.DataSource;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 public abstract class BinlogEntryReader {
   protected Logger logger = LoggerFactory.getLogger(getClass());
@@ -66,7 +68,7 @@ public abstract class BinlogEntryReader {
   public <EVENT extends BinLogEvent> BinlogEntryHandler addBinlogEntryHandler(EventuateSchema eventuateSchema,
                                                                               String sourceTableName,
                                                                               BinlogEntryToEventConverter<EVENT> binlogEntryToEventConverter,
-                                                                              CdcDataPublisher<EVENT> dataPublisher) {
+                                                                              Function<EVENT, CompletableFuture<?>> eventPublisher) {
     logger.info("Adding binlog entry handler for schema = {}, table = {}", eventuateSchema.getEventuateDatabaseSchema(), sourceTableName);
 
     if (eventuateSchema.isEmpty()) {
@@ -76,7 +78,7 @@ public abstract class BinlogEntryReader {
     SchemaAndTable schemaAndTable = new SchemaAndTable(eventuateSchema.getEventuateDatabaseSchema(), sourceTableName);
 
     BinlogEntryHandler binlogEntryHandler =
-            new BinlogEntryHandler<>(schemaAndTable, binlogEntryToEventConverter, dataPublisher);
+            new BinlogEntryHandler<>(schemaAndTable, binlogEntryToEventConverter, eventPublisher);
 
     binlogEntryHandlers.add(binlogEntryHandler);
 

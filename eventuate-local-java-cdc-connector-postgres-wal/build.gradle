@@ -17,5 +17,13 @@ dependencies {
 }
 
 test {
+    if (!project.ext.has("testMessageTableRecreation")) {
+        exclude '**/PostgresWalMessageTableRecreationTest**'
+    }
+
+    if (!project.ext.has("testMessageTableColumnReordering")) {
+        exclude '**/PostgresWalMessageTableColumnReorderdingTest**'
+    }
+
     forkEvery 1
 }

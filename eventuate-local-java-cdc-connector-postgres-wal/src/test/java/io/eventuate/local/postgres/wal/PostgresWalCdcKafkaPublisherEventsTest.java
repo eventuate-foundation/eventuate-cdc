@@ -24,7 +24,7 @@ public class PostgresWalCdcKafkaPublisherEventsTest extends AbstractDbLogBasedCd
     postgresWalClient.addBinlogEntryHandler(eventuateSchema,
             sourceTableNameSupplier.getSourceTableName(),
             new BinlogEntryToPublishedEventConverter(idGenerator),
-            cdcDataPublisher);
+            cdcDataPublisher::sendMessage);
 
     testHelper.runInSeparateThread(postgresWalClient::start);
   }

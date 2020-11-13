@@ -15,7 +15,15 @@ dependencies {
 }
 
 test {
-    forkEvery 1
-
     exclude '**/PerformanceTest.class'
+
+    if (!project.ext.has("testMessageTableRecreation")) {
+        exclude '**/MySqlBinlogMessageTableRecreationTest**'
+    }
+
+    if (!project.ext.has("testMessageTableColumnReordering")) {
+        exclude '**/MySqlBinlogMessageTableColumnReorderdingTest**'
+    }
+
+    forkEvery 1
 }

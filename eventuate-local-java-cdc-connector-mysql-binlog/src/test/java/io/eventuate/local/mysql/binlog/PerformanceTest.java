@@ -194,7 +194,7 @@ public class PerformanceTest {
     mySqlBinaryLogClient.addBinlogEntryHandler(new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA),
             sourceTableNameSupplier.getSourceTableName(),
             new BinlogEntryToPublishedEventConverter(new ApplicationIdGenerator()),
-            cdcDataPublisher);
+            cdcDataPublisher::sendMessage);
 
     testHelper.runInSeparateThread(mySqlBinaryLogClient::start);
 

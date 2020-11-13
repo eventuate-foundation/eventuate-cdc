@@ -2,24 +2,36 @@ package io.eventuate.local.mysql.binlog;
 
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.eventuate.local.PublishedEvent;
+import io.eventuate.local.common.BinlogEntryReaderLeadership;
 import io.eventuate.local.db.log.common.OffsetStore;
+import io.eventuate.local.test.util.EventInfo;
 import io.eventuate.local.test.util.TestHelper;
+import io.eventuate.local.test.util.assertion.BinlogAssertion;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
+
+import static io.eventuate.local.test.util.assertion.EventAssertOperationBuilder.fromEventInfo;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {MySqlBinlogCdcIntegrationTestConfiguration.class,
         MySqlBinaryLogClientOffsetStoreTest.OffsetStoreConfiguration.class})
-public class MySqlBinaryLogClientOffsetStoreTest extends AbstractMySqlBinaryLogClientTest {
+public class MySqlBinaryLogClientOffsetStoreTest {
+
+  @Autowired
+  protected MySqlBinaryLogClient mySqlBinaryLogClient;
+
+  @Autowired
+  protected TestHelper testHelper;
+
+  @Autowired
+  protected BinlogEntryReaderLeadership binlogEntryReaderLeadership;
 
   public static class OffsetStoreConfiguration {
     @Bean
@@ -53,15 +65,15 @@ public class MySqlBinaryLogClientOffsetStoreTest extends AbstractMySqlBinaryLogC
   }
 
   @Test
-  public void testRestartOnException() throws InterruptedException {
-    BlockingQueue<PublishedEvent> publishedEvents = new LinkedBlockingDeque<>();
-    prepareBinlogEntryHandler(publishedEvents::add);
+  public void testRestartOnException() {
+    BinlogAssertion<PublishedEvent> binlogAssertion = testHelper.prepareBinlogEntryHandlerEventAssertion(mySqlBinaryLogClient);
 
     binlogEntryReaderLeadership.start();
 
-    String testCreatedEvent = testHelper.generateTestCreatedEvent();
-    TestHelper.EventIdEntityId eventIdEntityId = testHelper.saveEvent(testCreatedEvent);
-    testHelper.waitForEvent(publishedEvents, eventIdEntityId.getEventId(), LocalDateTime.now().plusSeconds(60), testCreatedEvent);
+    EventInfo eventInfo = testHelper.saveRandomEvent();
+
+    binlogAssertion.assertEventReceived(fromEventInfo(eventInfo).build());
+
     binlogEntryReaderLeadership.stop();
   }
 }

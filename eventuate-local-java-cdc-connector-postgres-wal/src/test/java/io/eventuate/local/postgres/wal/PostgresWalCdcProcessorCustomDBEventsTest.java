@@ -1,6 +1,7 @@
 package io.eventuate.local.postgres.wal;
 
 
+import io.eventuate.local.test.util.CdcProcessorEventsTest;
 import io.eventuate.local.testutil.CustomDBCreator;
 import io.eventuate.local.testutil.CustomDBTestConfiguration;
 import io.eventuate.local.testutil.SqlScriptEditor;
@@ -14,7 +15,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ActiveProfiles("${SPRING_PROFILES_ACTIVE:PostgresWal,postgres}")
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {CustomDBTestConfiguration.class, PostgresWalCdcIntegrationTestConfiguration.class})
-public class PostgresWalCdcProcessorCustomDBEventsTest extends AbstractPostgresWalCdcProcessorEventsTest {
+public class PostgresWalCdcProcessorCustomDBEventsTest extends CdcProcessorEventsTest {
 
   @Autowired
   private CustomDBCreator customDBCreator;
@@ -25,5 +26,9 @@ public class PostgresWalCdcProcessorCustomDBEventsTest extends AbstractPostgresW
   @Before
   public void createCustomDB() {
     customDBCreator.create(sqlScriptEditor);
+  }
+
+  public void testCdcProcessingStatusService() {
+    //do nothing
   }
 }
