@@ -2,17 +2,17 @@ package io.eventuate.local.test.util;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.id.IdGenerator;
+import io.eventuate.local.common.BinlogEntryReader;
+import io.eventuate.local.common.CdcProcessingStatusService;
+import io.eventuate.local.test.util.assertion.BinlogAssertion;
+import io.eventuate.util.test.async.Eventually;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
+
+import static io.eventuate.local.test.util.assertion.EventAssertOperationBuilder.fromEventInfo;
 
 public abstract class CdcProcessorEventsTest implements CdcProcessorCommon {
 
@@ -22,69 +22,82 @@ public abstract class CdcProcessorEventsTest implements CdcProcessorCommon {
   @Autowired
   protected IdGenerator idGenerator;
 
+  @Autowired
+  protected BinlogEntryReader binlogEntryReader;
+
   @Test
-  public void shouldReadNewEventsOnly() throws InterruptedException {
-    BlockingQueue<PublishedEvent> publishedEvents = new LinkedBlockingDeque<>();
-    prepareBinlogEntryHandler(publishedEvent -> {
-      publishedEvents.add(publishedEvent);
-      onEventSent(publishedEvent);
-    });
+  public void shouldReadNewEventsOnly() {
+    BinlogAssertion<PublishedEvent> binlogAssertion = testHelper.prepareBinlogEntryHandlerEventAssertion(binlogEntryReader, this::onEventSent);
 
     startEventProcessing();
 
-    String testCreatedEvent = testHelper.generateTestCreatedEvent();
-    TestHelper.EventIdEntityId eventIdEntityId = testHelper.saveEvent(testCreatedEvent);
-    testHelper.waitForEvent(publishedEvents, eventIdEntityId.getEventId(), LocalDateTime.now().plusSeconds(60), testCreatedEvent);
+    EventInfo eventInfo = testHelper.saveRandomEvent();
+
+    binlogAssertion.assertEventReceived(fromEventInfo(eventInfo).build());
+
     stopEventProcessing();
 
-    publishedEvents.clear();
-    prepareBinlogEntryHandler(publishedEvent -> {
-      publishedEvents.add(publishedEvent);
-      onEventSent(publishedEvent);
-    });
+    binlogAssertion = testHelper.prepareBinlogEntryHandlerEventAssertion(binlogEntryReader, this::onEventSent);
+
     startEventProcessing();
 
-    testCreatedEvent = testHelper.generateTestCreatedEvent();
-    eventIdEntityId = testHelper.updateEvent(eventIdEntityId.getEntityId(), testCreatedEvent);
-    waitForEventExcluding(publishedEvents, eventIdEntityId.getEventId(), LocalDateTime.now().plusSeconds(60), testCreatedEvent, Collections.singletonList(eventIdEntityId.getEventId()));
+    EventInfo newEventInfo = testHelper.updateEvent(eventInfo.getEntityId(), eventInfo.getEventData());
+
+    binlogAssertion
+            .assertEventReceived(fromEventInfo(newEventInfo)
+                    .excludeId(eventInfo.getEventId())
+                    .build());
+
     stopEventProcessing();
   }
 
   @Test
-  public void shouldReadUnprocessedEventsAfterStartup() throws InterruptedException {
-    BlockingQueue<PublishedEvent> publishedEvents = new LinkedBlockingDeque<>();
+  public void shouldReadUnprocessedEventsAfterStartup() {
+    EventInfo eventInfo = testHelper.saveRandomEvent();
 
-    String testCreatedEvent = testHelper.generateTestCreatedEvent();
-    TestHelper.EventIdEntityId eventIdEntityId = testHelper.saveEvent(testCreatedEvent);
-
-    prepareBinlogEntryHandler(publishedEvents::add);
+    BinlogAssertion<PublishedEvent> binlogAssertion = testHelper.prepareBinlogEntryHandlerEventAssertion(binlogEntryReader);
     startEventProcessing();
 
-    testHelper.waitForEvent(publishedEvents, eventIdEntityId.getEventId(), LocalDateTime.now().plusSeconds(60), testCreatedEvent);
+    binlogAssertion.assertEventReceived(fromEventInfo(eventInfo).build());
+
     stopEventProcessing();
   }
 
-  private PublishedEvent waitForEventExcluding(BlockingQueue<PublishedEvent> publishedEvents, String eventId, LocalDateTime deadline, String eventData, List<String> excludedIds) throws InterruptedException {
-    PublishedEvent result = null;
-    while (LocalDateTime.now().isBefore(deadline)) {
-      long millis = ChronoUnit.MILLIS.between(deadline, LocalDateTime.now());
-      PublishedEvent event = publishedEvents.poll(millis, TimeUnit.MILLISECONDS);
-      if (event != null) {
-        if (event.getId().equals(eventId) && eventData.equals(event.getEventData())) {
-          result = event;
-          break;
-        }
-        if (excludedIds.contains(event.getId()))
-          throw new RuntimeException("Event with excluded id found in the queue");
+
+  @Test
+  public void testCdcProcessingStatusService() {
+    testHelper.prepareBinlogEntryHandlerEventAssertion(binlogEntryReader, event -> {
+      onEventSent(event);
+      try {
+        Thread.sleep(100);
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
       }
+    });
+
+    startEventProcessing();
+
+    for (int i = 0; i < 3; i++) {
+      testHelper.saveRandomEvent();
     }
-    if (result != null)
-      return result;
-    throw new RuntimeException("event not found: " + eventId);
+
+    CdcProcessingStatusService pollingProcessingStatusService = binlogEntryReader.getCdcProcessingStatusService();
+
+    Assert.assertFalse(pollingProcessingStatusService.getCurrentStatus().isCdcProcessingFinished());
+
+    Eventually.eventually(60,
+            500,
+            TimeUnit.MILLISECONDS,
+            () -> Assert.assertTrue(pollingProcessingStatusService.getCurrentStatus().isCdcProcessingFinished()));
+
+    stopEventProcessing();
   }
 
-  protected abstract void prepareBinlogEntryHandler(Consumer<PublishedEvent> consumer);
+  protected void startEventProcessing() {
+    testHelper.runInSeparateThread(binlogEntryReader::start);
+  }
 
-  protected abstract void startEventProcessing();
-  protected abstract void stopEventProcessing();
+  protected void stopEventProcessing() {
+    binlogEntryReader.stop();
+  }
 }

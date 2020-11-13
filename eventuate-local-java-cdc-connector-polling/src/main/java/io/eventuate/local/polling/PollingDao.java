@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class PollingDao extends BinlogEntryReader {
@@ -75,8 +76,11 @@ public class PollingDao extends BinlogEntryReader {
   }
 
   @Override
-  public <EVENT extends BinLogEvent> BinlogEntryHandler addBinlogEntryHandler(EventuateSchema eventuateSchema, String sourceTableName, BinlogEntryToEventConverter<EVENT> binlogEntryToEventConverter, CdcDataPublisher<EVENT> dataPublisher) {
-    BinlogEntryHandler binlogEntryHandler = super.addBinlogEntryHandler(eventuateSchema, sourceTableName, binlogEntryToEventConverter, dataPublisher);
+  public <EVENT extends BinLogEvent> BinlogEntryHandler addBinlogEntryHandler(EventuateSchema eventuateSchema,
+                                                                              String sourceTableName,
+                                                                              BinlogEntryToEventConverter<EVENT> binlogEntryToEventConverter,
+                                                                              Function<EVENT, CompletableFuture<?>> eventPublisher) {
+    BinlogEntryHandler binlogEntryHandler = super.addBinlogEntryHandler(eventuateSchema, sourceTableName, binlogEntryToEventConverter, eventPublisher);
     pollingProcessingStatusService.addTable(binlogEntryHandler.getQualifiedTable());
     return binlogEntryHandler;
   }

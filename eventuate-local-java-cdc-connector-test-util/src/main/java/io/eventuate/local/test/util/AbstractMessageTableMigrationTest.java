@@ -3,6 +3,8 @@ package io.eventuate.local.test.util;
 import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogEntryReader;
+import io.eventuate.local.test.util.assertion.BinlogAssertion;
+import io.eventuate.tram.cdc.connector.MessageWithDestination;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,6 +14,8 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Scanner;
+
+import static io.eventuate.local.test.util.assertion.MessageAssertOperationBuilder.assertion;
 
 public abstract class AbstractMessageTableMigrationTest {
 
@@ -33,8 +37,8 @@ public abstract class AbstractMessageTableMigrationTest {
   @Autowired
   private IdGenerator idGenerator;
 
-  private TestHelper.MessageAssertion messageAssertion;
-  private String payload;
+  private BinlogAssertion<MessageWithDestination> messageAssertion;
+  private String rawPayload;
 
   public void testNewMessageHandledAfterColumnReordering() {
     executeMigrationTest(this::reorderMessageColumns);
@@ -45,7 +49,7 @@ public abstract class AbstractMessageTableMigrationTest {
   }
 
   private void executeMigrationTest(Runnable migrationCallback) {
-    messageAssertion = testHelper.prepareBinlogEntryHandlerMessageQueue(binlogEntryReader);
+    messageAssertion = testHelper.prepareBinlogEntryHandlerMessageAssertion(binlogEntryReader);
 
     testHelper.runInSeparateThread(binlogEntryReader::start);
 
@@ -69,12 +73,11 @@ public abstract class AbstractMessageTableMigrationTest {
   }
 
   private void assertMessageReceived() {
-    messageAssertion.assertMessageReceived(payload);
+    messageAssertion.assertEventReceived(assertion().withPayload(rawPayload).build());
   }
 
   private void sendMessage() {
-    payload = "payload-" + testHelper.generateId();
-    String rawPayload = "\"" + payload + "\"";
+    rawPayload = "\"" + "payload-" + testHelper.generateId() + "\"";
 
     testHelper.saveMessage(idGenerator, rawPayload, testHelper.generateId(), Collections.emptyMap(), eventuateSchema);
   }

@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.time.LocalDateTime;
 import java.util.Collections;
 
-
 public abstract class CdcKafkaPublisherEventsTest {
 
   @Autowired
@@ -57,13 +56,13 @@ public abstract class CdcKafkaPublisherEventsTest {
 
   @Test
   public void shouldSendPublishedEventsToKafka() {
-    TestHelper.EventIdEntityId entityIdVersionAndEventIds = testHelper.saveEvent(testHelper.generateTestCreatedEvent());
+    EventInfo entityInfo = testHelper.saveRandomEvent();
 
     KafkaConsumer<String, byte[]> consumer = testHelper.createConsumer(eventuateKafkaConfigurationProperties.getBootstrapServers());
     consumer.partitionsFor(testHelper.getEventTopicName());
     consumer.subscribe(Collections.singletonList(testHelper.getEventTopicName()));
 
-    testHelper.waitForEventInKafka(consumer, entityIdVersionAndEventIds.getEntityId(), LocalDateTime.now().plusSeconds(40));
+    testHelper.waitForEventInKafka(consumer, entityInfo.getEntityId(), LocalDateTime.now().plusSeconds(40));
     cdcDataPublisher.stop();
   }
 

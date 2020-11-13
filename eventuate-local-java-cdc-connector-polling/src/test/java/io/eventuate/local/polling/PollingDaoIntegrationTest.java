@@ -1,14 +1,11 @@
 package io.eventuate.local.polling;
 
-import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.local.common.BinlogEntryHandler;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
-import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.common.EventuateConfigurationProperties;
-import io.eventuate.local.common.exception.EventuateLocalPublishingException;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
 import io.eventuate.local.test.util.TestHelper;
 import io.micrometer.core.instrument.Counter;
@@ -73,8 +70,6 @@ public class PollingDaoIntegrationTest {
 
   private AtomicInteger processedEvents;
 
-  private CdcDataPublisher<PublishedEvent> cdcDataPublisher;
-
   private PollingDao pollingDao;
 
   @Autowired
@@ -129,7 +124,7 @@ public class PollingDaoIntegrationTest {
     List<String> eventIds = new ArrayList<>();
 
     for (int i = 0; i < EVENTS; i++) {
-      eventIds.add(testHelper.saveEvent(testHelper.generateTestCreatedEvent()).getEventId());
+      eventIds.add(testHelper.saveRandomEvent().getEventId());
     }
 
     return eventIds;
@@ -161,18 +156,13 @@ public class PollingDaoIntegrationTest {
   }
 
   private BinlogEntryHandler prepareBinlogEntryHandler(CompletableFuture<?> resultWhenEventConsumed) {
-    cdcDataPublisher = new CdcDataPublisher<PublishedEvent>(null, null, null, null) {
-      @Override
-      public CompletableFuture<?> sendMessage(PublishedEvent publishedEvent) throws EventuateLocalPublishingException {
-        processedEvents.incrementAndGet();
-        return resultWhenEventConsumed;
-      }
-    };
-
     return pollingDao.addBinlogEntryHandler(eventuateSchema,
             sourceTableNameSupplier.getSourceTableName(),
             new BinlogEntryToPublishedEventConverter(idGenerator),
-            cdcDataPublisher);
+            event -> {
+              processedEvents.incrementAndGet();
+              return resultWhenEventConsumed;
+            });
   }
 
   private void clearEventsTable() {

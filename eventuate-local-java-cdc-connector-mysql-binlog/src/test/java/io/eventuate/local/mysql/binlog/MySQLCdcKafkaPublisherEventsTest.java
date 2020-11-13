@@ -1,6 +1,5 @@
 package io.eventuate.local.mysql.binlog;
 
-import io.eventuate.common.id.IdGenerator;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.db.log.test.common.AbstractDbLogBasedCdcKafkaPublisherEventsTest;
 import org.junit.After;
@@ -24,7 +23,7 @@ public class MySQLCdcKafkaPublisherEventsTest extends AbstractDbLogBasedCdcKafka
     mySqlBinaryLogClient.addBinlogEntryHandler(eventuateSchema,
             sourceTableNameSupplier.getSourceTableName(),
             new BinlogEntryToPublishedEventConverter(idGenerator),
-            cdcDataPublisher);
+            cdcDataPublisher::sendMessage);
 
     testHelper.runInSeparateThread(mySqlBinaryLogClient::start);
   }

@@ -25,4 +25,8 @@ public class MySQLCdcProcessorCustomDBEventsTest extends AbstractMySQLCdcProcess
   public void createCustomDB() {
     customDBCreator.create(eventuateLocalCustomDBSqlEditor);
   }
+
+  public void testCdcProcessingStatusService() {
+    //do nothing
+  }
 }

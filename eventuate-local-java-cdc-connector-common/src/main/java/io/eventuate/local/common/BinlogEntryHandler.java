@@ -4,19 +4,20 @@ import io.eventuate.common.eventuate.local.BinLogEvent;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 public class BinlogEntryHandler<EVENT extends BinLogEvent> {
   protected SchemaAndTable schemaAndTable;
   protected BinlogEntryToEventConverter<EVENT> binlogEntryToEventConverter;
-  protected CdcDataPublisher<EVENT> cdcDataPublisher;
+  protected Function<EVENT, CompletableFuture<?>> eventPublisher;
 
   public BinlogEntryHandler(SchemaAndTable schemaAndTable,
                             BinlogEntryToEventConverter<EVENT> binlogEntryToEventConverter,
-                            CdcDataPublisher<EVENT> cdcDataPublisher) {
+                            Function<EVENT, CompletableFuture<?>> eventPublisher) {
 
     this.schemaAndTable = schemaAndTable;
     this.binlogEntryToEventConverter = binlogEntryToEventConverter;
-    this.cdcDataPublisher = cdcDataPublisher;
+    this.eventPublisher = eventPublisher;
   }
 
   public String getQualifiedTable() {
@@ -34,7 +35,7 @@ public class BinlogEntryHandler<EVENT extends BinLogEvent> {
   public CompletableFuture<?> publish(BinlogEntry binlogEntry) {
     return binlogEntryToEventConverter
             .convert(binlogEntry)
-            .map(cdcDataPublisher::sendMessage)
+            .map(eventPublisher::apply)
             .orElse(CompletableFuture.completedFuture(null));
   }
 }

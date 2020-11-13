@@ -35,7 +35,7 @@ public class PollingCdcKafkaPublisherEventsTest extends CdcKafkaPublisherEventsT
     pollingDao.addBinlogEntryHandler(eventuateSchema,
             sourceTableNameSupplier.getSourceTableName(),
             new BinlogEntryToPublishedEventConverter(idGenerator),
-            cdcDataPublisher);
+            cdcDataPublisher::sendMessage);
 
     testHelper.runInSeparateThread(pollingDao::start);
   }

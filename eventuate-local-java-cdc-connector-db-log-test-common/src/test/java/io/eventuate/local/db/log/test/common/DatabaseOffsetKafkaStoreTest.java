@@ -80,7 +80,7 @@ public class DatabaseOffsetKafkaStoreTest {
   TestHelper testHelper;
 
   @Test
-  public void shouldSendBinlogFilenameAndOffset() throws InterruptedException {
+  public void shouldSendBinlogFilenameAndOffset() {
     generateAndSaveBinlogFileOffset();
   }
 
@@ -98,7 +98,7 @@ public class DatabaseOffsetKafkaStoreTest {
   }
 
   @Test
-  public void shouldReadTheLastRecordMultipleTimes() throws InterruptedException {
+  public void shouldReadTheLastRecordMultipleTimes() {
     long t = System.currentTimeMillis();
     BinlogFileOffset bfo = generateAndSaveBinlogFileOffset();
 
