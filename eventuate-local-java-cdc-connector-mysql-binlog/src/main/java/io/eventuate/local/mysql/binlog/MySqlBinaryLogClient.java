@@ -46,7 +46,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
   private OffsetStore offsetStore;
 
   private Optional<Long> cdcMonitoringTableId = Optional.empty();
-  private MySqlCdcProcessingStatusService mySqlCdcProcessingStatusService;
+  private final MySqlCdcProcessingStatusService mySqlCdcProcessingStatusService;
   private Optional<Exception> publishingException = Optional.empty();
 
   private Optional<Runnable> callbackOnStop = Optional.empty();

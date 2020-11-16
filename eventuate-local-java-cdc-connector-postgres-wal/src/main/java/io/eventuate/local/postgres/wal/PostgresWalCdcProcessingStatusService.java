@@ -9,11 +9,11 @@ import javax.sql.DataSource;
 import java.util.UUID;
 
 public class PostgresWalCdcProcessingStatusService implements CdcProcessingStatusService {
-  private JdbcTemplate jdbcTemplate;
+  private final JdbcTemplate jdbcTemplate;
   private volatile long endingOffsetOfLastProcessedEvent;
   private long currentWalPosition;
-  private String additionalSlotName;
-  private WaitUtil waitUtil;
+  private final String additionalSlotName;
+  private final WaitUtil waitUtil;
 
   public PostgresWalCdcProcessingStatusService(DataSource dataSource,
                                                String additionalSlotName,
