@@ -8,12 +8,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import javax.sql.DataSource;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class PollingProcessingStatusService implements CdcProcessingStatusService {
-  private JdbcTemplate jdbcTemplate;
-  private String publishedField;
-  private Set<String> tables = new HashSet<>();
-  private EventuateSqlDialect eventuateSqlDialect;
+  private final JdbcTemplate jdbcTemplate;
+  private final String publishedField;
+  private final Set<String> tables = new CopyOnWriteArraySet<>();
+  private final EventuateSqlDialect eventuateSqlDialect;
 
   public PollingProcessingStatusService(DataSource dataSource, String publishedField, EventuateSqlDialect eventuateSqlDialect) {
     jdbcTemplate = new JdbcTemplate(dataSource);

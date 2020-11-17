@@ -9,6 +9,9 @@ set -e
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:tramcdcComposeDown
 
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:cleanTest :eventuate-tram-cdc-connector-kafka-e2e-tests:test
+
+./scripts/wait-for-services.sh localhost readers/${READER}/finished "8099"
+
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:tramcdcComposeDown
 
 if [[ "${DATABASE}" == "mysql" ]]; then

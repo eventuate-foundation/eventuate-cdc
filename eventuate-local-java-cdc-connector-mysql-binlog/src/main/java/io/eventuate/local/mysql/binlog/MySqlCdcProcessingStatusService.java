@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MySqlCdcProcessingStatusService implements CdcProcessingStatusService {
-  private JdbcTemplate jdbcTemplate;
+  private final JdbcTemplate jdbcTemplate;
   private volatile long endingOffsetOfLastProcessedEvent;
 
   public MySqlCdcProcessingStatusService(String dbUrl, String dbUser, String dbPassword) {

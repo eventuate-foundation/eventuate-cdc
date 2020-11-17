@@ -7,7 +7,7 @@ import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.DefaultSourceTableNameResolver;
 import io.eventuate.local.unified.cdc.pipeline.common.health.BinlogEntryReaderHealthCheck;
 import io.eventuate.local.unified.cdc.pipeline.common.health.CdcDataPublisherHealthCheck;
-import io.eventuate.tram.cdc.connector.CdcProcessingStatusController;
+import io.eventuate.tram.cdc.connector.CdcReaderController;
 import io.eventuate.tram.cdc.connector.MessageWithDestinationPublishingStrategy;
 import io.eventuate.tram.cdc.connector.configuration.condition.EventuateLocalCondition;
 import io.eventuate.tram.cdc.connector.configuration.condition.EventuateTramCondition;
@@ -20,8 +20,8 @@ import org.springframework.context.annotation.Configuration;
 public class CommonMessageTableChangesToDestinationsConfiguration {
 
   @Bean
-  public CdcProcessingStatusController cdcProcessingStatusController(BinlogEntryReaderProvider binlogEntryReaderProvider) {
-    return new CdcProcessingStatusController(binlogEntryReaderProvider);
+  public CdcReaderController cdcReaderController(BinlogEntryReaderProvider binlogEntryReaderProvider) {
+    return new CdcReaderController(binlogEntryReaderProvider);
   }
 
   @Bean

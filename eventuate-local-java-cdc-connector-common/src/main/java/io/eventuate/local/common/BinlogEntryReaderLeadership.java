@@ -13,7 +13,7 @@ public class BinlogEntryReaderLeadership {
 
   private String leaderLockId;
   private LeaderSelectorFactory leaderSelectorFactory;
-  private BinlogEntryReader binlogEntryReader;
+  private final BinlogEntryReader binlogEntryReader;
 
   private EventuateLeaderSelector eventuateLeaderSelector;
   private volatile boolean leader;

@@ -37,7 +37,7 @@ public class PostgresWalClient extends DbLogClient {
   private PGReplicationStream stream;
   private int replicationStatusIntervalInMilliseconds;
   private String replicationSlotName;
-  private PostgresWalCdcProcessingStatusService postgresWalCdcProcessingStatusService;
+  private final PostgresWalCdcProcessingStatusService postgresWalCdcProcessingStatusService;
   private OffsetProcessor<LogSequenceNumber> offsetProcessor;
 
   public PostgresWalClient(MeterRegistry meterRegistry,

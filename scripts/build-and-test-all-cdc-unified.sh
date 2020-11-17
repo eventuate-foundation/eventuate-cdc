@@ -31,6 +31,11 @@ runE2ETests
 unset SPRING_PROFILES_ACTIVE
 unset SPRING_DATASOURCE_URL
 
+./scripts/wait-for-services.sh localhost readers/MYSQLREADER/finished "8099"
+./scripts/wait-for-services.sh localhost readers/POSTGRESPOLLINGREADER/finished "8099"
+./scripts/wait-for-services.sh localhost readers/POSTGRESWALREADER/finished "8099"
+
+
 ./gradlew $GRADLE_OPTIONS :eventuate-local-java-cdc-connector-e2e-tests:eventuatelocalcdcComposeDown
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:tramcdcComposeDown
 

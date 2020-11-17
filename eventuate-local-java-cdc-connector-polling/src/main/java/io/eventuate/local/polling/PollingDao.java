@@ -35,7 +35,7 @@ public class PollingDao extends BinlogEntryReader {
   private int pollingIntervalInMilliseconds;
   private Map<SchemaAndTable, String> pkFields = new HashMap<>();
   private EventuateSqlDialect eventuateSqlDialect;
-  private PollingProcessingStatusService pollingProcessingStatusService;
+  private final PollingProcessingStatusService pollingProcessingStatusService;
 
   public PollingDao(MeterRegistry meterRegistry,
                     String dataSourceUrl,
