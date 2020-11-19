@@ -165,6 +165,8 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
     client.registerEventListener(eventListener);
 
+    client.registerLifecycleListener(new MySqlBinaryLogClientLifecycleListener(readerName));
+
     connectWithRetriesOnFail();
 
     try {
@@ -204,6 +206,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
         TableMapEventData tableMapEvent = event.getData();
 
         if (cdcMonitoringDao.isMonitoringTableChange(tableMapEvent.getDatabase(), tableMapEvent.getTable())) {
+          tableMapper.addMapping(tableMapEvent);
           cdcMonitoringTableId = Optional.of(tableMapEvent.getTableId());
           break;
         }
@@ -218,7 +221,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
                 .anyMatch(schemaAndTable::equals);
 
         if (shouldHandleTable) {
-          if (tableMapper.addMapping(tableMapEvent)) {
+          if (tableMapper.addMappingAndCheckIfColumnRefreshIsNecessary(tableMapEvent)) {
            mySqlBinlogEntryExtractor.refreshColumnOrder();
           }
         } else {

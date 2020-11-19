@@ -21,12 +21,16 @@ public class TableMapper {
     return new SchemaAndTable(tableMapEventData.getDatabase(), tableMapEventData.getTable());
   }
 
-  public boolean addMapping(TableMapEventData tableMapEventData) {
+  public boolean addMappingAndCheckIfColumnRefreshIsNecessary(TableMapEventData tableMapEventData) {
     boolean refresh = shouldRefreshColumns(tableMapEventData);
 
-    tableMapEventByTableId.put(tableMapEventData.getTableId(), tableMapEventData);
+    addMapping(tableMapEventData);
 
     return refresh;
+  }
+
+  public void addMapping(TableMapEventData tableMapEventData) {
+    tableMapEventByTableId.put(tableMapEventData.getTableId(), tableMapEventData);
   }
 
   public boolean isTableMapped(long tableId) {
