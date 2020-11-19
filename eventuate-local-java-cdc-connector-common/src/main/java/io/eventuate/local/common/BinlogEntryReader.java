@@ -28,7 +28,7 @@ public abstract class BinlogEntryReader {
   protected CommonCdcMetrics commonCdcMetrics;
   protected volatile Optional<String> processingError = Optional.empty();
 
-  private volatile long lastEventTime = System.currentTimeMillis();
+  private volatile long lastEventTime = 0;
 
   protected Optional<Runnable> restartCallback = Optional.empty();
 
