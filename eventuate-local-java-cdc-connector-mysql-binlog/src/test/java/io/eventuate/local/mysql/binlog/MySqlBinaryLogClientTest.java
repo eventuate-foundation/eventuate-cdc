@@ -43,7 +43,7 @@ public class MySqlBinaryLogClientTest {
       public void onEventSent(PublishedEvent event) {
         if (fail) {
           fail = false;
-          throw new IllegalStateException("Something happend");
+          throw new IllegalStateException("Something happened");
         }
       }
 

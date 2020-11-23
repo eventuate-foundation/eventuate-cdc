@@ -201,6 +201,8 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
   private void handleBinlogEvent(Event event, Optional<BinlogFileOffset> binlogFileOffset) {
 
+    logger.info("Event received: {}", event);
+
     switch (event.getHeader().getEventType()) {
       case TABLE_MAP: {
         TableMapEventData tableMapEvent = event.getData();
@@ -385,7 +387,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
   }
 
   private long extractOffset(Event event) {
-    return ((EventHeaderV4) event.getHeader()).getPosition();
+    return ((EventHeaderV4) event.getHeader()).getNextPosition();
   }
 
 
