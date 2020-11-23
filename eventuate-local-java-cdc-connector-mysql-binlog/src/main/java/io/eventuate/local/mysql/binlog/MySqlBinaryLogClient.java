@@ -201,7 +201,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
   private void handleBinlogEvent(Event event, Optional<BinlogFileOffset> binlogFileOffset) {
 
-    logger.info("Event received: {}", event);
+    logger.debug("Event received: {}", event);
 
     switch (event.getHeader().getEventType()) {
       case TABLE_MAP: {
@@ -227,7 +227,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
            mySqlBinlogEntryExtractor.refreshColumnOrder();
           }
         } else {
-          tableMapper.removeMapping(tableMapEvent);
+          tableMapper.addMapping(tableMapEvent);
         }
 
         dbLogMetrics.onBinlogEntryProcessed();

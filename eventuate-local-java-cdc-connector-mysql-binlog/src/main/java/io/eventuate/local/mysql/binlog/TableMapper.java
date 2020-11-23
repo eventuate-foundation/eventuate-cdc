@@ -10,6 +10,7 @@ import java.util.Map;
 
 public class TableMapper {
   private final Map<Long, TableMapEventData> tableMapEventByTableId = new HashMap<>();
+  private final Map<SchemaAndTable, Long> tableIdBySchemaAndTable = new HashMap<>();
 
   public Map<Long, TableMapEventData> getMappings() {
     return Collections.unmodifiableMap(tableMapEventByTableId);
@@ -30,6 +31,10 @@ public class TableMapper {
   }
 
   public void addMapping(TableMapEventData tableMapEventData) {
+    SchemaAndTable schemaAndTable = new SchemaAndTable(tableMapEventData.getDatabase(), tableMapEventData.getTable());
+    Long previousTableIdOfSchemaAndTable = tableIdBySchemaAndTable.put(schemaAndTable, tableMapEventData.getTableId());
+    clearPreviousMapping(previousTableIdOfSchemaAndTable, schemaAndTable);
+
     tableMapEventByTableId.put(tableMapEventData.getTableId(), tableMapEventData);
   }
 
@@ -45,6 +50,24 @@ public class TableMapper {
     tableMapEventByTableId.clear();
   }
 
+  private void clearPreviousMapping(Long previousTableIdOfCurrentSchemaAndTable, SchemaAndTable currentSchemaAndTable) {
+    if (previousTableIdOfCurrentSchemaAndTable == null) {
+      return;
+    }
+
+    TableMapEventData previousTableMapEventDataOfSchemaAndTable = tableMapEventByTableId.get(previousTableIdOfCurrentSchemaAndTable);
+
+    if (previousTableMapEventDataOfSchemaAndTable == null) {
+      return;
+    }
+
+    SchemaAndTable previousSchemaAndTable = new SchemaAndTable(previousTableMapEventDataOfSchemaAndTable.getDatabase(),
+            previousTableMapEventDataOfSchemaAndTable.getTable());
+
+    if (previousSchemaAndTable.equals(currentSchemaAndTable)) {
+      tableMapEventByTableId.remove(previousTableIdOfCurrentSchemaAndTable);
+    }
+  }
 
   private boolean shouldRefreshColumns(TableMapEventData updatedData) {
     if (tableMapEventByTableId.containsKey(updatedData.getTableId())) {
