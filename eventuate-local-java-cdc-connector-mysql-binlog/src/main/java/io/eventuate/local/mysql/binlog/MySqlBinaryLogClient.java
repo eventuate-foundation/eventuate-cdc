@@ -195,7 +195,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
     logger.error("Restarting due to exception", e);
     publishingException = Optional.of(e);
     restartCallback
-            .orElseThrow(() -> new IllegalArgumentException("Restart callback is not specified, but restart is requsted"))
+            .orElseThrow(() -> new IllegalArgumentException("Restart callback is not specified, but restart is requested"))
             .run();
   }
 
@@ -290,8 +290,6 @@ public class MySqlBinaryLogClient extends DbLogClient {
       rowsToSkip--;
       return;
     }
-
-    logger.debug("Got binlog event {}", event);
 
     WriteRowsEventData eventData = event.getData();
 

@@ -16,16 +16,16 @@ import static io.eventuate.local.test.util.assertion.MessageAssertOperationBuild
 public abstract class AbstractBinlogEntryReaderMessageTableTest {
 
   @Autowired
-  private TestHelper testHelper;
+  protected TestHelper testHelper;
 
   @Autowired
-  private EventuateSchema eventuateSchema;
+  protected EventuateSchema eventuateSchema;
 
   @Autowired
-  private BinlogEntryReader binlogEntryReader;
+  protected BinlogEntryReader binlogEntryReader;
 
   @Autowired
-  private IdGenerator idGenerator;
+  protected IdGenerator idGenerator;
 
   @Test
   public void testMessageHandled() {
