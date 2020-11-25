@@ -42,6 +42,8 @@ public class DatabaseOffsetKafkaStore extends OffsetKafkaStore {
       );
 
     CompletableFutureUtil.get(future);
+
+    logger.debug("Offset is saved: {}", binlogFileOffset);
   }
 
   @Override
