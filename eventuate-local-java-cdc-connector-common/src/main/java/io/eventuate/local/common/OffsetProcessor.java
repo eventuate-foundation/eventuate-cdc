@@ -13,7 +13,7 @@ public class OffsetProcessor<OFFSET> {
 
   private AtomicBoolean processingOffsets = new AtomicBoolean(false);
 
-  protected ConcurrentCountedLinkedQueue<OFFSET> offsets = new ConcurrentCountedLinkedQueue<>();
+  protected ConcurrentCountedLinkedQueue<BinlogOffsetContainer<OFFSET>> offsets = new ConcurrentCountedLinkedQueue<>();
   protected GenericOffsetStore<OFFSET> offsetStore;
   private Executor executor = Executors.newCachedThreadPool();
 
@@ -21,7 +21,7 @@ public class OffsetProcessor<OFFSET> {
     this.offsetStore = offsetStore;
   }
 
-  public void saveOffset(CompletableFuture<OFFSET> offset) {
+  public void saveOffset(CompletableFuture<BinlogOffsetContainer<OFFSET>> offset) {
     offsets.add(offset);
 
     offset.whenCompleteAsync((o, throwable) -> processOffsets(), executor);
@@ -46,25 +46,29 @@ public class OffsetProcessor<OFFSET> {
   }
 
   protected void collectAndSaveOffsets() {
-    Optional<OFFSET> offset = Optional.empty();
+    Optional<OFFSET> offsetToSave = Optional.empty();
 
     while (true) {
       if (isDone(offsets.peek())) {
-        offset = Optional.of(getOffset(offsets.poll()));
+        BinlogOffsetContainer<OFFSET> offset = getOffset(offsets.poll());
+
+        if (offset.isForSave()) {
+          offsetToSave = Optional.of(offset.getOffset());
+        }
       }
       else {
         break;
       }
     }
 
-    offset.ifPresent(offsetStore::save);
+    offsetToSave.ifPresent(offsetStore::save);
   }
 
-  protected OFFSET getOffset(CompletableFuture<OFFSET> offset) {
+  protected BinlogOffsetContainer<OFFSET> getOffset(CompletableFuture<BinlogOffsetContainer<OFFSET>> offset) {
     return CompletableFutureUtil.get(offset);
   }
 
-  protected boolean isDone(CompletableFuture<OFFSET> offset) {
+  protected boolean isDone(CompletableFuture<BinlogOffsetContainer<OFFSET>> offset) {
     return offset != null && offset.isDone();
   }
 

@@ -24,6 +24,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static java.util.concurrent.CompletableFuture.completedFuture;
+
 public class MySqlBinaryLogClient extends DbLogClient {
 
   private static final Set<EventType> SUPPORTED_EVENTS = ImmutableSet.of(EventType.TABLE_MAP,
@@ -210,27 +212,31 @@ public class MySqlBinaryLogClient extends DbLogClient {
         if (cdcMonitoringDao.isMonitoringTableChange(tableMapEvent.getDatabase(), tableMapEvent.getTable())) {
           tableMapper.addMapping(tableMapEvent);
           cdcMonitoringTableId = Optional.of(tableMapEvent.getTableId());
-          break;
-        }
-
-        cdcMonitoringTableId = cdcMonitoringTableId.filter(id -> !id.equals(tableMapEvent.getTableId()));
-
-        SchemaAndTable schemaAndTable = new SchemaAndTable(tableMapEvent.getDatabase(), tableMapEvent.getTable());
-
-        boolean shouldHandleTable = binlogEntryHandlers
-                .stream()
-                .map(BinlogEntryHandler::getSchemaAndTable)
-                .anyMatch(schemaAndTable::equals);
-
-        if (shouldHandleTable) {
-          if (tableMapper.addMappingAndCheckIfColumnRefreshIsNecessary(tableMapEvent)) {
-           mySqlBinlogEntryExtractor.refreshColumnOrder();
-          }
         } else {
-          tableMapper.addMapping(tableMapEvent);
+          cdcMonitoringTableId = cdcMonitoringTableId.filter(id -> !id.equals(tableMapEvent.getTableId()));
+
+          SchemaAndTable schemaAndTable = new SchemaAndTable(tableMapEvent.getDatabase(), tableMapEvent.getTable());
+
+          boolean shouldHandleTable = binlogEntryHandlers
+                  .stream()
+                  .map(BinlogEntryHandler::getSchemaAndTable)
+                  .anyMatch(schemaAndTable::equals);
+
+          if (shouldHandleTable) {
+            if (tableMapper.addMappingAndCheckIfColumnRefreshIsNecessary(tableMapEvent)) {
+              mySqlBinlogEntryExtractor.refreshColumnOrder();
+            }
+          } else {
+            tableMapper.addMapping(tableMapEvent);
+          }
+
+          dbLogMetrics.onBinlogEntryProcessed();
         }
 
-        dbLogMetrics.onBinlogEntryProcessed();
+
+        BinlogOffsetContainer<BinlogFileOffset> offset = new BinlogOffsetContainer<>(extractBeginningBinlogFileOffset(event), true);
+
+        offsetProcessor.saveOffset(completedFuture(offset));
 
         break;
       }
@@ -257,6 +263,11 @@ public class MySqlBinaryLogClient extends DbLogClient {
         if (eventData != null) {
           binlogFilename = eventData.getBinlogFilename();
         }
+        break;
+      }
+      case XID: {
+        BinlogOffsetContainer<BinlogFileOffset> offset = new BinlogOffsetContainer<>(extractEndingBinlogFileOffset(event), true);
+        offsetProcessor.saveOffset(completedFuture(offset));
         break;
       }
     }
@@ -293,7 +304,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
     WriteRowsEventData eventData = event.getData();
 
-    BinlogFileOffset binlogFileOffset = extractBinlogFileOffset(event);
+    BinlogFileOffset binlogFileOffset = extractEndingBinlogFileOffset(event);
 
     long offset = binlogFileOffset.getOffset();
 
@@ -315,7 +326,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
                 .filter(bh -> bh.isFor(schemaAndTable))
                 .forEach(binlogEntryHandler -> {
                   messagePublishingTimer.record(() -> {
-                    publish(entry, binlogEntryHandler, binlogFileOffset);
+                    publish(entry, binlogEntryHandler);
                   });
                   eventPublished.set(true);
                 });
@@ -325,11 +336,11 @@ public class MySqlBinaryLogClient extends DbLogClient {
     onEventReceived();
 
     if (!eventPublished.get()) {
-      offsetProcessor.saveOffset(CompletableFuture.completedFuture(binlogFileOffset));
+      offsetProcessor.saveOffset(completedFuture(new BinlogOffsetContainer<>(null, false)));
     }
   }
 
-  private void publish(BinlogEntry entry, BinlogEntryHandler binlogEntryHandler, BinlogFileOffset binlogFileOffset) {
+  private void publish(BinlogEntry entry, BinlogEntryHandler binlogEntryHandler) {
     long timeNow = System.currentTimeMillis();
     this.timeOfFirstMessage.compareAndSet(0, timeNow);
     this.timeOfLatestMessage.set(timeNow);
@@ -341,11 +352,11 @@ public class MySqlBinaryLogClient extends DbLogClient {
       handleProcessingFailException(e);
     }
 
-    CompletableFuture<BinlogFileOffset> futureWithOffset = new CompletableFuture<>();
+    CompletableFuture<BinlogOffsetContainer<BinlogFileOffset>> futureWithOffset = new CompletableFuture<>();
 
     publishingFuture.whenComplete((o, throwable) -> {
       if (throwable == null) {
-        futureWithOffset.complete(binlogFileOffset);
+        futureWithOffset.complete(new BinlogOffsetContainer<>(null, false));
       }
       else {
         futureWithOffset.completeExceptionally(throwable);
@@ -356,8 +367,12 @@ public class MySqlBinaryLogClient extends DbLogClient {
     offsetProcessor.saveOffset(futureWithOffset);
   }
 
-  private BinlogFileOffset extractBinlogFileOffset(Event event) {
-    return new BinlogFileOffset(binlogFilename, extractOffset(event));
+  private BinlogFileOffset extractBeginningBinlogFileOffset(Event event) {
+    return new BinlogFileOffset(binlogFilename, ((EventHeaderV4) event.getHeader()).getPosition());
+  }
+
+  private BinlogFileOffset extractEndingBinlogFileOffset(Event event) {
+    return new BinlogFileOffset(binlogFilename, ((EventHeaderV4) event.getHeader()).getNextPosition());
   }
 
   private void onLagMeasurementEventReceived(WriteRowsEventData eventData) {
@@ -377,17 +392,12 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
     onEventReceived();
 
-    offsetProcessor.saveOffset(CompletableFuture.completedFuture(extractBinlogFileOffset(event)));
+    offsetProcessor.saveOffset(completedFuture(new BinlogOffsetContainer<>(null, false)));
   }
 
   private void onLagMeasurementEventReceived(UpdateRowsEventData eventData) {
     dbLogMetrics.onLagMeasurementEventReceived(timestampExtractor.extract(cdcMonitoringDao.getMonitoringSchemaAndTable(), eventData));
   }
-
-  private long extractOffset(Event event) {
-    return ((EventHeaderV4) event.getHeader()).getNextPosition();
-  }
-
 
   private boolean isCdcMonitoringTableId(Long id) {
     return cdcMonitoringTableId.map(id::equals).orElse(false);

@@ -2,12 +2,8 @@ package io.eventuate.local.postgres.wal;
 
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.json.mapper.JSonMapper;
-import io.eventuate.local.common.BinlogEntry;
-import io.eventuate.local.common.BinlogEntryHandler;
-import io.eventuate.local.common.CdcProcessingStatusService;
-import io.eventuate.local.common.SchemaAndTable;
+import io.eventuate.local.common.*;
 import io.eventuate.local.db.log.common.DbLogClient;
-import io.eventuate.local.common.OffsetProcessor;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.postgresql.PGConnection;
 import org.postgresql.PGProperty;
@@ -222,7 +218,7 @@ public class PostgresWalClient extends DbLogClient {
   private void handleBinlogEntry(BinlogEntry entry, BinlogEntryHandler handler) {
     LogSequenceNumber logSequenceNumber = stream.getLastReceiveLSN();
 
-    CompletableFuture<LogSequenceNumber> futureOffset = new CompletableFuture<>();
+    CompletableFuture<BinlogOffsetContainer<LogSequenceNumber>> futureOffset = new CompletableFuture<>();
 
     CompletableFuture<?> future = null;
 
@@ -234,7 +230,7 @@ public class PostgresWalClient extends DbLogClient {
 
     future.whenComplete((o, throwable) -> {
       if (throwable == null) {
-        futureOffset.complete(logSequenceNumber);
+        futureOffset.complete(new BinlogOffsetContainer<>(logSequenceNumber, true));
       }
       else {
         futureOffset.completeExceptionally(throwable);
