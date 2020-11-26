@@ -24,8 +24,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static java.util.concurrent.CompletableFuture.completedFuture;
-
 public class MySqlBinaryLogClient extends DbLogClient {
 
   private static final Set<EventType> SUPPORTED_EVENTS = ImmutableSet.of(EventType.TABLE_MAP,
@@ -98,7 +96,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
     mySqlBinlogEntryExtractor = new MySqlBinlogEntryExtractor(dataSource);
     tableMapper = new TableMapper();
 
-    OffsetProcessor<BinlogFileOffset> offsetProcessor = new OffsetProcessor<>(offsetStore);
+    OffsetProcessor<BinlogFileOffset> offsetProcessor = new OffsetProcessor<>(offsetStore, this::handleRestart);
 
     mySqlBinlogOffsetProcessor = new MySqlBinlogOffsetProcessor(offsetProcessor);
 

@@ -103,7 +103,7 @@ public class OffsetProcessorTest {
 
   private void init() {
     offsetStore = Mockito.mock(OffsetStore.class);
-    offsetProcessor = new OffsetProcessor<>(offsetStore);
+    offsetProcessor = new OffsetProcessor<>(offsetStore, null);
 
     futureOffset1 = new CompletableFuture<>();
     futureOffset2 = new CompletableFuture<>();

@@ -152,7 +152,7 @@ public class PostgresWalClient extends DbLogClient {
       } catch (SQLException e) {
         throw new RuntimeException(e);
       }
-    });
+    }, this::handleProcessingFailException);
 
     onConnected();
 
