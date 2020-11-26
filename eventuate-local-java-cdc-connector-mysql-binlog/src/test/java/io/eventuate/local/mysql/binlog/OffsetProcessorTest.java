@@ -3,7 +3,6 @@ package io.eventuate.local.mysql.binlog;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
-import io.eventuate.local.common.BinlogOffsetContainer;
 import io.eventuate.local.common.OffsetProcessor;
 import io.eventuate.local.db.log.common.OffsetStore;
 import io.eventuate.util.test.async.Eventually;
@@ -16,6 +15,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -29,9 +29,9 @@ public class OffsetProcessorTest {
   private OffsetStore offsetStore;
   private OffsetProcessor<BinlogFileOffset> offsetProcessor;
 
-  private CompletableFuture<BinlogOffsetContainer<BinlogFileOffset>> futureOffset1;
-  private CompletableFuture<BinlogOffsetContainer<BinlogFileOffset>> futureOffset2;
-  private CompletableFuture<BinlogOffsetContainer<BinlogFileOffset>> futureOffset3;
+  private CompletableFuture<Optional<BinlogFileOffset>> futureOffset1;
+  private CompletableFuture<Optional<BinlogFileOffset>> futureOffset2;
+  private CompletableFuture<Optional<BinlogFileOffset>> futureOffset3;
 
   private BinlogFileOffset offset1;
   private BinlogFileOffset offset2;
@@ -54,17 +54,17 @@ public class OffsetProcessorTest {
             offsetSavingMap, ImmutableList.of(saveInvocationCountWithOffsetA, saveInvocationCountWithOffsetB, saveInvocationCountWithOffsetC));
 
     assertUnprocessedCountEquals(3);
-    futureOffset1.complete(createOffsetContainer(offset1, offsetSavingMap.get(0)));
+    futureOffset1.complete(prepareOffset(offset1, offsetSavingMap.get(0)));
     verify(ImmutableMap.of(offset1, saveInvocationCountWithOffsetA, offset2, 0, offset3, 0));
 
     assertUnprocessedCountEquals(2);
 
-    futureOffset2.complete(createOffsetContainer(offset2, offsetSavingMap.get(1)));
+    futureOffset2.complete(prepareOffset(offset2, offsetSavingMap.get(1)));
     verify(ImmutableMap.of(offset1, saveInvocationCountWithOffsetA, offset2, saveInvocationCountWithOffsetB, offset3, 0));
 
     assertUnprocessedCountEquals(1);
 
-    futureOffset3.complete(createOffsetContainer(offset3, offsetSavingMap.get(2)));
+    futureOffset3.complete(prepareOffset(offset3, offsetSavingMap.get(2)));
     verify(ImmutableMap.of(offset1, saveInvocationCountWithOffsetA, offset2, saveInvocationCountWithOffsetB, offset3, saveInvocationCountWithOffsetC));
 
     assertUnprocessedCountEquals(0);
@@ -84,11 +84,11 @@ public class OffsetProcessorTest {
   private void testReversedOrder(List<Boolean> offsetSavingMap) {
     init();
 
-    futureOffset3.complete(createOffsetContainer(offset3, offsetSavingMap.get(2)));
+    futureOffset3.complete(prepareOffset(offset3, offsetSavingMap.get(2)));
     assertUnprocessedCountEquals(3);
-    futureOffset2.complete(createOffsetContainer(offset2, offsetSavingMap.get(1)));
+    futureOffset2.complete(prepareOffset(offset2, offsetSavingMap.get(1)));
     assertUnprocessedCountEquals(3);
-    futureOffset1.complete(createOffsetContainer(offset1, offsetSavingMap.get(0)));
+    futureOffset1.complete(prepareOffset(offset1, offsetSavingMap.get(0)));
     assertUnprocessedCountEquals(0);
 
     int saveInvocationCountWithOffsetA = offsetSavingMap.get(0) && !offsetSavingMap.get(1) && !offsetSavingMap.get(2) ? 1 : 0;
@@ -138,7 +138,11 @@ public class OffsetProcessorTest {
             () -> invocations.forEach((offset, invocationCount) -> Mockito.verify(offsetStore, Mockito.times(invocationCount)).save(offset)));
   }
 
-  private BinlogOffsetContainer<BinlogFileOffset> createOffsetContainer(BinlogFileOffset binlogFileOffset, boolean save) {
-    return new BinlogOffsetContainer<>(binlogFileOffset, save);
+  private Optional<BinlogFileOffset> prepareOffset(BinlogFileOffset binlogFileOffset, boolean save) {
+    if (save) {
+      return Optional.of(binlogFileOffset);
+    } else {
+      return Optional.empty();
+    }
   }
 }

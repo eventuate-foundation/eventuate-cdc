@@ -52,7 +52,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
   private Optional<Exception> publishingException = Optional.empty();
 
   private Optional<Runnable> callbackOnStop = Optional.empty();
-  private OffsetProcessor<BinlogFileOffset> offsetProcessor;
+  private MySqlBinlogOffsetProcessor mySqlBinlogOffsetProcessor;
   private Long eventProcessingStartTime;
   private AtomicLong timeOfFirstMessage = new AtomicLong();
   private AtomicLong timeOfLatestMessage = new AtomicLong();;
@@ -98,7 +98,9 @@ public class MySqlBinaryLogClient extends DbLogClient {
     mySqlBinlogEntryExtractor = new MySqlBinlogEntryExtractor(dataSource);
     tableMapper = new TableMapper();
 
-    offsetProcessor = new OffsetProcessor<>(offsetStore);
+    OffsetProcessor<BinlogFileOffset> offsetProcessor = new OffsetProcessor<>(offsetStore);
+
+    mySqlBinlogOffsetProcessor = new MySqlBinlogOffsetProcessor(offsetProcessor);
 
     mySqlCdcProcessingStatusService = new MySqlCdcProcessingStatusService(dataSourceUrl, dbUserName, dbPassword);
 
@@ -233,10 +235,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
           dbLogMetrics.onBinlogEntryProcessed();
         }
 
-
-        BinlogOffsetContainer<BinlogFileOffset> offset = new BinlogOffsetContainer<>(extractBeginningBinlogFileOffset(event), true);
-
-        offsetProcessor.saveOffset(completedFuture(offset));
+        mySqlBinlogOffsetProcessor.saveTableMapOffset(extractBeginningBinlogFileOffset(event));
 
         break;
       }
@@ -266,8 +265,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
         break;
       }
       case XID: {
-        BinlogOffsetContainer<BinlogFileOffset> offset = new BinlogOffsetContainer<>(extractEndingBinlogFileOffset(event), true);
-        offsetProcessor.saveOffset(completedFuture(offset));
+        mySqlBinlogOffsetProcessor.saveXidOffset(extractEndingBinlogFileOffset(event));
         break;
       }
     }
@@ -326,7 +324,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
                 .filter(bh -> bh.isFor(schemaAndTable))
                 .forEach(binlogEntryHandler -> {
                   messagePublishingTimer.record(() -> {
-                    publish(entry, binlogEntryHandler);
+                    publish(entry, binlogEntryHandler, binlogFileOffset);
                   });
                   eventPublished.set(true);
                 });
@@ -334,13 +332,9 @@ public class MySqlBinaryLogClient extends DbLogClient {
     }
 
     onEventReceived();
-
-    if (!eventPublished.get()) {
-      offsetProcessor.saveOffset(completedFuture(new BinlogOffsetContainer<>(null, false)));
-    }
   }
 
-  private void publish(BinlogEntry entry, BinlogEntryHandler binlogEntryHandler) {
+  private void publish(BinlogEntry entry, BinlogEntryHandler binlogEntryHandler, BinlogFileOffset binlogFileOffset) {
     long timeNow = System.currentTimeMillis();
     this.timeOfFirstMessage.compareAndSet(0, timeNow);
     this.timeOfLatestMessage.set(timeNow);
@@ -352,11 +346,11 @@ public class MySqlBinaryLogClient extends DbLogClient {
       handleProcessingFailException(e);
     }
 
-    CompletableFuture<BinlogOffsetContainer<BinlogFileOffset>> futureWithOffset = new CompletableFuture<>();
+    CompletableFuture<BinlogFileOffset> futureWithOffset = new CompletableFuture<>();
 
     publishingFuture.whenComplete((o, throwable) -> {
       if (throwable == null) {
-        futureWithOffset.complete(new BinlogOffsetContainer<>(null, false));
+        futureWithOffset.complete(binlogFileOffset);
       }
       else {
         futureWithOffset.completeExceptionally(throwable);
@@ -364,7 +358,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
       }
     });
 
-    offsetProcessor.saveOffset(futureWithOffset);
+    mySqlBinlogOffsetProcessor.saveWriteRowsOffset(futureWithOffset);
   }
 
   private BinlogFileOffset extractBeginningBinlogFileOffset(Event event) {
@@ -391,8 +385,6 @@ public class MySqlBinaryLogClient extends DbLogClient {
     }
 
     onEventReceived();
-
-    offsetProcessor.saveOffset(completedFuture(new BinlogOffsetContainer<>(null, false)));
   }
 
   private void onLagMeasurementEventReceived(UpdateRowsEventData eventData) {

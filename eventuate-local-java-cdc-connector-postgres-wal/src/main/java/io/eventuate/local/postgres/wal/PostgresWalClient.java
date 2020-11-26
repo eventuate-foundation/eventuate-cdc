@@ -218,7 +218,7 @@ public class PostgresWalClient extends DbLogClient {
   private void handleBinlogEntry(BinlogEntry entry, BinlogEntryHandler handler) {
     LogSequenceNumber logSequenceNumber = stream.getLastReceiveLSN();
 
-    CompletableFuture<BinlogOffsetContainer<LogSequenceNumber>> futureOffset = new CompletableFuture<>();
+    CompletableFuture<Optional<LogSequenceNumber>> futureOffset = new CompletableFuture<>();
 
     CompletableFuture<?> future = null;
 
@@ -230,7 +230,7 @@ public class PostgresWalClient extends DbLogClient {
 
     future.whenComplete((o, throwable) -> {
       if (throwable == null) {
-        futureOffset.complete(new BinlogOffsetContainer<>(logSequenceNumber, true));
+        futureOffset.complete(Optional.of(logSequenceNumber));
       }
       else {
         futureOffset.completeExceptionally(throwable);

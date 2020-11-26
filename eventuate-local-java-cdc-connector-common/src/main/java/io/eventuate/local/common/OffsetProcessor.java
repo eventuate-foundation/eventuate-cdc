@@ -4,7 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -13,7 +15,7 @@ public class OffsetProcessor<OFFSET> {
 
   private AtomicBoolean processingOffsets = new AtomicBoolean(false);
 
-  protected ConcurrentCountedLinkedQueue<BinlogOffsetContainer<OFFSET>> offsets = new ConcurrentCountedLinkedQueue<>();
+  protected ConcurrentCountedLinkedQueue<Optional<OFFSET>> offsets = new ConcurrentCountedLinkedQueue<>();
   protected GenericOffsetStore<OFFSET> offsetStore;
   private Executor executor = Executors.newCachedThreadPool();
 
@@ -21,7 +23,7 @@ public class OffsetProcessor<OFFSET> {
     this.offsetStore = offsetStore;
   }
 
-  public void saveOffset(CompletableFuture<BinlogOffsetContainer<OFFSET>> offset) {
+  public void saveOffset(CompletableFuture<Optional<OFFSET>> offset) {
     offsets.add(offset);
 
     offset.whenCompleteAsync((o, throwable) -> processOffsets(), executor);
@@ -50,10 +52,10 @@ public class OffsetProcessor<OFFSET> {
 
     while (true) {
       if (isDone(offsets.peek())) {
-        BinlogOffsetContainer<OFFSET> offset = getOffset(offsets.poll());
+        Optional<OFFSET> offset = getOffset(offsets.poll());
 
-        if (offset.isForSave()) {
-          offsetToSave = Optional.of(offset.getOffset());
+        if (offset.isPresent()) {
+          offsetToSave = offset;
         }
       }
       else {
@@ -64,11 +66,11 @@ public class OffsetProcessor<OFFSET> {
     offsetToSave.ifPresent(offsetStore::save);
   }
 
-  protected BinlogOffsetContainer<OFFSET> getOffset(CompletableFuture<BinlogOffsetContainer<OFFSET>> offset) {
+  protected Optional<OFFSET> getOffset(CompletableFuture<Optional<OFFSET>> offset) {
     return CompletableFutureUtil.get(offset);
   }
 
-  protected boolean isDone(CompletableFuture<BinlogOffsetContainer<OFFSET>> offset) {
+  protected boolean isDone(CompletableFuture<Optional<OFFSET>> offset) {
     return offset != null && offset.isDone();
   }
 
