@@ -169,6 +169,10 @@ public class TestHelper {
     return new EventInfo(eventData, eventId, entityId);
   }
 
+  public String generateRandomPayload() {
+    return "\"" + "payload-" + generateId() + "\"";
+  }
+
   public String generateId() {
     return StringUtils.rightPad(String.valueOf(System.nanoTime()), String.valueOf(Long.MAX_VALUE).length(), "0");
   }

@@ -50,7 +50,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
   private Optional<Exception> publishingException = Optional.empty();
 
   private Optional<Runnable> callbackOnStop = Optional.empty();
-  private OffsetProcessor<BinlogFileOffset> offsetProcessor;
+  private MySqlBinlogOffsetProcessor mySqlBinlogOffsetProcessor;
   private Long eventProcessingStartTime;
   private AtomicLong timeOfFirstMessage = new AtomicLong();
   private AtomicLong timeOfLatestMessage = new AtomicLong();;
@@ -96,7 +96,9 @@ public class MySqlBinaryLogClient extends DbLogClient {
     mySqlBinlogEntryExtractor = new MySqlBinlogEntryExtractor(dataSource);
     tableMapper = new TableMapper();
 
-    offsetProcessor = new OffsetProcessor<>(offsetStore);
+    OffsetProcessor<BinlogFileOffset> offsetProcessor = new OffsetProcessor<>(offsetStore, this::handleRestart);
+
+    mySqlBinlogOffsetProcessor = new MySqlBinlogOffsetProcessor(offsetProcessor);
 
     mySqlCdcProcessingStatusService = new MySqlCdcProcessingStatusService(dataSourceUrl, dbUserName, dbPassword);
 
@@ -195,7 +197,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
     logger.error("Restarting due to exception", e);
     publishingException = Optional.of(e);
     restartCallback
-            .orElseThrow(() -> new IllegalArgumentException("Restart callback is not specified, but restart is requsted"))
+            .orElseThrow(() -> new IllegalArgumentException("Restart callback is not specified, but restart is requested"))
             .run();
   }
 
@@ -210,27 +212,28 @@ public class MySqlBinaryLogClient extends DbLogClient {
         if (cdcMonitoringDao.isMonitoringTableChange(tableMapEvent.getDatabase(), tableMapEvent.getTable())) {
           tableMapper.addMapping(tableMapEvent);
           cdcMonitoringTableId = Optional.of(tableMapEvent.getTableId());
-          break;
-        }
-
-        cdcMonitoringTableId = cdcMonitoringTableId.filter(id -> !id.equals(tableMapEvent.getTableId()));
-
-        SchemaAndTable schemaAndTable = new SchemaAndTable(tableMapEvent.getDatabase(), tableMapEvent.getTable());
-
-        boolean shouldHandleTable = binlogEntryHandlers
-                .stream()
-                .map(BinlogEntryHandler::getSchemaAndTable)
-                .anyMatch(schemaAndTable::equals);
-
-        if (shouldHandleTable) {
-          if (tableMapper.addMappingAndCheckIfColumnRefreshIsNecessary(tableMapEvent)) {
-           mySqlBinlogEntryExtractor.refreshColumnOrder();
-          }
         } else {
-          tableMapper.addMapping(tableMapEvent);
+          cdcMonitoringTableId = cdcMonitoringTableId.filter(id -> !id.equals(tableMapEvent.getTableId()));
+
+          SchemaAndTable schemaAndTable = new SchemaAndTable(tableMapEvent.getDatabase(), tableMapEvent.getTable());
+
+          boolean shouldHandleTable = binlogEntryHandlers
+                  .stream()
+                  .map(BinlogEntryHandler::getSchemaAndTable)
+                  .anyMatch(schemaAndTable::equals);
+
+          if (shouldHandleTable) {
+            if (tableMapper.addMappingAndCheckIfColumnRefreshIsNecessary(tableMapEvent)) {
+              mySqlBinlogEntryExtractor.refreshColumnOrder();
+            }
+          } else {
+            tableMapper.addMapping(tableMapEvent);
+          }
+
+          dbLogMetrics.onBinlogEntryProcessed();
         }
 
-        dbLogMetrics.onBinlogEntryProcessed();
+        mySqlBinlogOffsetProcessor.saveTableMapOffset(extractBeginningBinlogFileOffset(event));
 
         break;
       }
@@ -257,6 +260,10 @@ public class MySqlBinaryLogClient extends DbLogClient {
         if (eventData != null) {
           binlogFilename = eventData.getBinlogFilename();
         }
+        break;
+      }
+      case XID: {
+        mySqlBinlogOffsetProcessor.saveXidOffset(extractEndingBinlogFileOffset(event));
         break;
       }
     }
@@ -291,11 +298,9 @@ public class MySqlBinaryLogClient extends DbLogClient {
       return;
     }
 
-    logger.debug("Got binlog event {}", event);
-
     WriteRowsEventData eventData = event.getData();
 
-    BinlogFileOffset binlogFileOffset = extractBinlogFileOffset(event);
+    BinlogFileOffset binlogFileOffset = extractEndingBinlogFileOffset(event);
 
     long offset = binlogFileOffset.getOffset();
 
@@ -325,10 +330,6 @@ public class MySqlBinaryLogClient extends DbLogClient {
     }
 
     onEventReceived();
-
-    if (!eventPublished.get()) {
-      offsetProcessor.saveOffset(CompletableFuture.completedFuture(binlogFileOffset));
-    }
   }
 
   private void publish(BinlogEntry entry, BinlogEntryHandler binlogEntryHandler, BinlogFileOffset binlogFileOffset) {
@@ -355,11 +356,15 @@ public class MySqlBinaryLogClient extends DbLogClient {
       }
     });
 
-    offsetProcessor.saveOffset(futureWithOffset);
+    mySqlBinlogOffsetProcessor.saveWriteRowsOffset(futureWithOffset);
   }
 
-  private BinlogFileOffset extractBinlogFileOffset(Event event) {
-    return new BinlogFileOffset(binlogFilename, extractOffset(event));
+  private BinlogFileOffset extractBeginningBinlogFileOffset(Event event) {
+    return new BinlogFileOffset(binlogFilename, ((EventHeaderV4) event.getHeader()).getPosition());
+  }
+
+  private BinlogFileOffset extractEndingBinlogFileOffset(Event event) {
+    return new BinlogFileOffset(binlogFilename, ((EventHeaderV4) event.getHeader()).getNextPosition());
   }
 
   private void onLagMeasurementEventReceived(WriteRowsEventData eventData) {
@@ -378,18 +383,11 @@ public class MySqlBinaryLogClient extends DbLogClient {
     }
 
     onEventReceived();
-
-    offsetProcessor.saveOffset(CompletableFuture.completedFuture(extractBinlogFileOffset(event)));
   }
 
   private void onLagMeasurementEventReceived(UpdateRowsEventData eventData) {
     dbLogMetrics.onLagMeasurementEventReceived(timestampExtractor.extract(cdcMonitoringDao.getMonitoringSchemaAndTable(), eventData));
   }
-
-  private long extractOffset(Event event) {
-    return ((EventHeaderV4) event.getHeader()).getNextPosition();
-  }
-
 
   private boolean isCdcMonitoringTableId(Long id) {
     return cdcMonitoringTableId.map(id::equals).orElse(false);

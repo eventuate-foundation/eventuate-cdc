@@ -4,27 +4,40 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 public class OffsetProcessor<OFFSET> {
   protected Logger logger = LoggerFactory.getLogger(getClass());
 
   private AtomicBoolean processingOffsets = new AtomicBoolean(false);
 
-  protected ConcurrentCountedLinkedQueue<OFFSET> offsets = new ConcurrentCountedLinkedQueue<>();
+  protected ConcurrentCountedLinkedQueue<Optional<OFFSET>> offsets = new ConcurrentCountedLinkedQueue<>();
   protected GenericOffsetStore<OFFSET> offsetStore;
+  protected Consumer<Exception> offsetSavingExceptionHandler;
   private Executor executor = Executors.newCachedThreadPool();
 
-  public OffsetProcessor(GenericOffsetStore<OFFSET> offsetStore) {
+  public OffsetProcessor(GenericOffsetStore<OFFSET> offsetStore, Consumer<Exception> offsetSavingExceptionHandler) {
     this.offsetStore = offsetStore;
+    this.offsetSavingExceptionHandler = offsetSavingExceptionHandler;
   }
 
-  public void saveOffset(CompletableFuture<OFFSET> offset) {
+  public void saveOffset(CompletableFuture<Optional<OFFSET>> offset) {
     offsets.add(offset);
 
-    offset.whenCompleteAsync((o, throwable) -> processOffsets(), executor);
+    offset.whenCompleteAsync(this::processOffsetsWithExceptionHandling, executor);
+  }
+
+  private void processOffsetsWithExceptionHandling(Optional<OFFSET> offset, Throwable t) {
+    try {
+      processOffsets();
+    } catch (Exception e) {
+      offsetSavingExceptionHandler.accept(e);
+    }
   }
 
   private void processOffsets() {
@@ -46,25 +59,29 @@ public class OffsetProcessor<OFFSET> {
   }
 
   protected void collectAndSaveOffsets() {
-    Optional<OFFSET> offset = Optional.empty();
+    Optional<OFFSET> offsetToSave = Optional.empty();
 
     while (true) {
       if (isDone(offsets.peek())) {
-        offset = Optional.of(getOffset(offsets.poll()));
+        Optional<OFFSET> offset = getOffset(offsets.poll());
+
+        if (offset.isPresent()) {
+          offsetToSave = offset;
+        }
       }
       else {
         break;
       }
     }
 
-    offset.ifPresent(offsetStore::save);
+    offsetToSave.ifPresent(offsetStore::save);
   }
 
-  protected OFFSET getOffset(CompletableFuture<OFFSET> offset) {
+  protected Optional<OFFSET> getOffset(CompletableFuture<Optional<OFFSET>> offset) {
     return CompletableFutureUtil.get(offset);
   }
 
-  protected boolean isDone(CompletableFuture<OFFSET> offset) {
+  protected boolean isDone(CompletableFuture<Optional<OFFSET>> offset) {
     return offset != null && offset.isDone();
   }
 
