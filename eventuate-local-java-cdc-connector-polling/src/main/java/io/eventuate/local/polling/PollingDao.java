@@ -221,7 +221,7 @@ public class PollingDao extends BinlogEntryReader {
   }
 
   private String queryPrimaryKey(BinlogEntryHandler handler) throws SQLException {
-    String pk;
+    String pk = null;
     Connection connection = null;
     try {
       connection = dataSource.getConnection();
@@ -232,14 +232,21 @@ public class PollingDao extends BinlogEntryReader {
                       schemaAndTable.getSchema(),
                       schemaAndTable.getTableName());
 
-      if (resultSet.next()) {
+      Set<String> pks = new HashSet<>();
+
+      while (resultSet.next()) {
         pk = resultSet.getString("COLUMN_NAME");
-        if (resultSet.next()) {
-          throw new RuntimeException(String.format("Table %s has more than one primary key", schemaAndTable));
-        }
-      } else {
-        throw new RuntimeException(String.format("Cannot get table %s: result set is empty", schemaAndTable));
+        pks.add(pk);
       }
+
+      if (pks.size() == 0) {
+        throw new RuntimeException(String.format("Cannot get primary key for table %s: result set is empty", schemaAndTable));
+      }
+
+      if (pks.size() > 1) {
+        throw new RuntimeException(String.format("Table %s has more than one primary key", schemaAndTable));
+      }
+
     } finally {
       try {
         if (connection != null) {

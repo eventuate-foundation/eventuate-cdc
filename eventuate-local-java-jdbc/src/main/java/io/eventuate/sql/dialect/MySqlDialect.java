@@ -5,7 +5,7 @@ import org.springframework.core.Ordered;
 public class MySqlDialect extends DefaultEventuateSqlDialect implements Ordered {
   @Override
   public boolean supports(String driver) {
-    return "com.mysql.jdbc.Driver".equals(driver);
+    return "com.mysql.cj.jdbc.Driver".equals(driver);
   }
 
   @Override

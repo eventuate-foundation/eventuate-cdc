@@ -18,7 +18,7 @@ dependencies {
     compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-producer:$eventuateMessagingKafkaVersion"
     compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-basic-consumer:$eventuateMessagingKafkaVersion"
     compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-consumer:$eventuateMessagingKafkaVersion"
-    compile 'mysql:mysql-connector-java:5.1.39'
+    compile 'mysql:mysql-connector-java:8.0.21'
     compile ('org.postgresql:postgresql:42.1.4') {
         exclude group: "org.slf4j", module: "slf4j-simple"
     }
