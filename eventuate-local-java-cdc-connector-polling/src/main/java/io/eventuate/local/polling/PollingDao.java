@@ -7,6 +7,7 @@ import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.jdbc.EventuateJdbcStatementExecutor;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.sqldialect.EventuateSqlDialect;
+import io.eventuate.common.jdbc.sqldialect.MySqlDialect;
 import io.eventuate.local.common.*;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -220,33 +221,32 @@ public class PollingDao extends BinlogEntryReader {
     return pk;
   }
 
+
   private String queryPrimaryKey(BinlogEntryHandler handler) throws SQLException {
-    String pk = null;
+    String pk;
     Connection connection = null;
     try {
       connection = dataSource.getConnection();
+
+
       SchemaAndTable schemaAndTable = handler.getSchemaAndTable();
+
+      String catalogue = (eventuateSqlDialect instanceof MySqlDialect) ? JdbcUrlParser.parse(dataSourceUrl).getDatabase() : null;
+
       ResultSet resultSet = connection
               .getMetaData()
-              .getPrimaryKeys(null,
+              .getPrimaryKeys(catalogue,
                       schemaAndTable.getSchema(),
                       schemaAndTable.getTableName());
 
-      Set<String> pks = new HashSet<>();
-
-      while (resultSet.next()) {
+      if (resultSet.next()) {
         pk = resultSet.getString("COLUMN_NAME");
-        pks.add(pk);
+        if (resultSet.next()) {
+          throw new RuntimeException(String.format("Table %s has more than one primary key", schemaAndTable));
+        }
+      } else {
+        throw new RuntimeException(String.format("Cannot get primary key of table %s: result set is empty", schemaAndTable));
       }
-
-      if (pks.size() == 0) {
-        throw new RuntimeException(String.format("Cannot get primary key for table %s: result set is empty", schemaAndTable));
-      }
-
-      if (pks.size() > 1) {
-        throw new RuntimeException(String.format("Table %s has more than one primary key", schemaAndTable));
-      }
-
     } finally {
       try {
         if (connection != null) {
