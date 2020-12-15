@@ -42,6 +42,9 @@ workflows:
           name: build-and-test-mysql
           script: ./scripts/build-and-test-mysql.sh
       - build-and-test/build-and-test:
+          name: build-and-test-mysql8
+          script: ./scripts/build-and-test-mysql8.sh
+      - build-and-test/build-and-test:
           name: build-and-test-mysql-migration
           script: ./scripts/build-and-test-mysql-migration.sh
       - build-and-test/build-and-test:
@@ -63,6 +66,9 @@ workflows:
           name: build-and-test-all-eventuate-local-cdc-mysql-binlog
           script: ./scripts/build-and-test-all-eventuate-local-cdc-mysql-binlog.sh
       - build-and-test/build-and-test:
+          name: build-and-test-all-eventuate-local-cdc-mysql8-binlog
+          script: ./scripts/build-and-test-all-eventuate-local-cdc-mysql8-binlog.sh
+      - build-and-test/build-and-test:
           name: build-and-test-all-eventuate-local-cdc-mariadb-binlog
           script: ./scripts/build-and-test-all-eventuate-local-cdc-mariadb-binlog.sh
       - build-and-test/build-and-test:
@@ -74,6 +80,9 @@ workflows:
       - build-and-test/build-and-test:
           name: build-and-test-all-tram-cdc-mysql-binlog
           script: ./scripts/build-and-test-all-tram-cdc-mysql-binlog.sh
+      - build-and-test/build-and-test:
+          name: build-and-test-all-tram-cdc-mysql8-binlog
+          script: ./scripts/build-and-test-all-tram-cdc-mysql8-binlog.sh
       - build-and-test/build-and-test:
           name: build-and-test-all-tram-cdc-postgres-polling
           script: ./scripts/build-and-test-all-tram-cdc-postgres-polling.sh
@@ -87,6 +96,7 @@ workflows:
           name: build-and-test-all-cdc-unified
           requires:
             - build-and-test-mysql
+            - build-and-test-mysql8
             - build-and-test-mysql-migration
             - build-and-test-mariadb
             - build-and-test-postgres-wal
@@ -94,10 +104,12 @@ workflows:
             - build-and-test-postgres-polling
             - build-and-test-all-database-id-jsonschema
             - build-and-test-all-eventuate-local-cdc-mysql-binlog
+            - build-and-test-all-eventuate-local-cdc-mysql8-binlog
             - build-and-test-all-eventuate-local-cdc-mariadb-binlog
             - build-and-test-all-eventuate-local-cdc-postgres-polling
             - build-and-test-all-eventuate-local-cdc-postgres-wal
             - build-and-test-all-tram-cdc-mysql-binlog
+            - build-and-test-all-tram-cdc-mysql8-binlog
             - build-and-test-all-tram-cdc-postgres-polling
             - build-and-test-all-tram-cdc-postgres-wal
             - build-and-test-all-tram-cdc-mssql-polling

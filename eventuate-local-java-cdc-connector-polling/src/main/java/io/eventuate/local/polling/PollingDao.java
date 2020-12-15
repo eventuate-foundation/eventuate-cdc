@@ -6,8 +6,8 @@ import io.eventuate.common.eventuate.local.BinLogEvent;
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.jdbc.EventuateJdbcStatementExecutor;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.SchemaAndTable;
 import io.eventuate.common.jdbc.sqldialect.EventuateSqlDialect;
-import io.eventuate.common.jdbc.sqldialect.MySqlDialect;
 import io.eventuate.local.common.*;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,9 +15,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -212,50 +209,11 @@ public class PollingDao extends BinlogEntryReader {
 
     String pk = DaoUtils.handleConnectionLost(maxAttemptsForPolling,
             pollingRetryIntervalInMilliseconds,
-            () -> queryPrimaryKey(handler),
+            () -> eventuateSqlDialect.getPrimaryKeyColumn(dataSource, dataSourceUrl, schemaAndTable),
             this::onInterrupted,
             running);
 
     pkFields.put(schemaAndTable, pk);
-
-    return pk;
-  }
-
-
-  private String queryPrimaryKey(BinlogEntryHandler handler) throws SQLException {
-    String pk;
-    Connection connection = null;
-    try {
-      connection = dataSource.getConnection();
-
-
-      SchemaAndTable schemaAndTable = handler.getSchemaAndTable();
-
-      String catalogue = (eventuateSqlDialect instanceof MySqlDialect) ? JdbcUrlParser.parse(dataSourceUrl).getDatabase() : null;
-
-      ResultSet resultSet = connection
-              .getMetaData()
-              .getPrimaryKeys(catalogue,
-                      schemaAndTable.getSchema(),
-                      schemaAndTable.getTableName());
-
-      if (resultSet.next()) {
-        pk = resultSet.getString("COLUMN_NAME");
-        if (resultSet.next()) {
-          throw new RuntimeException(String.format("Table %s has more than one primary key", schemaAndTable));
-        }
-      } else {
-        throw new RuntimeException(String.format("Cannot get primary key of table %s: result set is empty", schemaAndTable));
-      }
-    } finally {
-      try {
-        if (connection != null) {
-          connection.close();
-        }
-      } catch (SQLException e) {
-        logger.warn(e.getMessage(), e);
-      }
-    }
 
     return pk;
   }

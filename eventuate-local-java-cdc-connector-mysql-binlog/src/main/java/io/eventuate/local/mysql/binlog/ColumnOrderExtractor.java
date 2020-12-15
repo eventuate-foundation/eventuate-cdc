@@ -1,6 +1,6 @@
 package io.eventuate.local.mysql.binlog;
 
-import io.eventuate.local.common.SchemaAndTable;
+import io.eventuate.common.jdbc.SchemaAndTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
