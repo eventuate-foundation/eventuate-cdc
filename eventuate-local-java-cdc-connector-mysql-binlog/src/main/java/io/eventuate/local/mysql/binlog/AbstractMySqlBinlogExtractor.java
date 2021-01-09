@@ -2,7 +2,7 @@ package io.eventuate.local.mysql.binlog;
 
 import com.github.shyiko.mysql.binlog.event.UpdateRowsEventData;
 import com.github.shyiko.mysql.binlog.event.WriteRowsEventData;
-import io.eventuate.local.common.SchemaAndTable;
+import io.eventuate.common.jdbc.SchemaAndTable;
 
 import javax.sql.DataSource;
 import java.io.Serializable;

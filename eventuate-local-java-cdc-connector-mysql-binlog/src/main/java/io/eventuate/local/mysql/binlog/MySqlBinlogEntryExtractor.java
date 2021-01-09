@@ -3,8 +3,8 @@ package io.eventuate.local.mysql.binlog;
 import com.github.shyiko.mysql.binlog.event.WriteRowsEventData;
 import com.github.shyiko.mysql.binlog.event.deserialization.json.JsonBinary;
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
+import io.eventuate.common.jdbc.SchemaAndTable;
 import io.eventuate.local.common.BinlogEntry;
-import io.eventuate.local.common.SchemaAndTable;
 
 import javax.sql.DataSource;
 import java.io.IOException;

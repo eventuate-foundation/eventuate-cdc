@@ -35,7 +35,7 @@ public class MySqlCdcProcessingStatusService implements CdcProcessingStatusServi
 
   private DataSource createDataSource(String dbUrl, String dbUser, String dbPassword) {
     DriverManagerDataSource dataSource = new DriverManagerDataSource();
-    dataSource.setDriverClassName(com.mysql.jdbc.Driver.class.getName());
+    dataSource.setDriverClassName(com.mysql.cj.jdbc.Driver.class.getName());
     dataSource.setUrl(dbUrl);
     dataSource.setUsername(dbUser);
     dataSource.setPassword(dbPassword);

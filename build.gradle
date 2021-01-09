@@ -51,6 +51,10 @@ if (!project.ext.has("database")) {
     project.ext.set("database", System.env.DATABASE == null || System.env.DATABASE == "" ? "mysql" : "$System.env.DATABASE")
 }
 
+if (!project.ext.has("databaseVersion")) {
+    project.ext.set("databaseVersion", System.env.DATABASE_VERSION == null ? "" : "$System.env.DATABASE_VERSION")
+}
+
 if (!project.ext.has("mode")) {
     project.ext.set("mode", System.env.MODE == null || System.env.MODE == "" ? "binlog" : "$System.env.MODE")
 }
@@ -59,7 +63,7 @@ if (mode == "unified") {
     project.ext.set("databaseDockerFile", "docker-compose-unified.yml")
     project.ext.set("databaseDockerCdcFile", "docker-compose-cdc-unified.yml")
 } else {
-    project.ext.set("databaseDockerFile", "docker-compose-${database}.yml")
+    project.ext.set("databaseDockerFile", "docker-compose-${database}${databaseVersion}.yml")
     project.ext.set("databaseDockerCdcFile", "docker-compose-cdc-${database}-${mode}.yml")
 }
 
@@ -78,11 +82,25 @@ dockerCompose {
         removeContainers = project.ext.removeContainers
     }
 
+    mysql8 {
+        projectName = null
+        useComposeFiles = ["docker-compose-mysql8.yml"]
+        removeContainers = project.ext.removeContainers
+    }
+
     mysqlonly {
         projectName = null
         useComposeFiles = ["docker-compose-mysql.yml"]
         removeContainers = project.ext.removeContainers
         startedServices = ["mysql"]
+        removeOrphans = false
+    }
+
+    mysql8only {
+        projectName = null
+        useComposeFiles = ["docker-compose-mysql8.yml"]
+        removeContainers = project.ext.removeContainers
+        startedServices = ["mysql8"]
         removeOrphans = false
     }
 

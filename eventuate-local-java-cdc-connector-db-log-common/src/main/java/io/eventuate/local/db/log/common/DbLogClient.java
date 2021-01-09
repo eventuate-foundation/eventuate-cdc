@@ -2,6 +2,8 @@ package io.eventuate.local.db.log.common;
 
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.JdbcUrl;
+import io.eventuate.common.jdbc.JdbcUrlParser;
 import io.eventuate.local.common.*;
 import io.micrometer.core.instrument.MeterRegistry;
 

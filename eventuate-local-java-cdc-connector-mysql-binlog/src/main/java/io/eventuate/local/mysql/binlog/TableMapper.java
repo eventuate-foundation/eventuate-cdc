@@ -1,7 +1,7 @@
 package io.eventuate.local.mysql.binlog;
 
 import com.github.shyiko.mysql.binlog.event.TableMapEventData;
-import io.eventuate.local.common.SchemaAndTable;
+import io.eventuate.common.jdbc.SchemaAndTable;
 
 import java.util.Arrays;
 import java.util.Collections;

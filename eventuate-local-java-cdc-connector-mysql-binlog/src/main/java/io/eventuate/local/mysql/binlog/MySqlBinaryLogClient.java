@@ -8,6 +8,7 @@ import com.github.shyiko.mysql.binlog.event.deserialization.NullEventDataDeseria
 import com.google.common.collect.ImmutableSet;
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.SchemaAndTable;
 import io.eventuate.local.common.*;
 import io.eventuate.local.db.log.common.DbLogClient;
 import io.eventuate.local.db.log.common.OffsetKafkaStore;

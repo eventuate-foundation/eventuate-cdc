@@ -1,8 +1,8 @@
 package io.eventuate.local.common;
 
 import io.eventuate.common.eventuate.local.BinLogEvent;
+import io.eventuate.common.jdbc.SchemaAndTable;
 
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
