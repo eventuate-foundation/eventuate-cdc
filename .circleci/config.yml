@@ -65,33 +65,53 @@ workflows:
       - build-and-test/build-and-test:
           name: build-and-test-all-eventuate-local-cdc-mysql-binlog
           script: ./scripts/build-and-test-all-eventuate-local-cdc-mysql-binlog.sh
+          requires:
+            - build-and-test-mysql
       - build-and-test/build-and-test:
           name: build-and-test-all-eventuate-local-cdc-mysql8-binlog
           script: ./scripts/build-and-test-all-eventuate-local-cdc-mysql8-binlog.sh
+          requires:
+            - build-and-test-mysql8
       - build-and-test/build-and-test:
           name: build-and-test-all-eventuate-local-cdc-mariadb-binlog
           script: ./scripts/build-and-test-all-eventuate-local-cdc-mariadb-binlog.sh
+          requires:
+            - build-and-test-mariadb
       - build-and-test/build-and-test:
           name: build-and-test-all-eventuate-local-cdc-postgres-polling
           script: ./scripts/build-and-test-all-eventuate-local-cdc-postgres-polling.sh
+          requires:
+            - build-and-test-postgres-polling
       - build-and-test/build-and-test:
           name: build-and-test-all-eventuate-local-cdc-postgres-wal
           script: ./scripts/build-and-test-all-eventuate-local-cdc-postgres-wal.sh
+          requires:
+            - build-and-test-postgres-wal
       - build-and-test/build-and-test:
           name: build-and-test-all-tram-cdc-mysql-binlog
           script: ./scripts/build-and-test-all-tram-cdc-mysql-binlog.sh
+          requires:
+            - build-and-test-mysql
       - build-and-test/build-and-test:
           name: build-and-test-all-tram-cdc-mysql8-binlog
           script: ./scripts/build-and-test-all-tram-cdc-mysql8-binlog.sh
+          requires:
+            - build-and-test-mysql8
       - build-and-test/build-and-test:
           name: build-and-test-all-tram-cdc-postgres-polling
           script: ./scripts/build-and-test-all-tram-cdc-postgres-polling.sh
+          requires:
+            - build-and-test-postgres-polling
       - build-and-test/build-and-test:
           name: build-and-test-all-tram-cdc-postgres-wal
           script: ./scripts/build-and-test-all-tram-cdc-postgres-wal.sh
+          requires:
+            - build-and-test-postgres-wal
       - build-and-test/build-and-test:
           name: build-and-test-all-tram-cdc-mssql-polling
           script: ./scripts/build-and-test-all-tram-cdc-mssql-polling.sh
+          requires:
+            - build-and-test-mssql-polling
       - build-and-test/build-and-test:
           name: build-and-test-all-cdc-unified
           requires:
