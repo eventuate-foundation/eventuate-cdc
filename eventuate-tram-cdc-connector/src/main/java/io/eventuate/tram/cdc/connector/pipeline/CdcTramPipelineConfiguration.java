@@ -1,6 +1,7 @@
 package io.eventuate.tram.cdc.connector.pipeline;
 
 import io.eventuate.local.common.ConnectionPoolConfigurationProperties;
+import io.eventuate.local.unified.cdc.pipeline.CdcMessageCleanerConfigurator;
 import io.eventuate.local.unified.cdc.pipeline.CdcPipelineConfigurator;
 import io.eventuate.local.unified.cdc.pipeline.common.configuration.CdcDataPublisherConfiguration;
 import io.eventuate.local.unified.cdc.pipeline.common.configuration.CdcDefaultPipelinePropertiesConfiguration;
@@ -34,5 +35,10 @@ public class CdcTramPipelineConfiguration {
   @Bean
   public CdcPipelineConfigurator cdcPipelineConfigurator() {
     return new CdcPipelineConfigurator();
+  }
+
+  @Bean
+  public CdcMessageCleanerConfigurator cdcMessageCleanerConfigurator() {
+    return new CdcMessageCleanerConfigurator();
   }
 }

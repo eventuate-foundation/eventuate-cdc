@@ -12,6 +12,7 @@ import io.eventuate.local.unified.cdc.pipeline.common.DefaultSourceTableNameReso
 import io.eventuate.local.unified.cdc.pipeline.common.PropertyReader;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.CdcPipelineFactory;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.CdcPipelineReaderFactory;
+import io.eventuate.local.unified.cdc.pipeline.common.factory.DataSourceFactory;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineProperties;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineReaderProperties;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.RawUnifiedCdcProperties;
@@ -23,6 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.sql.DataSource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -67,9 +69,6 @@ public class CdcPipelineConfigurator {
 
   @Autowired
   private LeaderSelectorFactory leaderSelectorFactory;
-
-  @Autowired
-  private ConnectionPoolConfigurationProperties connectionPoolConfigurationProperties;
 
   @PostConstruct
   public void initialize() {
@@ -174,7 +173,7 @@ public class CdcPipelineConfigurator {
             leaderSelectorFactory,
             binlogEntryReader);
 
-    binlogEntryReaderProvider.add(cdcDefaultPipelineReaderProperties.getReaderName(), binlogEntryReaderLeadership);
+    binlogEntryReaderProvider.add(cdcDefaultPipelineReaderProperties.getReaderName(), binlogEntryReaderLeadership, cdcDefaultPipelineReaderProperties);
   }
 
   private CdcPipeline<?> createCdcPipeline(CdcPipelineProperties properties) {
@@ -206,7 +205,7 @@ public class CdcPipelineConfigurator {
             leaderSelectorFactory,
             binlogEntryReader);
 
-    binlogEntryReaderProvider.add(name, binlogEntryReaderLeadership);
+    binlogEntryReaderProvider.add(name, binlogEntryReaderLeadership, cdcPipelineReaderProperties);
   }
 
   private CdcPipelineFactory<PublishedEvent> findCdcPipelineFactory(String type) {

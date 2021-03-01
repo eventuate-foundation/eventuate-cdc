@@ -78,6 +78,10 @@ public abstract class BinlogEntryReader {
     return binlogEntryHandler;
   }
 
+  public DataSource getDataSource() {
+    return dataSource;
+  }
+
   public void start() {
     commonCdcMetrics.setLeader(true);
   }
