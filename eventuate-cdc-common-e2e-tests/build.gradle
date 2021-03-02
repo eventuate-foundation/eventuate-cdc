@@ -10,5 +10,11 @@ dependencies {
 }
 
 test {
+    def testMessageCleaner = System.env['TEST_MESSAGE_CLEANER']
+
+    if (testMessageCleaner != 'true') {
+        exclude '**/MessageCleanerE2ETest**'
+    }
+
     forkEvery 1
 }

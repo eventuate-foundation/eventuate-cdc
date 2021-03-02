@@ -11,6 +11,13 @@ set -e
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:cleanTest :eventuate-tram-cdc-connector-kafka-e2e-tests:test
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:tramcdcComposeDown
 
+if [[ "${DATABASE}" == "mssql" ]]; then
+  export TEST_MESSAGE_CLEANER=true
+  ./gradlew cleanTest :eventuate-cdc-common-e2e-tests:test
+fi
+
+./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:tramcdcComposeDown
+
 if [[ "${DATABASE}" == "mysql" ]]; then
     if [ -z "$SPRING_PROFILES_ACTIVE" ] ; then
       export SPRING_PROFILES_ACTIVE=ActiveMQ

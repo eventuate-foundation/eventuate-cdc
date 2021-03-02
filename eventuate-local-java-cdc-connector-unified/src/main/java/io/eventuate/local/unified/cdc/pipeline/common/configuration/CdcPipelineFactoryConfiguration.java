@@ -1,7 +1,6 @@
 package io.eventuate.local.unified.cdc.pipeline.common.configuration;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
-import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.common.*;
 import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
@@ -15,13 +14,11 @@ import org.springframework.context.annotation.Import;
 public class CdcPipelineFactoryConfiguration {
   @Bean("eventuateLocalСdcPipelineFactory")
   public CdcPipelineFactory<PublishedEvent> defaultCdcPipelineFactory(BinlogEntryReaderProvider binlogEntryReaderProvider,
-                                                                      CdcDataPublisher<PublishedEvent> cdcDataPublisher,
-                                                                      SqlDialectSelector sqlDialectSelector) {
+                                                                      CdcDataPublisher<PublishedEvent> cdcDataPublisher) {
 
     return new CdcPipelineFactory<>("eventuate-local",
             binlogEntryReaderProvider,
             cdcDataPublisher,
-            new BinlogEntryToPublishedEventConverter(),
-            sqlDialectSelector);
+            new BinlogEntryToPublishedEventConverter());
   }
 }

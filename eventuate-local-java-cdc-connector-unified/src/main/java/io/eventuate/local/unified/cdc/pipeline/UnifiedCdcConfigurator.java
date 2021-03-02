@@ -28,7 +28,7 @@ import javax.sql.DataSource;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class CdcPipelineConfigurator {
+public class UnifiedCdcConfigurator {
   private Logger logger = LoggerFactory.getLogger(getClass());
 
   private PropertyReader propertyReader = new PropertyReader();
@@ -70,6 +70,12 @@ public class CdcPipelineConfigurator {
   @Autowired
   private LeaderSelectorFactory leaderSelectorFactory;
 
+  @Autowired
+  private CdcMessageCleanerConfigurator cdcMessageCleanerConfigurator;
+
+  private Map<String, CdcPipelineProperties> pipelineProperties = new HashMap<>();
+  private Map<String, CdcPipelineReaderProperties> pipelineReaderProperties = new HashMap<>();
+
   @PostConstruct
   public void initialize() {
     logger.info("Starting unified cdc pipelines");
@@ -80,6 +86,8 @@ public class CdcPipelineConfigurator {
       createStartSaveCdcDefaultPipelineReader(defaultCdcPipelineReaderProperties);
     }
 
+    cdcMessageCleanerConfigurator.startMessageCleaners(pipelineProperties, pipelineReaderProperties);
+
     if (dryRunOption) {
       dryRun();
     } else {
@@ -87,18 +95,22 @@ public class CdcPipelineConfigurator {
     }
   }
 
-
   @PreDestroy
   public void stop() {
     binlogEntryReaderProvider.stop();
 
     cdcPipelines.forEach(CdcPipeline::stop);
+
+    cdcMessageCleanerConfigurator.stopMessageCleaners();
   }
 
   private void start() {
-
     if (rawUnifiedCdcProperties.isPipelinePropertiesDeclared()) {
-      rawUnifiedCdcProperties.getPipeline().values().forEach(this::createStartSaveCdcPipeline);
+      rawUnifiedCdcProperties
+              .getPipeline()
+              .keySet()
+              .forEach(pipeline -> createStartSaveCdcPipeline(pipeline,
+                      rawUnifiedCdcProperties.getPipeline().get(pipeline)));
     } else {
       createStartSaveCdcDefaultPipeline(defaultCdcPipelineProperties);
     }
@@ -140,7 +152,7 @@ public class CdcPipelineConfigurator {
     System.exit(0);
   }
 
-  private void createStartSaveCdcPipeline(Map<String, Object> properties) {
+  private void createStartSaveCdcPipeline(String pipeline, Map<String, Object> properties) {
     propertyReader.checkForUnknownProperties(properties, CdcPipelineProperties.class);
 
     CdcPipelineProperties cdcPipelineProperties = propertyReader
@@ -151,6 +163,8 @@ public class CdcPipelineConfigurator {
     if (cdcPipelineProperties.getSourceTableName() == null) {
       cdcPipelineProperties.setSourceTableName(defaultSourceTableNameResolver.resolve(cdcPipelineProperties.getType()));
     }
+
+    pipelineProperties.put(pipeline, cdcPipelineProperties);
 
     CdcPipeline cdcPipeline = createCdcPipeline(cdcPipelineProperties);
     cdcPipeline.start();
@@ -198,6 +212,8 @@ public class CdcPipelineConfigurator {
             .convertMapToPropertyClass(properties, cdcPipelineReaderFactory.propertyClass());
     exactCdcPipelineReaderProperties.setReaderName(name);
     exactCdcPipelineReaderProperties.validate();
+
+    pipelineReaderProperties.put(name, exactCdcPipelineReaderProperties);
 
     BinlogEntryReader binlogEntryReader = ((CdcPipelineReaderFactory)cdcPipelineReaderFactory).create(exactCdcPipelineReaderProperties);
 

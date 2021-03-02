@@ -1,17 +1,18 @@
 package io.eventuate.local.unified.cdc.pipeline;
 
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.sqldialect.EventuateSqlDialect;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.local.common.ConnectionPoolConfigurationProperties;
 import io.eventuate.local.common.MessageCleaner;
 import io.eventuate.local.unified.cdc.pipeline.common.PropertyReader;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.DataSourceFactory;
+import io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineProperties;
+import io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineReaderProperties;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.MessageCleanerProperties;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.RawUnifiedCdcProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,49 +31,134 @@ public class CdcMessageCleanerConfigurator {
   @Autowired
   private SqlDialectSelector sqlDialectSelector;
 
+  @Autowired
+  private CdcPipelineProperties defaultCdcPipelineProperties;
+
+  @Autowired
+  private CdcPipelineReaderProperties defaultCdcPipelineReaderProperties;
+
   private List<MessageCleaner> messageCleaners = new ArrayList<>();
 
-  @PostConstruct
-  public void startMessageCleaners() {
-    rawUnifiedCdcProperties.getCleaner().forEach((cleaner, rawProperties) -> createMessageCleaner(rawProperties));
+  public void startMessageCleaners(Map<String, CdcPipelineProperties> cdcPipelineProperties,
+                                   Map<String, CdcPipelineReaderProperties> cdcPipelineReaderProperties) {
+    rawUnifiedCdcProperties.getCleaner().forEach((cleaner, rawProperties) -> {
+      propertyReader.checkForUnknownProperties(rawProperties, MessageCleanerProperties.class);
+
+      MessageCleanerProperties messageCleanerProperties =
+              propertyReader.convertMapToPropertyClass(rawProperties, MessageCleanerProperties.class);
+
+      messageCleanerProperties.validate();
+
+      createAndStartMessageCleaner(messageCleanerProperties,
+              createConnectionInfo(messageCleanerProperties, cdcPipelineProperties, cdcPipelineReaderProperties));
+    });
   }
 
-  @PreDestroy
   public void stopMessageCleaners() {
     messageCleaners.forEach(MessageCleaner::stop);
   }
 
-  private void createMessageCleaner(Map<String, Object> rawProperties) {
-    propertyReader.checkForUnknownProperties(rawProperties, MessageCleanerProperties.class);
+  private void createAndStartMessageCleaner(MessageCleanerProperties messageCleanerProperties, ConnectionInfo connectionInfo) {
 
-    MessageCleanerProperties messageCleanerProperties =
-            propertyReader.convertMapToPropertyClass(rawProperties, MessageCleanerProperties.class);
-
-    MessageCleaner messageCleaner = new MessageCleaner(sqlDialectSelector.getDialect(messageCleanerProperties.getDataSourceDriverClassName()),
-            createDataSource(messageCleanerProperties),
-            createEventuateSchema(messageCleanerProperties),
-            messageCleanerProperties.getPurgeMessagesEnabled(),
-            messageCleanerProperties.getPurgeMessagesMaxAgeInSeconds(),
-            messageCleanerProperties.getPurgeReceivedMessagesEnabled(),
-            messageCleanerProperties.getPurgeReceivedMessagesMaxAgeInSeconds(),
-            messageCleanerProperties.getPurgeIntervalInSeconds());
+    MessageCleaner messageCleaner = new MessageCleaner(connectionInfo.getEventuateSqlDialect(),
+            connectionInfo.getDataSource(),
+            connectionInfo.getEventuateSchema(),
+            messageCleanerProperties.getPurge());
 
     messageCleaner.start();
 
     messageCleaners.add(messageCleaner);
   }
 
-  private DataSource createDataSource(MessageCleanerProperties messageCleanerProperties) {
-    return DataSourceFactory.createDataSource(messageCleanerProperties.getDataSourceUrl(),
+  private ConnectionInfo createConnectionInfo(MessageCleanerProperties messageCleanerProperties,
+                                              Map<String, CdcPipelineProperties> cdcPipelineProperties,
+                                              Map<String, CdcPipelineReaderProperties> cdcPipelineReaderProperties) {
+    if (messageCleanerProperties.getPipeline() != null) {
+      if (messageCleanerProperties.getPipeline().equals("default")) {
+        return createDefaultPipelineCleanerConnectionInfo();
+      } else {
+        return createPipelineCleanerConnectionInfo(messageCleanerProperties, cdcPipelineProperties.get(messageCleanerProperties.getPipeline()), cdcPipelineReaderProperties);
+      }
+    } else {
+      return createCustomCleanerConnectionInfo(messageCleanerProperties);
+    }
+  }
+
+  private ConnectionInfo createDefaultPipelineCleanerConnectionInfo() {
+    DataSource dataSource = DataSourceFactory.createDataSource(defaultCdcPipelineReaderProperties.getDataSourceUrl(),
+            defaultCdcPipelineReaderProperties.getDataSourceDriverClassName(),
+            defaultCdcPipelineReaderProperties.getDataSourceUserName(),
+            defaultCdcPipelineReaderProperties.getDataSourcePassword(),
+            connectionPoolConfigurationProperties);
+
+    EventuateSchema eventuateSchema = createEventuateSchema(defaultCdcPipelineProperties.getEventuateDatabaseSchema());
+    EventuateSqlDialect sqlDialect = sqlDialectSelector.getDialect(defaultCdcPipelineReaderProperties.getDataSourceDriverClassName());
+
+    return new ConnectionInfo(dataSource, eventuateSchema, sqlDialect);
+  }
+
+  private ConnectionInfo createPipelineCleanerConnectionInfo(MessageCleanerProperties messageCleanerProperties,
+                                                             CdcPipelineProperties pipelineProperties,
+                                                             Map<String, CdcPipelineReaderProperties> cdcPipelineReaderProperties) {
+    if (pipelineProperties == null) {
+      throw new RuntimeException(String.format("Cannot start reader %s pipeline is not found.",
+              messageCleanerProperties.getPipeline()));
+    }
+
+    String reader = pipelineProperties.getReader();
+
+    CdcPipelineReaderProperties readerProperties = cdcPipelineReaderProperties.get(reader);
+
+    DataSource dataSource = DataSourceFactory.createDataSource(readerProperties.getDataSourceUrl(),
+            readerProperties.getDataSourceDriverClassName(),
+            readerProperties.getDataSourceUserName(),
+            readerProperties.getDataSourcePassword(),
+            connectionPoolConfigurationProperties);
+
+    EventuateSchema eventuateSchema = createEventuateSchema(pipelineProperties.getEventuateDatabaseSchema());
+    EventuateSqlDialect sqlDialect = sqlDialectSelector.getDialect(readerProperties.getDataSourceDriverClassName());
+
+    return new ConnectionInfo(dataSource, eventuateSchema, sqlDialect);
+  }
+
+  private ConnectionInfo createCustomCleanerConnectionInfo(MessageCleanerProperties messageCleanerProperties) {
+    DataSource dataSource = DataSourceFactory.createDataSource(messageCleanerProperties.getDataSourceUrl(),
             messageCleanerProperties.getDataSourceDriverClassName(),
             messageCleanerProperties.getDataSourceUserName(),
             messageCleanerProperties.getDataSourcePassword(),
             connectionPoolConfigurationProperties);
+
+    EventuateSchema eventuateSchema = createEventuateSchema(messageCleanerProperties.getEventuateSchema());
+    EventuateSqlDialect sqlDialect = sqlDialectSelector.getDialect(messageCleanerProperties.getDataSourceDriverClassName());
+
+    return new ConnectionInfo(dataSource, eventuateSchema, sqlDialect);
   }
 
-  private EventuateSchema createEventuateSchema(MessageCleanerProperties messageCleanerProperties) {
-    String schema = messageCleanerProperties.getEventuateSchema() == null ? EventuateSchema.EMPTY_SCHEMA : messageCleanerProperties.getEventuateSchema();
+  private EventuateSchema createEventuateSchema(String schema) {
+    return new EventuateSchema(schema == null ? EventuateSchema.DEFAULT_SCHEMA : schema);
+  }
+}
 
-    return new EventuateSchema(schema);
+class ConnectionInfo {
+  private DataSource dataSource;
+  private EventuateSchema eventuateSchema;
+  private EventuateSqlDialect eventuateSqlDialect;
+
+  public ConnectionInfo(DataSource dataSource, EventuateSchema eventuateSchema, EventuateSqlDialect eventuateSqlDialect) {
+    this.dataSource = dataSource;
+    this.eventuateSchema = eventuateSchema;
+    this.eventuateSqlDialect = eventuateSqlDialect;
+  }
+
+  public DataSource getDataSource() {
+    return dataSource;
+  }
+
+  public EventuateSchema getEventuateSchema() {
+    return eventuateSchema;
+  }
+
+  public EventuateSqlDialect getEventuateSqlDialect() {
+    return eventuateSqlDialect;
   }
 }

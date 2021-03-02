@@ -12,7 +12,16 @@ public class MessageCleanerPropertiesTest {
   private PropertyReader propertyReader = new PropertyReader();
 
   @Test
-  public void testFullProperties() {
+  public void testPropertiesWithPipeline() {
+    String properties = "[{\"pipeline\" : \"somePipeline\"}]";
+
+    MessageCleanerProperties messageCleanerProperties = convertProperties(properties);
+
+    Assert.assertEquals("somePipeline", messageCleanerProperties.getPipeline());
+  }
+
+  @Test
+  public void testPropertiesWithoutPipeline() {
 
     String properties = "[{" +
             "\"dataSourceUrl\" : \"someUrl\"," +
@@ -20,36 +29,27 @@ public class MessageCleanerPropertiesTest {
             "\"dataSourcePassword\" : \"somePassword\"," +
             "\"dataSourceDriverClassName\" : \"someClass\"," +
             "\"eventuateSchema\" : \"someSchema\"," +
-            "\"purgeMessagesEnabled\" : true," +
-            "\"purgeMessagesMaxAgeInSeconds\" : 1," +
-            "\"purgeReceivedMessagesEnabled\" : true," +
-            "\"purgeReceivedMessagesMaxAgeInSeconds\" : 2," +
-            "\"purgeIntervalInSeconds\" : 3" +
-            "}]";
+            "\"purge\" : {" +
+              "\"purgeMessagesEnabled\" : true," +
+              "\"purgeMessagesMaxAgeInSeconds\" : 1," +
+              "\"purgeReceivedMessagesEnabled\" : true," +
+              "\"purgeReceivedMessagesMaxAgeInSeconds\" : 2," +
+              "\"purgeIntervalInSeconds\" : 3" +
+            "}" +
+          "}]";
 
-
-
-    List<Map<String, Object>> propertyMaps = propertyReader.convertPropertiesToListOfMaps(properties);
-
-    Assert.assertEquals(1, propertyMaps.size());
-
-    Map<String, Object> props = propertyMaps.get(0);
-
-    propertyReader.checkForUnknownProperties(props, MessageCleanerProperties.class);
-
-    MessageCleanerProperties messageCleanerProperties = propertyReader
-            .convertMapToPropertyClass(props, MessageCleanerProperties.class);
+    MessageCleanerProperties messageCleanerProperties = convertProperties(properties);
 
     Assert.assertEquals("someUrl", messageCleanerProperties.getDataSourceUrl());
     Assert.assertEquals("someUserName", messageCleanerProperties.getDataSourceUserName());
     Assert.assertEquals("somePassword", messageCleanerProperties.getDataSourcePassword());
     Assert.assertEquals("someClass", messageCleanerProperties.getDataSourceDriverClassName());
     Assert.assertEquals("someSchema", messageCleanerProperties.getEventuateSchema());
-    Assert.assertEquals(true, messageCleanerProperties.getPurgeMessagesEnabled());
-    Assert.assertEquals(1, messageCleanerProperties.getPurgeMessagesMaxAgeInSeconds());
-    Assert.assertEquals(true, messageCleanerProperties.getPurgeReceivedMessagesEnabled());
-    Assert.assertEquals(2, messageCleanerProperties.getPurgeReceivedMessagesMaxAgeInSeconds());
-    Assert.assertEquals(3, messageCleanerProperties.getPurgeIntervalInSeconds());
+    Assert.assertEquals(true, messageCleanerProperties.getPurge().isPurgeMessagesEnabled());
+    Assert.assertEquals(1, messageCleanerProperties.getPurge().getPurgeMessagesMaxAgeInSeconds());
+    Assert.assertEquals(true, messageCleanerProperties.getPurge().isPurgeReceivedMessagesEnabled());
+    Assert.assertEquals(2, messageCleanerProperties.getPurge().getPurgeReceivedMessagesMaxAgeInSeconds());
+    Assert.assertEquals(3, messageCleanerProperties.getPurge().getPurgeIntervalInSeconds());
   }
 
   @Test
@@ -61,6 +61,20 @@ public class MessageCleanerPropertiesTest {
             "\"dataSourceDriverClassName\" : \"someClass\"" +
             "}]";
 
+    MessageCleanerProperties messageCleanerProperties = convertProperties(properties);
+
+    Assert.assertEquals("someUrl", messageCleanerProperties.getDataSourceUrl());
+    Assert.assertEquals("someUserName", messageCleanerProperties.getDataSourceUserName());
+    Assert.assertEquals("somePassword", messageCleanerProperties.getDataSourcePassword());
+    Assert.assertEquals("someClass", messageCleanerProperties.getDataSourceDriverClassName());
+    Assert.assertEquals(false, messageCleanerProperties.getPurge().isPurgeMessagesEnabled());
+    Assert.assertEquals(2*24*60*60, messageCleanerProperties.getPurge().getPurgeMessagesMaxAgeInSeconds());
+    Assert.assertEquals(false, messageCleanerProperties.getPurge().isPurgeReceivedMessagesEnabled());
+    Assert.assertEquals(2*24*60*60, messageCleanerProperties.getPurge().getPurgeReceivedMessagesMaxAgeInSeconds());
+    Assert.assertEquals(60, messageCleanerProperties.getPurge().getPurgeIntervalInSeconds());
+  }
+
+  private MessageCleanerProperties convertProperties(String properties) {
     List<Map<String, Object>> propertyMaps = propertyReader.convertPropertiesToListOfMaps(properties);
 
     Assert.assertEquals(1, propertyMaps.size());
@@ -72,14 +86,8 @@ public class MessageCleanerPropertiesTest {
     MessageCleanerProperties messageCleanerProperties = propertyReader
             .convertMapToPropertyClass(props, MessageCleanerProperties.class);
 
-    Assert.assertEquals("someUrl", messageCleanerProperties.getDataSourceUrl());
-    Assert.assertEquals("someUserName", messageCleanerProperties.getDataSourceUserName());
-    Assert.assertEquals("somePassword", messageCleanerProperties.getDataSourcePassword());
-    Assert.assertEquals("someClass", messageCleanerProperties.getDataSourceDriverClassName());
-    Assert.assertEquals(false, messageCleanerProperties.getPurgeMessagesEnabled());
-    Assert.assertEquals(2*24*60*60, messageCleanerProperties.getPurgeMessagesMaxAgeInSeconds());
-    Assert.assertEquals(false, messageCleanerProperties.getPurgeReceivedMessagesEnabled());
-    Assert.assertEquals(2*24*60*60, messageCleanerProperties.getPurgeReceivedMessagesMaxAgeInSeconds());
-    Assert.assertEquals(60, messageCleanerProperties.getPurgeIntervalInSeconds());
+    messageCleanerProperties.validate();
+
+    return messageCleanerProperties;
   }
 }

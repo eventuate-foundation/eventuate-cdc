@@ -1,7 +1,6 @@
 package io.eventuate.tram.cdc.connector.pipeline;
 
 import io.eventuate.cdc.producer.wrappers.DataProducerFactory;
-import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.common.PublishingFilter;
 import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
@@ -21,8 +20,7 @@ public class DefaultTramCdcPipelineFactoryConfiguration {
   public CdcPipelineFactory defaultCdcPipelineFactory(DataProducerFactory dataProducerFactory,
                                                       PublishingFilter publishingFilter,
                                                       BinlogEntryReaderProvider binlogEntryReaderProvider,
-                                                      MeterRegistry meterRegistry,
-                                                      SqlDialectSelector sqlDialectSelector) {
+                                                      MeterRegistry meterRegistry) {
 
     return new CdcPipelineFactory<>("eventuate-tram",
             binlogEntryReaderProvider,
@@ -30,7 +28,6 @@ public class DefaultTramCdcPipelineFactoryConfiguration {
                     publishingFilter,
                     new MessageWithDestinationPublishingStrategy(),
                     meterRegistry),
-            new BinlogEntryToMessageConverter(),
-            sqlDialectSelector);
+            new BinlogEntryToMessageConverter());
   }
 }
