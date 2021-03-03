@@ -61,10 +61,6 @@ public class MessageCleaner {
   private void cleanMessages() {
     String table = eventuateSchema.qualifyTable("message");
 
-//TODO: use this query when wip-db-id-gen merged to master, it has change that makes all cdc types mark processed messages as published
-//    String sql = String.format("delete from %s where %s - creation_time > ? and published = 1",
-//            table, eventuateSqlDialect.getCurrentTimeInMillisecondsExpression());
-
     String sql = String.format("delete from %s where %s - creation_time > ?",
             table, eventuateSqlDialect.getCurrentTimeInMillisecondsExpression());
 

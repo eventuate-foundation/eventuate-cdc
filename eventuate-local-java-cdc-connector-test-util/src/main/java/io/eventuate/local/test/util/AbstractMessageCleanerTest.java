@@ -63,14 +63,10 @@ public class AbstractMessageCleanerTest {
   }
 
   @Test
-  public void testThatOnlyOldPublishedMessagesPurgedAndPurgeIsPeriodic() {
-//TODO: use this check when wip-db-id-gen merged to master, it has change that makes all cdc types mark processed messages as published
-//    String notPublishedMessageId = insertMessages(false, System.currentTimeMillis() - 4000);
+  public void testThatOnlyOldMessagesPurgedAndPurgeIsPeriodic() {
     String oldMessageId = insertMessages(true, System.currentTimeMillis() - 4000);
     String messageId = insertMessages(true, System.currentTimeMillis());
 
-//    assertTrue(messageExists(notPublishedMessageId));
-//    assertTrue(receivedMessageExists(notPublishedMessageId));
     assertTrue(messageExists(oldMessageId));
     assertTrue(receivedMessageExists(oldMessageId));
     assertTrue(messageExists(messageId));
@@ -79,8 +75,6 @@ public class AbstractMessageCleanerTest {
     createAndStartMessageCleaner(3);
 
     Eventually.eventually(() -> {
-//      assertTrue(messageExists(notPublishedMessageId));
-//      assertFalse(receivedMessageExists(notPublishedMessageId));
 
       assertFalse(messageExists(oldMessageId));
       assertFalse(receivedMessageExists(oldMessageId));
@@ -90,8 +84,6 @@ public class AbstractMessageCleanerTest {
     });
 
     Eventually.eventually(() -> {
-//      assertTrue(messageExists(notPublishedMessageId));
-//      assertFalse(receivedMessageExists(notPublishedMessageId));
 
       assertFalse(messageExists(oldMessageId));
       assertFalse(receivedMessageExists(oldMessageId));
