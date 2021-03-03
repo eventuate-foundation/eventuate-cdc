@@ -74,10 +74,10 @@ public class CdcMessageCleanerConfigurator {
                                               Map<String, CdcPipelineProperties> cdcPipelineProperties,
                                               Map<String, CdcPipelineReaderProperties> cdcPipelineReaderProperties) {
     if (messageCleanerProperties.getPipeline() != null) {
-      if (messageCleanerProperties.getPipeline().equals("default")) {
+      if (messageCleanerProperties.getPipeline().toLowerCase().equals("default")) {
         return createDefaultPipelineCleanerConnectionInfo();
       } else {
-        return createPipelineCleanerConnectionInfo(messageCleanerProperties, cdcPipelineProperties.get(messageCleanerProperties.getPipeline()), cdcPipelineReaderProperties);
+        return createPipelineCleanerConnectionInfo(messageCleanerProperties, cdcPipelineProperties.get(messageCleanerProperties.getPipeline().toLowerCase()), cdcPipelineReaderProperties);
       }
     } else {
       return createCustomCleanerConnectionInfo(messageCleanerProperties);
@@ -101,12 +101,11 @@ public class CdcMessageCleanerConfigurator {
                                                              CdcPipelineProperties pipelineProperties,
                                                              Map<String, CdcPipelineReaderProperties> cdcPipelineReaderProperties) {
     if (pipelineProperties == null) {
-      throw new RuntimeException(String.format("Cannot start reader %s pipeline is not found.",
+      throw new RuntimeException(String.format("Cannot start cleaner pipeline %s is not found.",
               messageCleanerProperties.getPipeline()));
     }
 
-    String reader = pipelineProperties.getReader();
-
+    String reader = pipelineProperties.getReader().toLowerCase();
     CdcPipelineReaderProperties readerProperties = cdcPipelineReaderProperties.get(reader);
 
     DataSource dataSource = DataSourceFactory.createDataSource(readerProperties.getDataSourceUrl(),

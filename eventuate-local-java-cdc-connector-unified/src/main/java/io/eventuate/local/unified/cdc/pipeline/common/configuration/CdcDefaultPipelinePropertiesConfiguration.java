@@ -29,11 +29,6 @@ public class CdcDefaultPipelinePropertiesConfiguration {
             .ofNullable(eventuateConfigurationProperties.getSourceTableName())
             .orElse(sourceTableNameResolver.resolve("default")));
 
-    cdcPipelineProperties.setPurgeMessagesEnabled(eventuateConfigurationProperties.getPurgeMessagesEnabled());
-    cdcPipelineProperties.setPurgeMessagesMaxAgeInSeconds(eventuateConfigurationProperties.getPurgeMessagesMaxAgeInSeconds());
-    cdcPipelineProperties.setPurgeReceivedMessagesEnabled(eventuateConfigurationProperties.getPurgeReceivedMessagesEnabled());
-    cdcPipelineProperties.setPurgeReceivedMessagesMaxAgeInSeconds(eventuateConfigurationProperties.getPurgeReceivedMessagesMaxAgeInSeconds());
-
     return cdcPipelineProperties;
   }
 }

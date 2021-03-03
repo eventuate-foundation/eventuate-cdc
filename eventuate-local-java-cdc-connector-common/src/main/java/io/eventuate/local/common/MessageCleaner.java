@@ -12,7 +12,7 @@ public class MessageCleaner {
 
   private EventuateSqlDialect eventuateSqlDialect;
   private EventuateSchema eventuateSchema;
-  private MessageCleanerPurgeProperties messageCleanerPurgeProperties;
+  private MessagePurgeProperties messagePurgeProperties;
 
   private Timer timer;
   private JdbcTemplate jdbcTemplate;
@@ -20,17 +20,17 @@ public class MessageCleaner {
   public MessageCleaner(EventuateSqlDialect eventuateSqlDialect,
                         DataSource dataSource,
                         EventuateSchema eventuateSchema,
-                        MessageCleanerPurgeProperties messageCleanerPurgeProperties) {
+                        MessagePurgeProperties messagePurgeProperties) {
     this.eventuateSqlDialect = eventuateSqlDialect;
     this.eventuateSchema = eventuateSchema;
-    this.messageCleanerPurgeProperties = messageCleanerPurgeProperties;
+    this.messagePurgeProperties = messagePurgeProperties;
 
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
   public void start() {
-    if (messageCleanerPurgeProperties.isPurgeMessagesEnabled() ||
-            messageCleanerPurgeProperties.isPurgeReceivedMessagesEnabled()) {
+    if (messagePurgeProperties.isMessagesEnabled() ||
+            messagePurgeProperties.isReceivedMessagesEnabled()) {
       timer = new Timer();
 
       timer.scheduleAtFixedRate(new TimerTask() {
@@ -38,7 +38,7 @@ public class MessageCleaner {
         public void run() {
           cleanTables();
         }
-      }, 0, messageCleanerPurgeProperties.getPurgeIntervalInSeconds() * 1000);
+      }, 0, messagePurgeProperties.getIntervalInSeconds() * 1000);
     }
   }
 
@@ -49,11 +49,11 @@ public class MessageCleaner {
   }
 
   private void cleanTables() {
-    if (messageCleanerPurgeProperties.isPurgeMessagesEnabled()) {
+    if (messagePurgeProperties.isMessagesEnabled()) {
       cleanMessages();
     }
 
-    if (messageCleanerPurgeProperties.isPurgeReceivedMessagesEnabled()) {
+    if (messagePurgeProperties.isReceivedMessagesEnabled()) {
       cleanReceivedMessages();
     }
   }
@@ -61,10 +61,14 @@ public class MessageCleaner {
   private void cleanMessages() {
     String table = eventuateSchema.qualifyTable("message");
 
-    String sql = String.format("delete from %s where %s - creation_time > ? and published = 1",
+//TODO: use this query when wip-db-id-gen merged to master, it has change that makes all cdc types mark processed messages as published
+//    String sql = String.format("delete from %s where %s - creation_time > ? and published = 1",
+//            table, eventuateSqlDialect.getCurrentTimeInMillisecondsExpression());
+
+    String sql = String.format("delete from %s where %s - creation_time > ?",
             table, eventuateSqlDialect.getCurrentTimeInMillisecondsExpression());
 
-    jdbcTemplate.update(sql, messageCleanerPurgeProperties.getPurgeMessagesMaxAgeInSeconds() * 1000);
+    jdbcTemplate.update(sql, messagePurgeProperties.getMessagesMaxAgeInSeconds() * 1000);
   }
 
   private void cleanReceivedMessages() {
@@ -73,6 +77,6 @@ public class MessageCleaner {
     String sql = String.format("delete from %s where %s - creation_time > ?",
             table, eventuateSqlDialect.getCurrentTimeInMillisecondsExpression());
 
-    jdbcTemplate.update(sql, messageCleanerPurgeProperties.getPurgeReceivedMessagesMaxAgeInSeconds() * 1000);
+    jdbcTemplate.update(sql, messagePurgeProperties.getReceivedMessagesMaxAgeInSeconds() * 1000);
   }
 }

@@ -8,6 +8,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = AbstractMessageCleanerTest.Config.class)
-public class MysqlMessageCleanerTest extends AbstractMessageCleanerTest {
+public class MySqlMessageCleanerTest extends AbstractMessageCleanerTest {
 
 }

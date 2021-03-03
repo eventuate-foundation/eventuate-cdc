@@ -86,12 +86,11 @@ public class UnifiedCdcConfigurator {
       createStartSaveCdcDefaultPipelineReader(defaultCdcPipelineReaderProperties);
     }
 
-    cdcMessageCleanerConfigurator.startMessageCleaners(pipelineProperties, pipelineReaderProperties);
-
     if (dryRunOption) {
       dryRun();
     } else {
       start();
+      cdcMessageCleanerConfigurator.startMessageCleaners(pipelineProperties, pipelineReaderProperties);
     }
   }
 
@@ -164,7 +163,7 @@ public class UnifiedCdcConfigurator {
       cdcPipelineProperties.setSourceTableName(defaultSourceTableNameResolver.resolve(cdcPipelineProperties.getType()));
     }
 
-    pipelineProperties.put(pipeline, cdcPipelineProperties);
+    pipelineProperties.put(pipeline.toLowerCase(), cdcPipelineProperties);
 
     CdcPipeline cdcPipeline = createCdcPipeline(cdcPipelineProperties);
     cdcPipeline.start();
@@ -213,7 +212,7 @@ public class UnifiedCdcConfigurator {
     exactCdcPipelineReaderProperties.setReaderName(name);
     exactCdcPipelineReaderProperties.validate();
 
-    pipelineReaderProperties.put(name, exactCdcPipelineReaderProperties);
+    pipelineReaderProperties.put(name.toLowerCase(), exactCdcPipelineReaderProperties);
 
     BinlogEntryReader binlogEntryReader = ((CdcPipelineReaderFactory)cdcPipelineReaderFactory).create(exactCdcPipelineReaderProperties);
 

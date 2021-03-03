@@ -12,7 +12,7 @@ public abstract class AbstractTramCdcTest extends AbstractEventuateCdcTest {
   @Autowired
   private SqlDialectSelector sqlDialectSelector;
 
-  @Value("spring.datasource.driver.class.name")
+  @Value("${spring.datasource.driver.class.name}")
   private String driver;
 
   @Override
