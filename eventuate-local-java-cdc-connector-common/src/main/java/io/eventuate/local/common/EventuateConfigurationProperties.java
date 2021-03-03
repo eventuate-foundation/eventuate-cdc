@@ -81,18 +81,6 @@ public class EventuateConfigurationProperties {
   @Value("${eventuate.cdc.kafka.batch.processing.max.batch.size:#{1000000}}")
   private int maxBatchSize;
 
-  @Value("${purge.message.enabled:#{false}}")
-  private Boolean purgeMessagesEnabled;
-
-  @Value("${purge.message.max.age.in.seconds:#{T(java.util.concurrent.TimeUnit).DAYS.toSeconds(2)}}")
-  private int purgeMessagesMaxAgeInSeconds = (int)TimeUnit.DAYS.toSeconds(2);
-
-  @Value("${purge.received_messages.enabled:#{false}}")
-  private Boolean purgeReceivedMessagesEnabled;
-
-  @Value("${purge.received_messages.max.age.in.seconds:#{T(java.util.concurrent.TimeUnit).DAYS.toSeconds(2)}}")
-  private int purgeReceivedMessagesMaxAgeInSeconds;
-
   public String getDbUserName() {
     return dbUserName;
   }
@@ -211,21 +199,5 @@ public class EventuateConfigurationProperties {
 
   public int getMaxBatchSize() {
     return maxBatchSize;
-  }
-
-  public Boolean getPurgeMessagesEnabled() {
-    return purgeMessagesEnabled;
-  }
-
-  public int getPurgeMessagesMaxAgeInSeconds() {
-    return purgeMessagesMaxAgeInSeconds;
-  }
-
-  public Boolean getPurgeReceivedMessagesEnabled() {
-    return purgeReceivedMessagesEnabled;
-  }
-
-  public int getPurgeReceivedMessagesMaxAgeInSeconds() {
-    return purgeReceivedMessagesMaxAgeInSeconds;
   }
 }
