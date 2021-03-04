@@ -1,7 +1,8 @@
 package io.eventuate.tram.cdc.connector.pipeline;
 
 import io.eventuate.local.common.ConnectionPoolConfigurationProperties;
-import io.eventuate.local.unified.cdc.pipeline.CdcPipelineConfigurator;
+import io.eventuate.local.unified.cdc.pipeline.CdcMessageCleanerConfigurator;
+import io.eventuate.local.unified.cdc.pipeline.UnifiedCdcConfigurator;
 import io.eventuate.local.unified.cdc.pipeline.common.configuration.CdcDataPublisherConfiguration;
 import io.eventuate.local.unified.cdc.pipeline.common.configuration.CdcDefaultPipelinePropertiesConfiguration;
 import io.eventuate.local.unified.cdc.pipeline.common.configuration.CdcPipelineFactoryConfiguration;
@@ -32,7 +33,12 @@ import org.springframework.context.annotation.Import;
 @EnableConfigurationProperties({RawUnifiedCdcProperties.class, ConnectionPoolConfigurationProperties.class})
 public class CdcTramPipelineConfiguration {
   @Bean
-  public CdcPipelineConfigurator cdcPipelineConfigurator() {
-    return new CdcPipelineConfigurator();
+  public UnifiedCdcConfigurator unifiedCdcConfigurator() {
+    return new UnifiedCdcConfigurator();
+  }
+
+  @Bean
+  public CdcMessageCleanerConfigurator cdcMessageCleanerConfigurator() {
+    return new CdcMessageCleanerConfigurator();
   }
 }

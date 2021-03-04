@@ -10,7 +10,10 @@ set -e
 
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:cleanTest :eventuate-tram-cdc-connector-kafka-e2e-tests:test
 
-./scripts/wait-for-services.sh localhost readers/${READER}/finished "8099"
+if [[ "${DATABASE}" == "mssql" ]]; then
+  export TEST_MESSAGE_CLEANER=true
+  ./gradlew cleanTest :eventuate-cdc-common-e2e-tests:test
+fi
 
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:tramcdcComposeDown
 

@@ -2,6 +2,8 @@ package io.eventuate.local.common;
 
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.concurrent.TimeUnit;
+
 public class EventuateConfigurationProperties {
 
   @Value("${eventuatelocal.cdc.db.user.name:#{null}}")
