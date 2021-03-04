@@ -34,19 +34,10 @@ abstract public class CommonCdcPipelineReaderFactory<PROPERTIES extends CdcPipel
   public abstract READER create(PROPERTIES cdcPipelineReaderProperties);
 
   protected DataSource createDataSource(PROPERTIES properties) {
-    Properties config = new Properties();
-
-    config.setProperty("jdbcUrl", properties.getDataSourceUrl());
-    config.setProperty("driverClassName", properties.getDataSourceDriverClassName());
-    config.setProperty("username", properties.getDataSourceUserName());
-    config.setProperty("password", properties.getDataSourcePassword());
-    config.setProperty("initializationFailTimeout", String.valueOf(Long.MAX_VALUE));
-    config.setProperty("connectionTestQuery", "select 1");
-
-    connectionPoolConfigurationProperties.getProperties().forEach(config::setProperty);
-
-    HikariDataSource hikariDataSource = new HikariDataSource(new HikariConfig(config));
-
-    return hikariDataSource;
+    return DataSourceFactory.createDataSource(properties.getDataSourceUrl(),
+            properties.getDataSourceDriverClassName(),
+            properties.getDataSourceUserName(),
+            properties.getDataSourcePassword(),
+            connectionPoolConfigurationProperties);
   }
 }

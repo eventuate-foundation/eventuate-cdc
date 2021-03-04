@@ -7,6 +7,7 @@ set -e
 ./gradlew $GRADLE_OPTIONS $* :eventuate-cdc-service:clean :eventuate-cdc-service:assemble
 
 export MODE=unified
+export TEST_MESSAGE_CLEANER=true
 
 ./gradlew $GRADLE_OPTIONS :eventuate-local-java-cdc-connector-e2e-tests:eventuatelocalcdcComposeDown
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:tramcdcComposeDown
@@ -14,6 +15,7 @@ export MODE=unified
 function runE2ETests() {
   ./gradlew $GRADLE_OPTIONS :eventuate-local-java-cdc-connector-e2e-tests:cleanTest :eventuate-local-java-cdc-connector-e2e-tests:test
   ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:cleanTest :eventuate-tram-cdc-connector-kafka-e2e-tests:test
+  ./gradlew cleanTest :eventuate-cdc-common-e2e-tests:test
 }
 
 echo "TESTING KAFKA MYSQL BINLOG"

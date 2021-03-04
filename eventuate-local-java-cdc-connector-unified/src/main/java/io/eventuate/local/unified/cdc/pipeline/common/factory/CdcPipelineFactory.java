@@ -34,7 +34,9 @@ public class CdcPipelineFactory<EVENT extends BinLogEvent> {
             .get(cdcPipelineProperties.getReader())
             .getBinlogEntryReader();
 
-    binlogEntryReader.addBinlogEntryHandler(new EventuateSchema(cdcPipelineProperties.getEventuateDatabaseSchema()),
+    EventuateSchema eventuateSchema = new EventuateSchema(cdcPipelineProperties.getEventuateDatabaseSchema());
+
+    binlogEntryReader.addBinlogEntryHandler(eventuateSchema,
             cdcPipelineProperties.getSourceTableName(),
             binlogEntryToEventConverterFactory.apply(binlogEntryReader.getOutboxId()),
             cdcDataPublisher::sendMessage);
