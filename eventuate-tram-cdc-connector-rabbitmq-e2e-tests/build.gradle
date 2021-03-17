@@ -1,4 +1,3 @@
-apply plugin: PublicModulePlugin
 apply plugin: 'docker-compose'
 
 dependencies {

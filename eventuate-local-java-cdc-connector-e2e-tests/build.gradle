@@ -1,5 +1,4 @@
 apply plugin: DockerServicesPlugin
-apply plugin: PublicModulePlugin
 apply plugin: 'docker-compose'
 
 dependencies {

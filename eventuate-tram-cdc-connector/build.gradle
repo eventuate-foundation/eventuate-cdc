@@ -1,4 +1,3 @@
-apply plugin: PrivateModulePlugin
 
 dependencies {
     compile "io.eventuate.messaging.redis:eventuate-messaging-redis-spring-coordination-leadership:$eventuateMessagingRedisVersion"
