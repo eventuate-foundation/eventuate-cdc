@@ -136,6 +136,8 @@ workflows:
           script: ./scripts/build-and-test-all-cdc-unified.sh
       - build-and-test/build-and-test:
           name: deploy-artifacts
+          context:
+            - publish
           requires:
             - build-and-test-all-cdc-unified
           script: ./scripts/deploy-artifacts.sh
