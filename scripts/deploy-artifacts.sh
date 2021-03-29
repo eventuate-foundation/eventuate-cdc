@@ -2,5 +2,6 @@
 
 docker login -u ${DOCKER_USER_ID?} -p ${DOCKER_PASSWORD?}
 
-./gradlew  publishEventuateArtifacts
+./gradlew publishEventuateArtifacts
+./gradlew :eventuate-cdc-service:assemble
 ./gradlew publishEventuateDockerImages
