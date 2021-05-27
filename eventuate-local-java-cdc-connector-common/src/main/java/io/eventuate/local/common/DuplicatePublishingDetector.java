@@ -7,7 +7,6 @@ import io.eventuate.messaging.kafka.basic.consumer.*;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
@@ -58,13 +57,15 @@ public class DuplicatePublishingDetector implements PublishingFilter {
 
     KafkaMessageConsumer consumer = kafkaConsumerFactory.makeConsumer(null, consumerProperties);
 
+    logger.info("fetching maxOffsetFor {}", subscriberId);
+
     List<PartitionInfo> partitions = EventuateKafkaConsumer.verifyTopicExistsBeforeSubscribing(consumer, destinationTopic);
 
     List<TopicPartition> topicPartitionList = partitions.stream().map(p -> new TopicPartition(destinationTopic, p.partition())).collect(toList());
     consumer.assign(topicPartitionList);
     consumer.poll(Duration.ZERO);
 
-    logger.info("Seeking to end");
+    logger.info("Seeking to end: {}", topicPartitionList);
 
     try {
       consumer.seekToEnd(topicPartitionList);
@@ -72,43 +73,66 @@ public class DuplicatePublishingDetector implements PublishingFilter {
       logger.error("Error seeking " + destinationTopic, e);
       return Optional.empty();
     }
-    List<PartitionOffset> positions = topicPartitionList.stream()
+
+    List<ConsumerRecord<String, byte[]>> records = getLastRecords(consumer, topicPartitionList);
+    consumer.close();
+
+    return getMaxOffsetFromRecords(records);
+  }
+
+  public List<ConsumerRecord<String, byte[]>> getLastRecords(KafkaMessageConsumer consumer, List<TopicPartition> topicPartitionList) {
+
+    List<PartitionOffset> offsetsOfLastRecords = getOffsetsOfLastRecords(consumer, topicPartitionList);
+
+    offsetsOfLastRecords.forEach(po -> {
+      consumer.seek(new TopicPartition(topicPartitionList.get(0).topic(), po.partition), po.offset);
+    });
+
+    int expectedRecordCount = offsetsOfLastRecords.size();
+    return getLastRecords(consumer, topicPartitionList, expectedRecordCount);
+  }
+
+  private List<PartitionOffset> getOffsetsOfLastRecords(KafkaMessageConsumer consumer, List<TopicPartition> topicPartitionList) {
+    List<PartitionOffset> offsetsOfLastRecords = topicPartitionList.stream()
             .map(tp -> new PartitionOffset(tp.partition(), consumer.position(tp) - 1))
             .filter(po -> po.offset >= 0)
             .collect(toList());
 
-    logger.info("Seeking to positions=" + positions);
+    logger.info("Seeking to offsetsOfLastRecords={}, {}", topicPartitionList, offsetsOfLastRecords);
+    return offsetsOfLastRecords;
+  }
 
-    positions.forEach(po -> {
-      consumer.seek(new TopicPartition(destinationTopic, po.partition), po.offset);
-    });
-
-    logger.info("Polling for records");
+  private List<ConsumerRecord<String, byte[]>> getLastRecords(KafkaMessageConsumer consumer, List<TopicPartition> topicPartitionList, int expectedRecordCount) {
+    logger.info("Getting last records: {}", topicPartitionList);
 
     List<ConsumerRecord<String, byte[]>> records = new ArrayList<>();
-    while (records.size()<positions.size()) {
+    while (records.size() < expectedRecordCount) {
       ConsumerRecords<String, byte[]> consumerRecords = consumer.poll(Duration.of(1000, ChronoUnit.MILLIS));
       consumerRecords.forEach(records::add);
+
+      logger.info("Got some last records: {} {}", topicPartitionList, consumerRecords.count());
     }
 
-    logger.info("Got records: {}", records.size());
-    Optional<BinlogFileOffset> max =
-            records
-                    .stream()
-                    .flatMap(record -> {
-                      logger.info(String.format("got record: %s %s", record.partition(), record.offset()));
+    logger.info("Got all last records: {} {}", topicPartitionList, records.size());
 
-                      return eventuateKafkaMultiMessageConverter
-                              .convertBytesToValues(record.value())
-                              .stream()
-                              .map(value -> JSonMapper.fromJson(value, PublishedEvent.class).getBinlogFileOffset());
+    return records;
+  }
 
-                    })
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .max((blfo1, blfo2) -> blfo1.isSameOrAfter(blfo2) ? 1 : -1);
-    consumer.close();
-    return max;
+  private Optional<BinlogFileOffset> getMaxOffsetFromRecords(List<ConsumerRecord<String, byte[]>> records) {
+    return records
+            .stream()
+            .flatMap(record -> {
+              logger.info("Got record: {}, {}, {}", record.topic(), record.partition(), record.offset());
+
+              return eventuateKafkaMultiMessageConverter
+                      .convertBytesToValues(record.value())
+                      .stream()
+                      .map(value -> JSonMapper.fromJson(value, PublishedEvent.class).getBinlogFileOffset());
+
+            })
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .max((blfo1, blfo2) -> blfo1.isSameOrAfter(blfo2) ? 1 : -1);
   }
 
   class PartitionOffset {

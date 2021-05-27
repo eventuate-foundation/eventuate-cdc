@@ -89,7 +89,7 @@ public class DuplicatePublishingDetectorTest {
   }
 
   @Test
-  public void shouldHandlePublishCheckForOldEntires() {
+  public void shouldHandlePublishCheckForOldEntries() {
     String topicName = testHelper.generateUniqueTopicName();
     String binlogFilename = "binlog.file." + System.currentTimeMillis();
     DuplicatePublishingDetector duplicatePublishingDetector = new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(),
