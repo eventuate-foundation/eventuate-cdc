@@ -7,11 +7,14 @@ import io.eventuate.messaging.kafka.basic.consumer.*;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.Field;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -41,7 +44,7 @@ public class DuplicatePublishingDetector implements PublishingFilter {
     if (okToProcess)
       return true;
 
-    Optional<BinlogFileOffset> max = maxOffsetsForTopics.computeIfAbsent(destinationTopic, this::fetchMaxOffsetFor);
+    Optional<BinlogFileOffset> max = maxOffsetsForTopics.computeIfAbsent(destinationTopic, this::fetchMaxBinlogFileOffsetFor);
     logger.info("For topic {} max is {}", destinationTopic, max);
 
     okToProcess = max.map(sourceBinlogFileOffset::isSameOrAfter).orElse(true);
@@ -50,7 +53,7 @@ public class DuplicatePublishingDetector implements PublishingFilter {
     return okToProcess;
   }
 
-  private Optional<BinlogFileOffset> fetchMaxOffsetFor(String destinationTopic) {
+  private Optional<BinlogFileOffset> fetchMaxBinlogFileOffsetFor(String destinationTopic) {
     String subscriberId = "duplicate-checker-" + destinationTopic + "-" + System.currentTimeMillis();
     Properties consumerProperties = ConsumerPropertiesFactory.makeDefaultConsumerProperties(kafkaBootstrapServers, subscriberId);
     consumerProperties.putAll(eventuateKafkaConsumerConfigurationProperties.getProperties());
@@ -65,24 +68,17 @@ public class DuplicatePublishingDetector implements PublishingFilter {
     consumer.assign(topicPartitionList);
     consumer.poll(Duration.ZERO);
 
-    logger.info("Seeking to end: {}", topicPartitionList);
-
-    try {
-      consumer.seekToEnd(topicPartitionList);
-    } catch (IllegalStateException e) {
-      logger.error("Error seeking " + destinationTopic, e);
-      return Optional.empty();
-    }
-
     List<ConsumerRecord<String, byte[]>> records = getLastRecords(consumer, topicPartitionList);
     consumer.close();
 
-    return getMaxOffsetFromRecords(records);
+    return getMaxBinlogFileOffsetFromRecords(records);
   }
 
   public List<ConsumerRecord<String, byte[]>> getLastRecords(KafkaMessageConsumer consumer, List<TopicPartition> topicPartitionList) {
 
     List<PartitionOffset> offsetsOfLastRecords = getOffsetsOfLastRecords(consumer, topicPartitionList);
+
+    logger.info("Seeking to offsetsOfLastRecords={}, {}", topicPartitionList, offsetsOfLastRecords);
 
     offsetsOfLastRecords.forEach(po -> {
       consumer.seek(new TopicPartition(topicPartitionList.get(0).topic(), po.partition), po.offset);
@@ -93,13 +89,35 @@ public class DuplicatePublishingDetector implements PublishingFilter {
   }
 
   private List<PartitionOffset> getOffsetsOfLastRecords(KafkaMessageConsumer consumer, List<TopicPartition> topicPartitionList) {
-    List<PartitionOffset> offsetsOfLastRecords = topicPartitionList.stream()
-            .map(tp -> new PartitionOffset(tp.partition(), consumer.position(tp) - 1))
-            .filter(po -> po.offset >= 0)
-            .collect(toList());
 
-    logger.info("Seeking to offsetsOfLastRecords={}, {}", topicPartitionList, offsetsOfLastRecords);
-    return offsetsOfLastRecords;
+    Map<TopicPartition, Long> beginningOffsets;
+    Map<TopicPartition, Long> endOffsets;
+
+    try {
+      KafkaConsumer<String, byte[]> kc = getActualKafkaConsumerHack(consumer);
+      beginningOffsets = kc.beginningOffsets(topicPartitionList);
+      endOffsets = kc.endOffsets(topicPartitionList);
+      logger.info("for {} beginning {}, ending {}", topicPartitionList, beginningOffsets, endOffsets);
+    } catch (IllegalStateException e) {
+      throw new RuntimeException("Error getting offsets " + topicPartitionList, e);
+    }
+
+    // Ignore partitions where the beginning == end since that means they are empty
+
+    return endOffsets.entrySet().stream()
+            .filter( endOffset -> !isEmptyPartition(beginningOffsets.get(endOffset.getKey()), endOffset.getValue()))
+            .map(endOffset -> new PartitionOffset(endOffset.getKey().partition(), endOffset.getValue() - 1))
+            .collect(toList());
+  }
+
+  private boolean isEmptyPartition(Long beginningOffset, Long endOffset) {
+    return endOffset.equals(beginningOffset);
+  }
+
+  private KafkaConsumer<String, byte[]> getActualKafkaConsumerHack(KafkaMessageConsumer consumer) {
+    Field delegateField = ReflectionUtils.findField(consumer.getClass(), "delegate");
+    delegateField.setAccessible(true);
+    return (KafkaConsumer<String, byte[]>) ReflectionUtils.getField(delegateField, consumer);
   }
 
   private List<ConsumerRecord<String, byte[]>> getLastRecords(KafkaMessageConsumer consumer, List<TopicPartition> topicPartitionList, int expectedRecordCount) {
@@ -118,7 +136,7 @@ public class DuplicatePublishingDetector implements PublishingFilter {
     return records;
   }
 
-  private Optional<BinlogFileOffset> getMaxOffsetFromRecords(List<ConsumerRecord<String, byte[]>> records) {
+  private Optional<BinlogFileOffset> getMaxBinlogFileOffsetFromRecords(List<ConsumerRecord<String, byte[]>> records) {
     return records
             .stream()
             .flatMap(record -> {

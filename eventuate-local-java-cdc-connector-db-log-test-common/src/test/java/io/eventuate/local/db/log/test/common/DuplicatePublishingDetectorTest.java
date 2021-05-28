@@ -15,6 +15,7 @@ import io.eventuate.messaging.kafka.spring.common.EventuateKafkaPropertiesConfig
 import io.eventuate.messaging.kafka.spring.consumer.KafkaConsumerFactoryConfiguration;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,10 @@ import static org.junit.Assert.assertTrue;
 @SpringBootTest(classes = DuplicatePublishingDetectorTest.Config.class)
 @EnableAutoConfiguration
 public class DuplicatePublishingDetectorTest {
+
+  private String topicName;
+  private String binlogFilename;
+  private DuplicatePublishingDetector duplicatePublishingDetector;
 
   @Configuration
   @Import({EventuateKafkaPropertiesConfiguration.class,
@@ -63,23 +68,28 @@ public class DuplicatePublishingDetectorTest {
   @Autowired
   TestHelper testHelper;
 
+  @Before
+  public void setUp() {
+    topicName = testHelper.generateUniqueTopicName();
+    binlogFilename = "binlog.file." + System.currentTimeMillis();
+    duplicatePublishingDetector = makeDuplicatePublishingDetector();
+  }
+
   @Test
   public void emptyTopicTest() {
-    DuplicatePublishingDetector duplicatePublishingDetector = new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(),
-            EventuateKafkaConsumerConfigurationProperties.empty(), kafkaConsumerFactory);
 
     BinlogFileOffset bfo = testHelper.generateBinlogFileOffset();
 
-    assertTrue(duplicatePublishingDetector.shouldBePublished(bfo, testHelper.generateUniqueTopicName()));
+    assertTrue(duplicatePublishingDetector.shouldBePublished(bfo, topicName));
+  }
+
+  private DuplicatePublishingDetector makeDuplicatePublishingDetector() {
+    return new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(),
+            EventuateKafkaConsumerConfigurationProperties.empty(), kafkaConsumerFactory);
   }
 
   @Test
   public void shouldBePublishedTest() {
-    String topicName = testHelper.generateUniqueTopicName();
-    String binlogFilename = "binlog.file." + System.currentTimeMillis();
-    DuplicatePublishingDetector duplicatePublishingDetector = new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(),
-            EventuateKafkaConsumerConfigurationProperties.empty(), kafkaConsumerFactory);
-
     Producer<String, String> producer = testHelper.createProducer(eventuateKafkaConfigurationProperties.getBootstrapServers());
     floodTopic(producer, binlogFilename, topicName);
     producer.close();
@@ -88,12 +98,45 @@ public class DuplicatePublishingDetectorTest {
     assertTrue(duplicatePublishingDetector.shouldBePublished(new BinlogFileOffset(binlogFilename, 10L), topicName));
   }
 
+  /*
+
+  These tests are for manually testing with a topic that is empty because the retention time has passed
+  It seems too unpredictable to automate.
+
+  @Test
+  public void shouldHandleTopicWithExpiredMessages() throws ExecutionException, InterruptedException {
+    String subscriberId = "duplicate-checker-" + topicName + "-" + System.currentTimeMillis();
+    Properties consumerProperties = ConsumerPropertiesFactory.makeDefaultConsumerProperties(eventuateKafkaConfigurationProperties.getBootstrapServers(), subscriberId);
+    consumerProperties.putAll(EventuateKafkaConsumerConfigurationProperties.empty().getProperties());
+
+    AdminClient adminClient = AdminClient.create(consumerProperties);
+    NewTopic topic = new NewTopic(topicName, 3, (short)1).configs(Collections.singletonMap("retention.ms", "5"));
+    adminClient.createTopics(Collections.singleton(topic)).all().get();
+    System.out.println(topic);
+
+    Producer<String, String> producer = testHelper.createProducer(eventuateKafkaConfigurationProperties.getBootstrapServers());
+    floodTopic(producer, binlogFilename, topicName);
+    producer.close();
+
+    TimeUnit.SECONDS.sleep(60);
+
+    assertFalse(duplicatePublishingDetector.shouldBePublished(new BinlogFileOffset(binlogFilename, 1L), topicName));
+    assertTrue(duplicatePublishingDetector.shouldBePublished(new BinlogFileOffset(binlogFilename, 10L), topicName));
+  }
+
+  @Test
+  public void lookAtOldTopic() throws ExecutionException, InterruptedException {
+    String topicName = "test_topic_1622213180385";
+    String subscriberId = "duplicate-checker-" + topicName + "-" + System.currentTimeMillis();
+
+    assertTrue(duplicatePublishingDetector.shouldBePublished(new BinlogFileOffset(binlogFilename, 1L), topicName));
+    assertTrue(duplicatePublishingDetector.shouldBePublished(new BinlogFileOffset(binlogFilename, 10L), topicName));
+  }
+*/
+
   @Test
   public void shouldHandlePublishCheckForOldEntries() {
-    String topicName = testHelper.generateUniqueTopicName();
-    String binlogFilename = "binlog.file." + System.currentTimeMillis();
-    DuplicatePublishingDetector duplicatePublishingDetector = new DuplicatePublishingDetector(eventuateKafkaConfigurationProperties.getBootstrapServers(),
-            EventuateKafkaConsumerConfigurationProperties.empty(), kafkaConsumerFactory);
+    DuplicatePublishingDetector duplicatePublishingDetector = makeDuplicatePublishingDetector();
 
     Producer<String, String> producer = testHelper.createProducer(eventuateKafkaConfigurationProperties.getBootstrapServers());
     floodTopic(producer, binlogFilename, topicName);
