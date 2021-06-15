@@ -6,7 +6,9 @@ import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
+import io.eventuate.common.jdbc.EventuateJdbcOperationsUtils;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.sqldialect.EventuateSqlDialect;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.local.common.BinlogEntryReader;
 import io.eventuate.local.common.BinlogEntryToEventConverter;
@@ -60,8 +62,11 @@ public class TestHelper {
 
   @PostConstruct
   public void init() {
-    eventuateCommonJdbcOperations = new EventuateCommonJdbcOperations(new EventuateSpringJdbcStatementExecutor(jdbcTemplate),
-            sqlDialectSelector.getDialect(driver));
+    EventuateSqlDialect eventuateSqlDialect = sqlDialectSelector.getDialect(driver);
+
+    eventuateCommonJdbcOperations = new EventuateCommonJdbcOperations(new EventuateJdbcOperationsUtils(eventuateSqlDialect),
+            new EventuateSpringJdbcStatementExecutor(jdbcTemplate),
+            eventuateSqlDialect);
   }
 
   public String getEventTopicName() {

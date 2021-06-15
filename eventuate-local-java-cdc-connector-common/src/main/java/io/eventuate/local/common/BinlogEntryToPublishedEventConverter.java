@@ -2,9 +2,8 @@ package io.eventuate.local.common;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.id.IdGenerator;
-import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
+import io.eventuate.common.jdbc.EventuateJdbcOperationsUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.zookeeper.Op;
 
 import java.util.Optional;
 
@@ -26,7 +25,7 @@ public class BinlogEntryToPublishedEventConverter implements BinlogEntryToEventC
     String eventId = binlogEntry.getStringColumn("event_id");
 
     if (StringUtils.isEmpty(eventId)) {
-      Long dbId = binlogEntry.getLongColumn(EventuateCommonJdbcOperations.EVENT_AUTO_GENERATED_ID_COLUMN);
+      Long dbId = binlogEntry.getLongColumn(EventuateJdbcOperationsUtils.EVENT_AUTO_GENERATED_ID_COLUMN);
       eventId = idGenerator.genId(dbId).asString();
     }
 

@@ -1,7 +1,7 @@
 package io.eventuate.tram.cdc.connector;
 
 import io.eventuate.common.id.IdGenerator;
-import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
+import io.eventuate.common.jdbc.EventuateJdbcOperationsUtils;
 import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.local.common.BinlogEntry;
 import io.eventuate.local.common.BinlogEntryToEventConverter;
@@ -31,7 +31,7 @@ public class BinlogEntryToMessageConverter implements BinlogEntryToEventConverte
       headers = new HashMap<>(headers);
 
       String generatedId = idGenerator
-              .genId(binlogEntry.getLongColumn(EventuateCommonJdbcOperations.MESSAGE_AUTO_GENERATED_ID_COLUMN))
+              .genId(binlogEntry.getLongColumn(EventuateJdbcOperationsUtils.MESSAGE_AUTO_GENERATED_ID_COLUMN))
               .asString();
 
       headers.put("ID", generatedId);
