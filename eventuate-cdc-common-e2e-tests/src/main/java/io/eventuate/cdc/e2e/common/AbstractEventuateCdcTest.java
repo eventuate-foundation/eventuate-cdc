@@ -3,7 +3,9 @@ package io.eventuate.cdc.e2e.common;
 import io.eventuate.common.common.spring.jdbc.EventuateSpringJdbcStatementExecutor;
 import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
+import io.eventuate.common.jdbc.EventuateJdbcOperationsUtils;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.sqldialect.EventuateSqlDialect;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.util.test.async.Eventually;
@@ -42,8 +44,11 @@ public abstract class AbstractEventuateCdcTest {
 
   @Before
   public void init() {
-    eventuateCommonJdbcOperations = new EventuateCommonJdbcOperations(new EventuateSpringJdbcStatementExecutor(jdbcTemplate),
-            sqlDialectSelector.getDialect(driver));
+    EventuateSqlDialect eventuateSqlDialect = sqlDialectSelector.getDialect(driver);
+
+    eventuateCommonJdbcOperations = new EventuateCommonJdbcOperations(new EventuateJdbcOperationsUtils(eventuateSqlDialect),
+            new EventuateSpringJdbcStatementExecutor(jdbcTemplate),
+            eventuateSqlDialect);
   }
 
   @Test
