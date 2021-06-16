@@ -122,7 +122,6 @@ workflows:
             - build-and-test-postgres-wal
             - build-and-test-mssql-polling
             - build-and-test-postgres-polling
-            - build-and-test-all-database-id-jsonschema
             - build-and-test-all-eventuate-local-cdc-mysql-binlog
             - build-and-test-all-eventuate-local-cdc-mysql8-binlog
             - build-and-test-all-eventuate-local-cdc-mariadb-binlog
@@ -139,5 +138,6 @@ workflows:
           context:
             - publish
           requires:
+            - build-and-test-all-database-id-jsonschema
             - build-and-test-all-cdc-unified
           script: ./scripts/deploy-artifacts.sh
