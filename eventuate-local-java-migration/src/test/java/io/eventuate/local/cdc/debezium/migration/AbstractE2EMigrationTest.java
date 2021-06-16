@@ -1,6 +1,6 @@
 package io.eventuate.local.cdc.debezium.migration;
 
-import io.eventuate.common.common.spring.jdbc.EventuateSpringJdbcStatementExecutor;
+import io.eventuate.common.spring.jdbc.EventuateSpringJdbcStatementExecutor;
 import io.eventuate.common.id.ApplicationIdGenerator;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
 import io.eventuate.common.jdbc.EventuateJdbcOperationsUtils;

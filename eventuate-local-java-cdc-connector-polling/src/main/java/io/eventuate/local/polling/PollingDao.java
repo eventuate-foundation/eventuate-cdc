@@ -1,7 +1,7 @@
 package io.eventuate.local.polling;
 
 import com.google.common.collect.ImmutableMap;
-import io.eventuate.common.common.spring.jdbc.EventuateSpringJdbcStatementExecutor;
+import io.eventuate.common.spring.jdbc.EventuateSpringJdbcStatementExecutor;
 import io.eventuate.common.eventuate.local.BinLogEvent;
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.jdbc.EventuateJdbcStatementExecutor;
