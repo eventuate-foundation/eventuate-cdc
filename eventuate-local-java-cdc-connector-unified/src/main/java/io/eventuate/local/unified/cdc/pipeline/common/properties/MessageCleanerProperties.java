@@ -1,7 +1,7 @@
 package io.eventuate.local.unified.cdc.pipeline.common.properties;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.eventuate.local.common.MessagePurgeProperties;
+import io.eventuate.local.common.MessageCleaningProperties;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.springframework.util.Assert;
 
@@ -15,7 +15,7 @@ public class MessageCleanerProperties implements ValidatableProperties {
 
   private String pipeline;
 
-  private MessagePurgeProperties purge = new MessagePurgeProperties();
+  private MessageCleaningProperties clean = new MessageCleaningProperties();
 
   @Override
   public void validate() {
@@ -76,12 +76,12 @@ public class MessageCleanerProperties implements ValidatableProperties {
     this.eventuateSchema = eventuateSchema;
   }
 
-  public MessagePurgeProperties getPurge() {
-    return purge;
+  public MessageCleaningProperties getClean() {
+    return clean;
   }
 
-  public void setPurge(MessagePurgeProperties purge) {
-    this.purge = purge;
+  public void setClean(MessageCleaningProperties clean) {
+    this.clean = clean;
   }
 
   @Override

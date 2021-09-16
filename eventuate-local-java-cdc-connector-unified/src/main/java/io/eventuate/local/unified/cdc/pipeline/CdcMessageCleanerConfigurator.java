@@ -63,7 +63,7 @@ public class CdcMessageCleanerConfigurator {
     MessageCleaner messageCleaner = new MessageCleaner(connectionInfo.getEventuateSqlDialect(),
             connectionInfo.getDataSource(),
             connectionInfo.getEventuateSchema(),
-            messageCleanerProperties.getPurge());
+            messageCleanerProperties.getClean());
 
     messageCleaner.start();
 

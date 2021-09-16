@@ -29,7 +29,7 @@ public class MessageCleanerPropertiesTest {
             "\"dataSourcePassword\" : \"somePassword\"," +
             "\"dataSourceDriverClassName\" : \"someClass\"," +
             "\"eventuateSchema\" : \"someSchema\"," +
-            "\"purge\" : {" +
+            "\"clean\" : {" +
               "\"messagesEnabled\" : true," +
               "\"messagesMaxAgeInSeconds\" : 1," +
               "\"receivedMessagesEnabled\" : true," +
@@ -45,11 +45,11 @@ public class MessageCleanerPropertiesTest {
     Assert.assertEquals("somePassword", messageCleanerProperties.getDataSourcePassword());
     Assert.assertEquals("someClass", messageCleanerProperties.getDataSourceDriverClassName());
     Assert.assertEquals("someSchema", messageCleanerProperties.getEventuateSchema());
-    Assert.assertEquals(true, messageCleanerProperties.getPurge().isMessagesEnabled());
-    Assert.assertEquals(1, messageCleanerProperties.getPurge().getMessagesMaxAgeInSeconds());
-    Assert.assertEquals(true, messageCleanerProperties.getPurge().isReceivedMessagesEnabled());
-    Assert.assertEquals(2, messageCleanerProperties.getPurge().getReceivedMessagesMaxAgeInSeconds());
-    Assert.assertEquals(3, messageCleanerProperties.getPurge().getIntervalInSeconds());
+    Assert.assertEquals(true, messageCleanerProperties.getClean().isMessagesEnabled());
+    Assert.assertEquals(1, messageCleanerProperties.getClean().getMessagesMaxAgeInSeconds());
+    Assert.assertEquals(true, messageCleanerProperties.getClean().isReceivedMessagesEnabled());
+    Assert.assertEquals(2, messageCleanerProperties.getClean().getReceivedMessagesMaxAgeInSeconds());
+    Assert.assertEquals(3, messageCleanerProperties.getClean().getIntervalInSeconds());
   }
 
   @Test
@@ -67,11 +67,11 @@ public class MessageCleanerPropertiesTest {
     Assert.assertEquals("someUserName", messageCleanerProperties.getDataSourceUserName());
     Assert.assertEquals("somePassword", messageCleanerProperties.getDataSourcePassword());
     Assert.assertEquals("someClass", messageCleanerProperties.getDataSourceDriverClassName());
-    Assert.assertEquals(false, messageCleanerProperties.getPurge().isMessagesEnabled());
-    Assert.assertEquals(2*24*60*60, messageCleanerProperties.getPurge().getMessagesMaxAgeInSeconds());
-    Assert.assertEquals(false, messageCleanerProperties.getPurge().isReceivedMessagesEnabled());
-    Assert.assertEquals(2*24*60*60, messageCleanerProperties.getPurge().getReceivedMessagesMaxAgeInSeconds());
-    Assert.assertEquals(60, messageCleanerProperties.getPurge().getIntervalInSeconds());
+    Assert.assertEquals(false, messageCleanerProperties.getClean().isMessagesEnabled());
+    Assert.assertEquals(2*24*60*60, messageCleanerProperties.getClean().getMessagesMaxAgeInSeconds());
+    Assert.assertEquals(false, messageCleanerProperties.getClean().isReceivedMessagesEnabled());
+    Assert.assertEquals(2*24*60*60, messageCleanerProperties.getClean().getReceivedMessagesMaxAgeInSeconds());
+    Assert.assertEquals(60, messageCleanerProperties.getClean().getIntervalInSeconds());
   }
 
   private MessageCleanerProperties convertProperties(String properties) {

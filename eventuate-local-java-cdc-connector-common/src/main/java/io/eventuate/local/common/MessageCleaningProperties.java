@@ -4,7 +4,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 import java.util.concurrent.TimeUnit;
 
-public class MessagePurgeProperties {
+public class MessageCleaningProperties {
   private boolean messagesEnabled = false;
   private int messagesMaxAgeInSeconds = (int) TimeUnit.DAYS.toSeconds(2);
   private boolean receivedMessagesEnabled = false;
