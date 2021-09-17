@@ -1,7 +1,8 @@
-package io.eventuate.local.common;
+package io.eventuate.local.unified.cdc.pipeline;
 
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.sqldialect.EventuateSqlDialect;
+import io.eventuate.local.unified.cdc.pipeline.common.properties.MessageCleanerProperties;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
@@ -12,7 +13,7 @@ public class MessageCleaner {
 
   private EventuateSqlDialect eventuateSqlDialect;
   private EventuateSchema eventuateSchema;
-  private MessageCleaningProperties messageCleaningProperties;
+  private MessageCleanerProperties messageCleaningProperties;
 
   private Timer timer;
   private JdbcTemplate jdbcTemplate;
@@ -20,7 +21,7 @@ public class MessageCleaner {
   public MessageCleaner(EventuateSqlDialect eventuateSqlDialect,
                         DataSource dataSource,
                         EventuateSchema eventuateSchema,
-                        MessageCleaningProperties messageCleaningProperties) {
+                        MessageCleanerProperties messageCleaningProperties) {
     this.eventuateSqlDialect = eventuateSqlDialect;
     this.eventuateSchema = eventuateSchema;
     this.messageCleaningProperties = messageCleaningProperties;
@@ -29,8 +30,8 @@ public class MessageCleaner {
   }
 
   public void start() {
-    if (messageCleaningProperties.isMessagesEnabled() ||
-            messageCleaningProperties.isReceivedMessagesEnabled()) {
+    if (messageCleaningProperties.isMessageCleaningEnabled() ||
+            messageCleaningProperties.isReceivedMessageCleaningEnabled()) {
       timer = new Timer();
 
       timer.scheduleAtFixedRate(new TimerTask() {
@@ -49,11 +50,11 @@ public class MessageCleaner {
   }
 
   private void cleanTables() {
-    if (messageCleaningProperties.isMessagesEnabled()) {
+    if (messageCleaningProperties.isMessageCleaningEnabled()) {
       cleanMessages();
     }
 
-    if (messageCleaningProperties.isReceivedMessagesEnabled()) {
+    if (messageCleaningProperties.isReceivedMessageCleaningEnabled()) {
       cleanReceivedMessages();
     }
   }

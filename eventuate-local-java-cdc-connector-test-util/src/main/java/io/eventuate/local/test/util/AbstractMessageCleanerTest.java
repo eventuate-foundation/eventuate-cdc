@@ -3,8 +3,8 @@ package io.eventuate.local.test.util;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
-import io.eventuate.local.common.MessageCleaner;
-import io.eventuate.local.common.MessageCleaningProperties;
+import io.eventuate.local.unified.cdc.pipeline.MessageCleaner;
+import io.eventuate.local.unified.cdc.pipeline.common.properties.MessageCleanerProperties;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.After;
 import org.junit.Test;
@@ -97,11 +97,11 @@ public class AbstractMessageCleanerTest {
   }
 
   private void createAndStartMessageCleaner(int age) {
-    MessageCleaningProperties messageCleaningProperties = new MessageCleaningProperties();
+    MessageCleanerProperties messageCleaningProperties = new MessageCleanerProperties();
 
     messageCleaningProperties.setIntervalInSeconds(1);
-    messageCleaningProperties.setMessagesEnabled(true);
-    messageCleaningProperties.setReceivedMessagesEnabled(true);
+    messageCleaningProperties.setMessageCleaningEnabled(true);
+    messageCleaningProperties.setReceivedMessageCleaningEnabled(true);
     messageCleaningProperties.setMessagesMaxAgeInSeconds(age);
     messageCleaningProperties.setReceivedMessagesMaxAgeInSeconds(age);
 
