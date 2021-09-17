@@ -167,7 +167,7 @@ public class CdcMessageCleanerConfigurator {
         Map<String, Object> value = (Map<String, Object>) p.getValue();
         for (Map.Entry<String, Object> e : value.entrySet()) {
           String newKey = p.getKey().concat(e.getKey());
-          Object newValue = value.get(e.getKey());
+          Object newValue = e.getValue();
           newProperties.add(Pair.of(newKey, newValue));
         }
       } else newProperties.add(p);
