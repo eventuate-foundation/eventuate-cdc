@@ -165,9 +165,9 @@ public class CdcMessageCleanerConfigurator {
     for (Pair<String, Object> p : properties) {
       if (p.getValue() instanceof Map) {
         Map<String, Object> value = (Map<String, Object>) p.getValue();
-        for (String key : value.keySet()) {
-          String newKey = p.getKey().concat(key);
-          Object newValue = value.get(key);
+        for (Map.Entry<String, Object> e : value.entrySet()) {
+          String newKey = p.getKey().concat(e.getKey());
+          Object newValue = value.get(e.getKey());
           newProperties.add(Pair.of(newKey, newValue));
         }
       } else newProperties.add(p);
