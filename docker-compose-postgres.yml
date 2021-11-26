@@ -34,6 +34,20 @@ services:
       USE_DB_ID: ${USE_DB_ID}
       USE_JSON_PAYLOAD_AND_HEADERS: ${USE_JSON_PAYLOAD_AND_HEADERS}
 
+  activemq:
+    image: eventuateio/eventuate-activemq:$EVENTUATE_ACTIVE_MQ_VERSION
+    ports:
+      - 8161:8161
+      - 61616:61616
+      - 61613:61613
+      - 1883:1883
+      - 61614:61614
+
+  rabbitmq:
+    image: eventuateio/eventuate-rabbitmq:$EVENTUATE_RABBIT_MQ_VERSION
+    ports:
+      - 5672:5672
+
   redis:
     image: redis:5.0.3
     ports:

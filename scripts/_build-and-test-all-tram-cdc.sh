@@ -6,6 +6,8 @@ set -e
 
 . ./scripts/set-env.sh
 
+export DOCKER_ENV_FILE=docker-compose-env-files/kafka.env
+
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:tramcdcComposeDown
 
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:cleanTest :eventuate-tram-cdc-connector-kafka-e2e-tests:test
@@ -17,7 +19,11 @@ fi
 
 ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-kafka-e2e-tests:tramcdcComposeDown
 
-if [[ "${DATABASE}" == "mysql" ]]; then
+unset DOCKER_ENV_FILE
+
+if [[ "${DATABASE}" == "postgres" ]] || [[ "${DATABASE}" == "mysql" ]]; then
+  if [[ "${MODE}" == "polling" ]] || [[ "${MODE}" == "binlog" ]]; then
+
     if [ -z "$SPRING_PROFILES_ACTIVE" ] ; then
       export SPRING_PROFILES_ACTIVE=ActiveMQ
     else
@@ -36,5 +42,7 @@ if [[ "${DATABASE}" == "mysql" ]]; then
 
     ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-redis-e2e-tests:cleanTest :eventuate-tram-cdc-connector-redis-e2e-tests:test
     ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-redis-e2e-tests:tramcdcComposeDown
+  fi
 fi
+
 

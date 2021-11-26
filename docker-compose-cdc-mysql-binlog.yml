@@ -1,6 +1,8 @@
 version: '3'
 services:
   eventuate-cdc-service:
+    env_file:
+      - ${DOCKER_ENV_FILE:-docker-compose-env-files/empty.env}
     build:
       context: ./eventuate-cdc-service/
     image: eventuateio/eventuate-cdc-service:${DOCKER_IMAGE_TAG:-latest}
@@ -18,7 +20,6 @@ services:
       SPRING_DATASOURCE_USERNAME: mysqluser
       SPRING_DATASOURCE_PASSWORD: mysqlpw
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
-      EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
       EVENTUATELOCAL_CDC_DB_USER_NAME: root
       EVENTUATELOCAL_CDC_DB_PASSWORD: rootpassword
