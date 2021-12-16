@@ -1,12 +1,13 @@
+apply plugin: 'java-library'
 apply plugin: 'docker-compose'
 
 dependencies {
-    testCompile project (":eventuate-tram-cdc-connector-e2e-tests")
+    testImplementation project (":eventuate-tram-cdc-connector-e2e-tests")
 
-    testCompile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-consumer:$eventuateMessagingKafkaVersion"
-    testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
-    testCompile "junit:junit:4.11"
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testImplementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-consumer:$eventuateMessagingKafkaVersion"
+    testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+    testImplementation "junit:junit:4.11"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
 }
 
 test {

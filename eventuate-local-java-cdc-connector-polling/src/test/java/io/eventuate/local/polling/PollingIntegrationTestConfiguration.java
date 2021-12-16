@@ -84,7 +84,7 @@ public class PollingIntegrationTestConfiguration {
 
   @Bean
   @Profile("EventuatePolling")
-  public PollingDao pollingDao(@Autowired(required = false) MeterRegistry meterRegistry,
+  public BinlogEntryReader pollingDao(@Autowired(required = false) MeterRegistry meterRegistry,
                                @Value("${spring.datasource.url}") String dataSourceURL,
                                @Value("${spring.datasource.driver-class-name}") String driver,
                                EventuateConfigurationProperties eventuateConfigurationProperties,

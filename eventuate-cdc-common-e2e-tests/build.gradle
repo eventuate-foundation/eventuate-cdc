@@ -1,11 +1,12 @@
+apply plugin: 'java-library'
 
 dependencies {
-    compile project (":eventuate-local-java-cdc-connector-common")
+    api project (":eventuate-local-java-cdc-connector-common")
 
-    compile "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
-    compile "junit:junit:4.11"
-    compile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
-    compile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    api "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
+    api "junit:junit:4.11"
+    api "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+    api "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
 }
 
 test {

@@ -1,18 +1,19 @@
+apply plugin: 'java-library'
 
 dependencies {
-    compile project(":eventuate-local-java-cdc-connector-db-log-common")
-    compile "io.eventuate.common:eventuate-common-coordination-leadership-zookeeper:$eventuateCommonVersion"
+    api project(":eventuate-local-java-cdc-connector-db-log-common")
+    api "io.eventuate.common:eventuate-common-coordination-leadership-zookeeper:$eventuateCommonVersion"
 
-    compile ('org.postgresql:postgresql:42.1.4') {
+    api ('org.postgresql:postgresql:42.1.4') {
         exclude group: "org.slf4j", module: "slf4j-simple"
     }
 
-    testCompile project(":eventuate-local-java-test-util")
-    testCompile project(":eventuate-local-java-cdc-connector-test-util")
-    testCompile project(":eventuate-local-java-cdc-connector-db-log-test-common")
-    testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
-    testCompile "junit:junit:4.11"
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testImplementation project(":eventuate-local-java-test-util")
+    testImplementation project(":eventuate-local-java-cdc-connector-test-util")
+    testImplementation project(":eventuate-local-java-cdc-connector-db-log-test-common")
+    testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+    testImplementation "junit:junit:4.11"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
 }
 
 test {

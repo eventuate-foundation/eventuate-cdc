@@ -8,6 +8,7 @@ import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.EventuateConfigurationProperties;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
 import io.eventuate.local.test.util.TestHelper;
+import io.eventuate.local.testutil.DefaultAndPollingProfilesResolver;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.Assert;
@@ -31,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@ActiveProfiles("${SPRING_PROFILES_ACTIVE:EventuatePolling}")
+@ActiveProfiles(resolver = DefaultAndPollingProfilesResolver.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = PollingIntegrationTestConfiguration.class)
 @EnableAutoConfiguration

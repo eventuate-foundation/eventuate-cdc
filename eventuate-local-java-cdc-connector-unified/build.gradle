@@ -1,16 +1,17 @@
+apply plugin: 'java-library'
 
 dependencies {
-    compile project(":eventuate-local-java-cdc-connector-mysql-binlog")
-    compile project(":eventuate-local-java-cdc-connector-polling")
-    compile project(":eventuate-local-java-cdc-connector-postgres-wal")
-    compile "io.eventuate.common:eventuate-common-eventuate-local:$eventuateCommonVersion"
-    compile "io.eventuate.common:eventuate-common-coordination-leadership-zookeeper:$eventuateCommonVersion"
+    api project(":eventuate-local-java-cdc-connector-mysql-binlog")
+    api project(":eventuate-local-java-cdc-connector-polling")
+    api project(":eventuate-local-java-cdc-connector-postgres-wal")
+    api "io.eventuate.common:eventuate-common-eventuate-local:$eventuateCommonVersion"
+    api "io.eventuate.common:eventuate-common-coordination-leadership-zookeeper:$eventuateCommonVersion"
 
-    compile 'com.zaxxer:HikariCP:3.2.0'
+    api 'com.zaxxer:HikariCP:3.2.0'
 
-    testCompile "junit:junit:4.11"
-    testCompile "com.h2database:h2:1.4.199"
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testImplementation "junit:junit:4.11"
+    testImplementation "com.h2database:h2:1.4.199"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
 }
 
 test {

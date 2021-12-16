@@ -45,7 +45,15 @@ subprojects {
     }
 
     dependencies {
-        testCompile "junit:junit:4.12"
+        implementation(platform("org.springframework.boot:spring-boot-dependencies:2.6.1")) {
+            exclude group: 'org.apache.kafka'
+            exclude group: 'ch.qos.logback'
+        }
+
+        implementation 'ch.qos.logback:logback-classic:1.2.8'
+        implementation 'ch.qos.logback:logback-core:1.2.8'
+
+        testImplementation "junit:junit:4.12"
     }
 }
 

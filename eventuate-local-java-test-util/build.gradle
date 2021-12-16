@@ -1,5 +1,7 @@
+apply plugin: 'java-library'
 
 dependencies {
-    compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
-    compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
+    api "org.springframework.boot:spring-boot-starter:$springBootVersion"
+    api "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    api "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
 }

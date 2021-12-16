@@ -1,30 +1,32 @@
+apply plugin: 'java-library'
 
 dependencies {
-    compile project (":eventuate-cdc-data-producer-wrappers")
+    api project (":eventuate-cdc-data-producer-wrappers")
 
-    compile "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
-    compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
-    compile 'org.apache.curator:curator-recipes:2.11.0'
-    compile "io.dropwizard.metrics:metrics-core:$dropwizardMetricsVersion"
-    compile "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
-    compile 'io.micrometer:micrometer-core:1.1.1'
-    compile 'io.micrometer:micrometer-registry-jmx:1.1.1'
-    compile 'io.micrometer:micrometer-registry-prometheus:1.1.1'
-    compile "io.eventuate.common:eventuate-common-coordination-leadership:$eventuateCommonVersion"
-    compile "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
-    compile "io.eventuate.common:eventuate-common-eventuate-local:$eventuateCommonVersion"
-    compile "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
-    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-producer:$eventuateMessagingKafkaVersion"
-    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-basic-consumer:$eventuateMessagingKafkaVersion"
-    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-consumer:$eventuateMessagingKafkaVersion"
-    compile 'mysql:mysql-connector-java:8.0.21'
-    compile ('org.postgresql:postgresql:42.1.4') {
+    api "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
+    api "org.springframework.boot:spring-boot-starter:$springBootVersion"
+    api 'org.apache.curator:curator-recipes:2.11.0'
+    api "io.dropwizard.metrics:metrics-core:$dropwizardMetricsVersion"
+    api "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
+    api 'io.micrometer:micrometer-core:1.1.1'
+    api 'io.micrometer:micrometer-registry-jmx:1.1.1'
+    api 'io.micrometer:micrometer-registry-prometheus:1.1.1'
+    api "io.eventuate.common:eventuate-common-coordination-leadership:$eventuateCommonVersion"
+    api "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
+    api "io.eventuate.common:eventuate-common-eventuate-local:$eventuateCommonVersion"
+    api "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
+    api "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-producer:$eventuateMessagingKafkaVersion"
+    api "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-basic-consumer:$eventuateMessagingKafkaVersion"
+    api "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-consumer:$eventuateMessagingKafkaVersion"
+    api 'mysql:mysql-connector-java:8.0.21'
+    api ('org.postgresql:postgresql:42.1.4') {
         exclude group: "org.slf4j", module: "slf4j-simple"
     }
-    compile 'com.microsoft.sqlserver:mssql-jdbc:7.2.1.jre8'
-    testCompile "junit:junit:4.11"
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
-    testCompile "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+    api 'com.microsoft.sqlserver:mssql-jdbc:7.2.1.jre8'
+    api 'org.apache.kafka:kafka-clients:2.3.0'
+    testImplementation "junit:junit:4.11"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
 }
 
 test {

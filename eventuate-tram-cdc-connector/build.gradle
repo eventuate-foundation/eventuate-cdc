@@ -1,13 +1,14 @@
+apply plugin: 'java-library'
 
 dependencies {
-    compile "io.eventuate.messaging.redis:eventuate-messaging-redis-spring-coordination-leadership:$eventuateMessagingRedisVersion"
+    api "io.eventuate.messaging.redis:eventuate-messaging-redis-spring-coordination-leadership:$eventuateMessagingRedisVersion"
 
-    compile "io.eventuate.messaging.activemq:eventuate-messaging-activemq-spring-common:$eventuateMessagingActiveMQVersion"
-    compile "io.eventuate.messaging.redis:eventuate-messaging-redis-spring-common:$eventuateMessagingRedisVersion"
-    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-common:$eventuateMessagingKafkaVersion"
+    api "io.eventuate.messaging.activemq:eventuate-messaging-activemq-spring-common:$eventuateMessagingActiveMQVersion"
+    api "io.eventuate.messaging.redis:eventuate-messaging-redis-spring-common:$eventuateMessagingRedisVersion"
+    api "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-common:$eventuateMessagingKafkaVersion"
 
-    compile project(":eventuate-local-java-cdc-connector-unified:")
-    compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+    api project(":eventuate-local-java-cdc-connector-unified:")
+    api "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
 
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
 }
