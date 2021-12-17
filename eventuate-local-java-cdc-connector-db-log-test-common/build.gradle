@@ -1,11 +1,12 @@
+apply plugin: 'java-library'
 
 dependencies {
-    compile project(":eventuate-local-java-cdc-connector-test-util")
-    compile project(":eventuate-local-java-cdc-connector-db-log-common")
-    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-common:$eventuateMessagingKafkaVersion"
+    api project(":eventuate-local-java-cdc-connector-test-util")
+    api project(":eventuate-local-java-cdc-connector-db-log-common")
+    api "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-common:$eventuateMessagingKafkaVersion"
 
-    testCompile "junit:junit:4.11"
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testImplementation "junit:junit:4.11"
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
 }
 
 test {

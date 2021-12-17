@@ -1,14 +1,15 @@
+apply plugin: 'java-library'
 apply plugin: DockerServicesPlugin
 apply plugin: 'docker-compose'
 
 dependencies {
-    compile project (":eventuate-cdc-common-e2e-tests")
-    compile project (":eventuate-local-java-cdc-connector-common")
-    testCompile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-common:$eventuateMessagingKafkaVersion"
-    testCompile "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
-    testCompile "io.eventuate.common:eventuate-common-spring-id:$eventuateCommonVersion"
-    testCompile "junit:junit:4.11"
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    api project (":eventuate-cdc-common-e2e-tests")
+    api project (":eventuate-local-java-cdc-connector-common")
+    testImplementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-common:$eventuateMessagingKafkaVersion"
+    testImplementation "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
+    testImplementation "io.eventuate.common:eventuate-common-spring-id:$eventuateCommonVersion"
+    testImplementation "junit:junit:4.11"
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
 }
 
 test {

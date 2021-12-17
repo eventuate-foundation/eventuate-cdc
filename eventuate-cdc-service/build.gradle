@@ -4,21 +4,21 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootPluginVersion")
     }
 }
 
 apply plugin: 'org.springframework.boot'
 
 dependencies {
-    compile "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
-    compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
-    compile project(":eventuate-cdc-connector-autoconfigure")
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation project(":eventuate-cdc-connector-autoconfigure")
 
-    compile 'io.micrometer:micrometer-registry-jmx:0.12.0.RELEASE'
-    compile 'io.micrometer:micrometer-registry-prometheus:0.12.0.RELEASE'
+    implementation 'io.micrometer:micrometer-registry-jmx:0.12.0.RELEASE'
+    implementation 'io.micrometer:micrometer-registry-prometheus:0.12.0.RELEASE'
 
-    compile ('org.postgresql:postgresql:42.1.4') {
+    implementation ('org.postgresql:postgresql:42.1.4') {
         exclude group: "org.slf4j", module: "slf4j-simple"
     }
 }
