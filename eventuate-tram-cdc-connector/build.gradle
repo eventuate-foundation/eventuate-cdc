@@ -8,7 +8,7 @@ dependencies {
     api "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-common:$eventuateMessagingKafkaVersion"
 
     api project(":eventuate-local-java-cdc-connector-unified:")
-    api "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+    api "org.springframework.boot:spring-boot-starter-web"
 
-    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
 }

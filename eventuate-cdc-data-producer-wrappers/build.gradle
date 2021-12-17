@@ -12,7 +12,7 @@ dependencies {
 
     testImplementation project(":eventuate-local-java-cdc-connector-test-util")
     testImplementation "junit:junit:4.11"
-    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
 }
 
 test {

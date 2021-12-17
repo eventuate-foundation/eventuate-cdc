@@ -11,7 +11,7 @@ dependencies {
 
     testImplementation "junit:junit:4.11"
     testImplementation "com.h2database:h2:1.4.199"
-    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
 }
 
 test {

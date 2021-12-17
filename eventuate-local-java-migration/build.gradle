@@ -16,7 +16,7 @@ dependencies {
     testImplementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-common:$eventuateMessagingKafkaVersion"
     testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
     testImplementation "junit:junit:4.11"
-    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
 }
 
 test {

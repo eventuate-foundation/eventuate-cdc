@@ -3,11 +3,11 @@ apply plugin: 'java-library'
 dependencies {
     api project (":eventuate-cdc-data-producer-wrappers")
 
-    api "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
-    api "org.springframework.boot:spring-boot-starter:$springBootVersion"
+    api "org.springframework.boot:spring-boot-starter-actuator"
+    api "org.springframework.boot:spring-boot-starter"
     api 'org.apache.curator:curator-recipes:2.11.0'
     api "io.dropwizard.metrics:metrics-core:$dropwizardMetricsVersion"
-    api "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
+    api "org.springframework.boot:spring-boot-starter-jdbc"
     api 'io.micrometer:micrometer-core:1.1.1'
     api 'io.micrometer:micrometer-registry-jmx:1.1.1'
     api 'io.micrometer:micrometer-registry-prometheus:1.1.1'
@@ -25,7 +25,7 @@ dependencies {
     api 'com.microsoft.sqlserver:mssql-jdbc:7.2.1.jre8'
     api 'org.apache.kafka:kafka-clients:2.3.0'
     testImplementation "junit:junit:4.11"
-    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
 }
 

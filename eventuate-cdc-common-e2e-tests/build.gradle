@@ -6,7 +6,7 @@ dependencies {
     api "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
     api "junit:junit:4.11"
     api "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
-    api "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    api "org.springframework.boot:spring-boot-starter-test"
 }
 
 test {
