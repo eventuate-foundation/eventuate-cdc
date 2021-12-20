@@ -39,7 +39,7 @@ subprojects {
     targetCompatibility = 1.8
 
     repositories {
-        mavenCentral()
+        mavenCentral()  
         jcenter()
         eventuateMavenRepoUrl.split(',').each { repoUrl -> maven { url repoUrl } }
     }
@@ -50,8 +50,8 @@ subprojects {
             exclude group: 'ch.qos.logback'
         }
 
-        implementation 'ch.qos.logback:logback-classic:1.2.8'
-        implementation 'ch.qos.logback:logback-core:1.2.8'
+        implementation 'ch.qos.logback:logback-classic:1.2.9'
+        implementation 'ch.qos.logback:logback-core:1.2.9'
 
         testImplementation "junit:junit:4.12"
     }
