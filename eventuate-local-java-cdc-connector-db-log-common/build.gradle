@@ -1,6 +1,7 @@
+apply plugin: 'java-library'
 
 dependencies {
-    compile project(":eventuate-local-java-cdc-connector-common")
+    api project(":eventuate-local-java-cdc-connector-common")
 }
 
 test {

@@ -4,19 +4,20 @@ import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.sqldialect.EventuateSqlDialect;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.local.common.ConnectionPoolConfigurationProperties;
-import io.eventuate.local.common.MessageCleaner;
 import io.eventuate.local.unified.cdc.pipeline.common.PropertyReader;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.DataSourceFactory;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineProperties;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineReaderProperties;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.MessageCleanerProperties;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.RawUnifiedCdcProperties;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class CdcMessageCleanerConfigurator {
 
@@ -42,12 +43,7 @@ public class CdcMessageCleanerConfigurator {
   public void startMessageCleaners(Map<String, CdcPipelineProperties> cdcPipelineProperties,
                                    Map<String, CdcPipelineReaderProperties> cdcPipelineReaderProperties) {
     rawUnifiedCdcProperties.getCleaner().forEach((cleaner, rawProperties) -> {
-      propertyReader.checkForUnknownProperties(rawProperties, MessageCleanerProperties.class);
-
-      MessageCleanerProperties messageCleanerProperties =
-              propertyReader.convertMapToPropertyClass(rawProperties, MessageCleanerProperties.class);
-
-      messageCleanerProperties.validate();
+      MessageCleanerProperties messageCleanerProperties = prepareMessageCleanerProperties(rawProperties);
 
       createAndStartMessageCleaner(messageCleanerProperties,
               createConnectionInfo(messageCleanerProperties, cdcPipelineProperties, cdcPipelineReaderProperties));
@@ -58,12 +54,25 @@ public class CdcMessageCleanerConfigurator {
     messageCleaners.forEach(MessageCleaner::stop);
   }
 
+  MessageCleanerProperties prepareMessageCleanerProperties(Map<String, Object> rawProperties) {
+    rawProperties = reconstructProperties(rawProperties);
+
+    propertyReader.checkForUnknownProperties(rawProperties, MessageCleanerProperties.class);
+
+    MessageCleanerProperties messageCleanerProperties =
+            propertyReader.convertMapToPropertyClass(rawProperties, MessageCleanerProperties.class);
+
+    messageCleanerProperties.validate();
+
+    return messageCleanerProperties;
+  }
+
   private void createAndStartMessageCleaner(MessageCleanerProperties messageCleanerProperties, ConnectionInfo connectionInfo) {
 
     MessageCleaner messageCleaner = new MessageCleaner(connectionInfo.getEventuateSqlDialect(),
             connectionInfo.getDataSource(),
             connectionInfo.getEventuateSchema(),
-            messageCleanerProperties.getPurge());
+            messageCleanerProperties);
 
     messageCleaner.start();
 
@@ -135,6 +144,40 @@ public class CdcMessageCleanerConfigurator {
 
   private EventuateSchema createEventuateSchema(String schema) {
     return new EventuateSchema(schema == null ? EventuateSchema.DEFAULT_SCHEMA : schema);
+  }
+
+  //SPRING PARSES INTERVAL_IN_SECONDS as {interval={in={seconds=1}}}
+  private Map<String, Object> reconstructProperties(Map<String, Object> properties) {
+    List<Pair<String, Object>> propertyList = properties
+            .entrySet()
+            .stream()
+            .map(e -> Pair.of(e.getKey(), e.getValue()))
+            .collect(Collectors.toList());
+
+    return reconstructProperties(propertyList)
+            .stream()
+            .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+  }
+
+  private List<Pair<String, Object>> reconstructProperties(List<Pair<String, Object>> properties) {
+    List<Pair<String, Object>> newProperties = new ArrayList<>();
+
+    for (Pair<String, Object> p : properties) {
+      if (p.getValue() instanceof Map) {
+        Map<String, Object> value = (Map<String, Object>) p.getValue();
+        for (Map.Entry<String, Object> e : value.entrySet()) {
+          String newKey = p.getKey().concat(e.getKey());
+          Object newValue = e.getValue();
+          newProperties.add(Pair.of(newKey, newValue));
+        }
+      } else newProperties.add(p);
+    }
+
+    if (newProperties.stream().anyMatch(np -> np.getValue() instanceof Map)) {
+      return reconstructProperties(newProperties);
+    }
+
+    return newProperties;
   }
 }
 

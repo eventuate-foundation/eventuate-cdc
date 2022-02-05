@@ -1,4 +1,5 @@
+apply plugin: 'java-library'
 
 dependencies {
-    compile project (":eventuate-tram-cdc-connector")
+    api project (":eventuate-tram-cdc-connector")
 }

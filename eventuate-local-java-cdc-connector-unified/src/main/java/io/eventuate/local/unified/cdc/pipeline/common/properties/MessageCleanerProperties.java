@@ -1,9 +1,10 @@
 package io.eventuate.local.unified.cdc.pipeline.common.properties;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.eventuate.local.common.MessagePurgeProperties;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.springframework.util.Assert;
+
+import java.util.concurrent.TimeUnit;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MessageCleanerProperties implements ValidatableProperties {
@@ -15,7 +16,11 @@ public class MessageCleanerProperties implements ValidatableProperties {
 
   private String pipeline;
 
-  private MessagePurgeProperties purge = new MessagePurgeProperties();
+  private boolean messageCleaningEnabled = false;
+  private int messagesMaxAgeInSeconds = (int) TimeUnit.DAYS.toSeconds(2);
+  private boolean receivedMessageCleaningEnabled = false;
+  private int receivedMessagesMaxAgeInSeconds = (int)TimeUnit.DAYS.toSeconds(2);
+  private int intervalInSeconds = (int)TimeUnit.MINUTES.toSeconds(1);
 
   @Override
   public void validate() {
@@ -76,16 +81,48 @@ public class MessageCleanerProperties implements ValidatableProperties {
     this.eventuateSchema = eventuateSchema;
   }
 
-  public MessagePurgeProperties getPurge() {
-    return purge;
-  }
-
-  public void setPurge(MessagePurgeProperties purge) {
-    this.purge = purge;
-  }
-
   @Override
   public String toString() {
     return ReflectionToStringBuilder.toString(this);
+  }
+
+  public boolean isMessageCleaningEnabled() {
+    return messageCleaningEnabled;
+  }
+
+  public void setMessageCleaningEnabled(boolean messageCleaningEnabled) {
+    this.messageCleaningEnabled = messageCleaningEnabled;
+  }
+
+  public int getMessagesMaxAgeInSeconds() {
+    return messagesMaxAgeInSeconds;
+  }
+
+  public void setMessagesMaxAgeInSeconds(int messagesMaxAgeInSeconds) {
+    this.messagesMaxAgeInSeconds = messagesMaxAgeInSeconds;
+  }
+
+  public boolean isReceivedMessageCleaningEnabled() {
+    return receivedMessageCleaningEnabled;
+  }
+
+  public void setReceivedMessageCleaningEnabled(boolean receivedMessageCleaningEnabled) {
+    this.receivedMessageCleaningEnabled = receivedMessageCleaningEnabled;
+  }
+
+  public int getReceivedMessagesMaxAgeInSeconds() {
+    return receivedMessagesMaxAgeInSeconds;
+  }
+
+  public void setReceivedMessagesMaxAgeInSeconds(int receivedMessagesMaxAgeInSeconds) {
+    this.receivedMessagesMaxAgeInSeconds = receivedMessagesMaxAgeInSeconds;
+  }
+
+  public int getIntervalInSeconds() {
+    return intervalInSeconds;
+  }
+
+  public void setIntervalInSeconds(int intervalInSeconds) {
+    this.intervalInSeconds = intervalInSeconds;
   }
 }

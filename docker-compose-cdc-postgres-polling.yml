@@ -1,6 +1,8 @@
 version: '3'
 services:
   eventuate-cdc-service:
+    env_file:
+      - ${DOCKER_ENV_FILE:-docker-compose-env-files/empty.env}
     build: ./eventuate-cdc-service
     ports:
       - "8099:8080"
@@ -9,16 +11,22 @@ services:
       - kafka
       - redis
       - zookeeper
+      - activemq
+      - rabbitmq
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres/eventuate
       SPRING_DATASOURCE_USERNAME: eventuate
       SPRING_DATASOURCE_PASSWORD: eventuate
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
-      EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING: zookeeper:2181
+      EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       EVENTUATELOCAL_CDC_READER_NAME: PostgresPollingReader
       EVENTUATE_OUTBOX_ID: 1
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      ACTIVEMQ_URL: tcp://activemq:61616
+      ACTIVEMQ_USER: eventuateuser
+      ACTIVEMQ_PASSWORD: eventuatepassword
+      RABBITMQ_BROKER_ADDRESSES: rabbitmq
       EVENTUATE_REDIS_SERVERS: redis:6379
       EVENTUATE_REDIS_PARTITIONS: 1
       EVENTUATE_CDC_TYPE: ${EVENTUATE_CDC_TYPE}

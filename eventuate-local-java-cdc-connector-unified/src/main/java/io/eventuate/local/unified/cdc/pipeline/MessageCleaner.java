@@ -1,7 +1,8 @@
-package io.eventuate.local.common;
+package io.eventuate.local.unified.cdc.pipeline;
 
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.sqldialect.EventuateSqlDialect;
+import io.eventuate.local.unified.cdc.pipeline.common.properties.MessageCleanerProperties;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
@@ -12,7 +13,7 @@ public class MessageCleaner {
 
   private EventuateSqlDialect eventuateSqlDialect;
   private EventuateSchema eventuateSchema;
-  private MessagePurgeProperties messagePurgeProperties;
+  private MessageCleanerProperties messageCleaningProperties;
 
   private Timer timer;
   private JdbcTemplate jdbcTemplate;
@@ -20,17 +21,17 @@ public class MessageCleaner {
   public MessageCleaner(EventuateSqlDialect eventuateSqlDialect,
                         DataSource dataSource,
                         EventuateSchema eventuateSchema,
-                        MessagePurgeProperties messagePurgeProperties) {
+                        MessageCleanerProperties messageCleaningProperties) {
     this.eventuateSqlDialect = eventuateSqlDialect;
     this.eventuateSchema = eventuateSchema;
-    this.messagePurgeProperties = messagePurgeProperties;
+    this.messageCleaningProperties = messageCleaningProperties;
 
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
   public void start() {
-    if (messagePurgeProperties.isMessagesEnabled() ||
-            messagePurgeProperties.isReceivedMessagesEnabled()) {
+    if (messageCleaningProperties.isMessageCleaningEnabled() ||
+            messageCleaningProperties.isReceivedMessageCleaningEnabled()) {
       timer = new Timer();
 
       timer.scheduleAtFixedRate(new TimerTask() {
@@ -38,7 +39,7 @@ public class MessageCleaner {
         public void run() {
           cleanTables();
         }
-      }, 0, messagePurgeProperties.getIntervalInSeconds() * 1000);
+      }, 0, messageCleaningProperties.getIntervalInSeconds() * 1000);
     }
   }
 
@@ -49,11 +50,11 @@ public class MessageCleaner {
   }
 
   private void cleanTables() {
-    if (messagePurgeProperties.isMessagesEnabled()) {
+    if (messageCleaningProperties.isMessageCleaningEnabled()) {
       cleanMessages();
     }
 
-    if (messagePurgeProperties.isReceivedMessagesEnabled()) {
+    if (messageCleaningProperties.isReceivedMessageCleaningEnabled()) {
       cleanReceivedMessages();
     }
   }
@@ -64,7 +65,7 @@ public class MessageCleaner {
     String sql = String.format("delete from %s where %s - creation_time > ?",
             table, eventuateSqlDialect.getCurrentTimeInMillisecondsExpression());
 
-    jdbcTemplate.update(sql, messagePurgeProperties.getMessagesMaxAgeInSeconds() * 1000);
+    jdbcTemplate.update(sql, messageCleaningProperties.getMessagesMaxAgeInSeconds() * 1000);
   }
 
   private void cleanReceivedMessages() {
@@ -73,6 +74,6 @@ public class MessageCleaner {
     String sql = String.format("delete from %s where %s - creation_time > ?",
             table, eventuateSqlDialect.getCurrentTimeInMillisecondsExpression());
 
-    jdbcTemplate.update(sql, messagePurgeProperties.getReceivedMessagesMaxAgeInSeconds() * 1000);
+    jdbcTemplate.update(sql, messageCleaningProperties.getReceivedMessagesMaxAgeInSeconds() * 1000);
   }
 }

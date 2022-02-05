@@ -3,8 +3,8 @@ package io.eventuate.local.test.util;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
-import io.eventuate.local.common.MessageCleaner;
-import io.eventuate.local.common.MessagePurgeProperties;
+import io.eventuate.local.unified.cdc.pipeline.MessageCleaner;
+import io.eventuate.local.unified.cdc.pipeline.common.properties.MessageCleanerProperties;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.After;
 import org.junit.Test;
@@ -49,7 +49,7 @@ public class AbstractMessageCleanerTest {
   private MessageCleaner messageCleaner;
 
   @Test
-  public void testThatMessagePurged() {
+  public void testThatMessageCleaned() {
     String messageId = insertMessages(true, System.currentTimeMillis() - 1000);
     assertTrue(messageExists(messageId));
     assertTrue(receivedMessageExists(messageId));
@@ -63,7 +63,7 @@ public class AbstractMessageCleanerTest {
   }
 
   @Test
-  public void testThatOnlyOldMessagesPurgedAndPurgeIsPeriodic() {
+  public void testThatOnlyOldMessagesCleanedAndCleaningIsPeriodic() {
     String oldMessageId = insertMessages(true, System.currentTimeMillis() - 4000);
     String messageId = insertMessages(true, System.currentTimeMillis());
 
@@ -97,16 +97,16 @@ public class AbstractMessageCleanerTest {
   }
 
   private void createAndStartMessageCleaner(int age) {
-    MessagePurgeProperties messagePurgeProperties = new MessagePurgeProperties();
+    MessageCleanerProperties messageCleaningProperties = new MessageCleanerProperties();
 
-    messagePurgeProperties.setIntervalInSeconds(1);
-    messagePurgeProperties.setMessagesEnabled(true);
-    messagePurgeProperties.setReceivedMessagesEnabled(true);
-    messagePurgeProperties.setMessagesMaxAgeInSeconds(age);
-    messagePurgeProperties.setReceivedMessagesMaxAgeInSeconds(age);
+    messageCleaningProperties.setIntervalInSeconds(1);
+    messageCleaningProperties.setMessageCleaningEnabled(true);
+    messageCleaningProperties.setReceivedMessageCleaningEnabled(true);
+    messageCleaningProperties.setMessagesMaxAgeInSeconds(age);
+    messageCleaningProperties.setReceivedMessagesMaxAgeInSeconds(age);
 
     messageCleaner = new MessageCleaner(sqlDialectSelector.getDialect(driver),
-            dataSource, new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA), messagePurgeProperties);
+            dataSource, new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA), messageCleaningProperties);
 
     messageCleaner.start();
   }

@@ -29,7 +29,7 @@ public class MessageCleanerE2ETest {
   private JdbcTemplate jdbcTemplate;
 
   @Test
-  public void assertMessagesPurged() throws Exception {
+  public void assertMessagesCleaned() throws Exception {
     Eventually.eventually(() ->
       Assert.assertEquals(0, jdbcTemplate.queryForList("select * from eventuate.message").size()));
   }

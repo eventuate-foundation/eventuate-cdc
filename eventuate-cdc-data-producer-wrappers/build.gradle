@@ -1,17 +1,18 @@
+apply plugin: 'java-library'
 
 dependencies {
-    compile "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-producer:$eventuateMessagingKafkaVersion"
-    compile "io.eventuate.messaging.activemq:eventuate-messaging-activemq-spring-producer:$eventuateMessagingActiveMQVersion"
-    compile "io.eventuate.messaging.rabbitmq:eventuate-messaging-rabbitmq-spring-producer:$eventuateMessagingRabbitMQVersion"
-    compile "io.eventuate.messaging.redis:eventuate-messaging-redis-spring-producer:$eventuateMessagingRedisVersion"
+    api "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-producer:$eventuateMessagingKafkaVersion"
+    api "io.eventuate.messaging.activemq:eventuate-messaging-activemq-spring-producer:$eventuateMessagingActiveMQVersion"
+    api "io.eventuate.messaging.rabbitmq:eventuate-messaging-rabbitmq-spring-producer:$eventuateMessagingRabbitMQVersion"
+    api "io.eventuate.messaging.redis:eventuate-messaging-redis-spring-producer:$eventuateMessagingRedisVersion"
 
-    compile 'io.micrometer:micrometer-core:1.1.1'
-    compile 'io.micrometer:micrometer-registry-jmx:0.12.0.RELEASE'
-    compile 'io.micrometer:micrometer-registry-prometheus:0.12.0.RELEASE'
+    api 'io.micrometer:micrometer-core:1.1.1'
+    api 'io.micrometer:micrometer-registry-jmx:0.12.0.RELEASE'
+    api 'io.micrometer:micrometer-registry-prometheus:0.12.0.RELEASE'
 
-    testCompile project(":eventuate-local-java-cdc-connector-test-util")
-    testCompile "junit:junit:4.11"
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testImplementation project(":eventuate-local-java-cdc-connector-test-util")
+    testImplementation "junit:junit:4.11"
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
 }
 
 test {

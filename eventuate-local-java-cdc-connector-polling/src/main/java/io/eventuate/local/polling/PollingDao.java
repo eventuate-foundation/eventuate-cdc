@@ -209,7 +209,7 @@ public class PollingDao extends BinlogEntryReader {
 
     String pk = DaoUtils.handleConnectionLost(maxAttemptsForPolling,
             pollingRetryIntervalInMilliseconds,
-            () -> eventuateSqlDialect.getPrimaryKeyColumn(dataSource, dataSourceUrl, schemaAndTable),
+            () -> eventuateSqlDialect.getPrimaryKeyColumns(dataSource, dataSourceUrl, schemaAndTable).get(0),
             this::onInterrupted,
             running);
 
