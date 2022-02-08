@@ -12,7 +12,7 @@ services:
       - USE_JSON_PAYLOAD_AND_HEADERS=${USE_JSON_PAYLOAD_AND_HEADERS}
 
   zookeeper:
-    image: confluentinc/cp-zookeeper:5.2.4
+    image: eventuateio/eventuate-zookeeper:wip-multi-arch-docker-part-3-circleci-buildx-554
     ports:
       - 2181:2181
     environment:
