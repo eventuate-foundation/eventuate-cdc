@@ -161,7 +161,7 @@ workflows:
             - build-and-test-all-eventuate-local-cdc-postgres-wal
             - build-and-test-all-tram-cdc-mysql-binlog
             - build-and-test-all-tram-cdc-mysql8-binlog-intel
-            - build-and-test-all-tram-cdc-mysql8-binlog-am
+            - build-and-test-all-tram-cdc-mysql8-binlog-arm
             - build-and-test-all-tram-cdc-postgres-polling
             - build-and-test-all-tram-cdc-postgres-wal
             - build-and-test-all-tram-cdc-mssql-polling
