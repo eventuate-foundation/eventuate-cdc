@@ -23,7 +23,7 @@ orbs:
           - checkout
           - restore_cache:
               keys:
-                - eventuate-cdc-{{ checksum "gradle.properties" }}
+                - eventuate-cdc-{{ checksum "gradle.properties" }}-{{ checksum "gradle/wrapper/gradle-wrapper.properties}}
                 - eventuate-cdc-
           - run:
               command: |
@@ -32,7 +32,7 @@ orbs:
           - save_cache:
               paths:
                 - ~/.gradle
-              key: eventuate-cdc-{{ checksum "gradle.properties" }}
+              key: eventuate-cdc-{{ checksum "gradle.properties" }}-{{ checksum "gradle/wrapper/gradle-wrapper.properties}}
           - run:
               name: run-script
               command: |
