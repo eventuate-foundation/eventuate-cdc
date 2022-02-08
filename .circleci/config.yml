@@ -37,7 +37,7 @@ orbs:
               name: run-script
               command: |
                 if [ -z "<<parameters.skip_multi_arch_env_vars>>" ] ; then
-                  . set-multi-arch-image-env-vars.sh
+                  . ./scripts/set-multi-arch-image-env-vars.sh
                 fi
                 <<parameters.script>>
           - run:
