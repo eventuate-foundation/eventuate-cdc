@@ -27,7 +27,6 @@ orbs:
                 - eventuate-cdc-
           - run:
               command: |
-                ./.circleci/upgrade-docker-compose.sh
                 ./gradlew testClasses aggregateJavaDocs
           - save_cache:
               paths:
