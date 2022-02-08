@@ -1,6 +1,5 @@
 buildscript {
     repositories {
-        jcenter()
         maven {
           url "https://plugins.gradle.org/m2/"
         }
@@ -9,7 +8,7 @@ buildscript {
         eventuateMavenRepoUrl.split(',').each { repoUrl -> maven { url repoUrl } }
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootPluginVersion")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
         classpath "com.avast.gradle:gradle-docker-compose-plugin:0.12.0"
         classpath "io.eventuate.plugins.gradle:eventuate-plugins-gradle-publish:$eventuatePluginsGradleVersion"
     }
@@ -39,19 +38,23 @@ subprojects {
     targetCompatibility = 1.8
 
     repositories {
-        mavenCentral()  
-        jcenter()
+        mavenCentral()
         eventuateMavenRepoUrl.split(',').each { repoUrl -> maven { url repoUrl } }
     }
 
     dependencies {
-        implementation(platform("org.springframework.boot:spring-boot-dependencies:2.6.1")) {
+        implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")) {
             exclude group: 'org.apache.kafka'
             exclude group: 'ch.qos.logback'
         }
 
-        implementation 'ch.qos.logback:logback-classic:1.2.9'
-        implementation 'ch.qos.logback:logback-core:1.2.9'
+        constraints {
+            implementation("org.redisson:redisson") {
+                version {
+                    strictly("3.16.8")
+                }
+            }
+        }
 
         testImplementation "junit:junit:4.12"
     }
@@ -76,6 +79,8 @@ if (mode == "unified") {
     project.ext.set("databaseDockerFile", "docker-compose-${database}${databaseVersion}.yml")
     project.ext.set("databaseDockerCdcFile", "docker-compose-cdc-${database}-${mode}.yml")
 }
+
+print("databaseDockerCdcFile=$databaseDockerCdcFile")
 
 dockerCompose {
     environment.put "EVENTUATE_COMMON_VERSION", eventuateCommonImageVersion

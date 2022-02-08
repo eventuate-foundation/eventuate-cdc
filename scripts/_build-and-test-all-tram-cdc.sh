@@ -21,8 +21,10 @@ fi
 
 unset DOCKER_ENV_FILE
 
-if [[ "${DATABASE}" == "postgres" ]] || [[ "${DATABASE}" == "mysql" ]]; then
-  if [[ "${MODE}" == "polling" ]] || [[ "${MODE}" == "binlog" ]]; then
+if [[ "${DATABASE}" == "postgres"  || "${DATABASE}" == "mysql" ]] ; then
+  if [[ "${MODE}" == "polling" ||  "${MODE}" == "binlog" || "${MODE}" == "binlog-multi-arch" ]] ; then
+
+    # if this is Arm platform exit 0
 
     if [ -z "$SPRING_PROFILES_ACTIVE" ] ; then
       export SPRING_PROFILES_ACTIVE=ActiveMQ
