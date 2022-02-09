@@ -52,7 +52,7 @@ orbs:
 jobs:
   build-multi-arch-images:
     docker:
-      - image: cimg/base:stable
+      - image: cimg/openjdk:11.0.13
     working_directory: ~/eventuate-common
     steps:
       - checkout
