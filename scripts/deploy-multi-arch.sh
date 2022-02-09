@@ -29,4 +29,4 @@ retag() {
   docker buildx imagetools create -t ${TARGET_IMAGE} $SOURCES
 }
 
-retag "eventuateio/eventuate-cdc"
+retag "eventuateio/eventuate-cdc-service"
