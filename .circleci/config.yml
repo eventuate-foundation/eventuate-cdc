@@ -61,7 +61,7 @@ jobs:
       - run:
           name: docker buildx build
           command: |
-            . set-multi-arch-image-env-vars.sh
+            . ./scripts/set-multi-arch-image-env-vars.sh
             docker context create tls-env
             docker buildx create tls-env --use
 
@@ -80,7 +80,7 @@ jobs:
       - checkout
       - run:
           command: |
-            . set-multi-arch-image-env-vars.sh
+            . ./scripts/set-multi-arch-image-env-vars.sh
             ./scripts/deploy-multi-arch.sh
 workflows:
   version: 2.1
