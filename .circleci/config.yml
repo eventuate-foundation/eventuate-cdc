@@ -49,6 +49,39 @@ orbs:
               path: ~/junit
           - store_artifacts:
               path: ~/container-logs
+jobs:
+  build-multi-arch-images:
+    docker:
+      - image: cimg/base:stable
+    working_directory: ~/eventuate-common
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.11
+      - run:
+          name: docker buildx build
+          command: |
+            . set-multi-arch-image-env-vars.sh
+            docker context create tls-env
+            docker buildx create tls-env --use
+
+            # failed to solve: process "/dev/.buildkit_qemu_emulator
+            # https://github.com/docker/buildx/issues/493#issuecomment-754834977
+            # https://github.com/tonistiigi/binfmt#installing-emulators
+
+            docker run --privileged --rm tonistiigi/binfmt --install arm64,arm
+
+            ./scripts/build-multi-arch-images.sh
+  deploy-multi-arch:
+    docker:
+      - image: cimg/base:stable
+    working_directory: ~/eventuate-common
+    steps:
+      - checkout
+      - run:
+          command: |
+            . set-multi-arch-image-env-vars.sh
+            ./scripts/deploy-multi-arch.sh
 workflows:
   version: 2.1
   build-test-and-deploy:
@@ -167,11 +200,55 @@ workflows:
             - build-and-test-all-tram-cdc-postgres-wal
             - build-and-test-all-tram-cdc-mssql-polling
           script: ./scripts/build-and-test-all-cdc-unified.sh
+      - build-multi-arch-images:
+          context:
+            - publish
+          requires:
+            - build-and-test-all-cdc-unified
+      - build-and-test/build-and-test:
+          name: test-cdc-multi-arch-intel
+          script:  ./scripts/build-and-test-all-tram-cdc-mysql8-multi-arch.sh
+          requires:
+            - build-multi-arch-images
+      - build-and-test/build-and-test:
+          name: test-cdc-multi-arch-arm
+          script:  ./scripts/build-and-test-all-tram-cdc-mysql8-multi-arch.sh
+          resource_class: arm.medium
+          requires:
+            - build-multi-arch-images
       - build-and-test/build-and-test:
           name: deploy-artifacts
           context:
             - publish
           requires:
-            - build-and-test-all-database-id-jsonschema
-            - build-and-test-all-cdc-unified
+            - test-cdc-multi-arch-arm
+            - test-cdc-multi-arch-intel
           script: ./scripts/deploy-artifacts.sh
+      - deploy-multi-arch:
+          context:
+            - publish
+          requires:
+            - test-cdc-multi-arch-arm
+            - test-cdc-multi-arch-intel
+  build-test-and-deploy-multi-arch:
+    jobs:
+      - build-multi-arch-images:
+          context:
+            - publish
+      - build-and-test/build-and-test:
+          name: test-cdc-multi-arch-intel
+          script:  ./scripts/build-and-test-all-tram-cdc-mysql8-multi-arch.sh
+          requires:
+            - build-multi-arch-images
+      - build-and-test/build-and-test:
+          name: test-cdc-multi-arch-arm
+          script:  ./scripts/build-and-test-all-tram-cdc-mysql8-multi-arch.sh
+          resource_class: arm.medium
+          requires:
+            - build-multi-arch-images
+      - deploy-multi-arch:
+          context:
+            - publish
+          requires:
+            - test-cdc-multi-arch-arm
+            - test-cdc-multi-arch-intel
