@@ -20,7 +20,7 @@ services:
       KAFKA_HEAP_OPTS: -Xmx64m
 
   kafka:
-    image: "confluentinc/cp-kafka:5.2.4"
+    image: "eventuateio/eventuate-kafka:wip-multi-arch-135"
     ports:
       - 9092:9092
       - 29092:29092
