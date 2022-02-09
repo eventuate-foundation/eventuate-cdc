@@ -26,10 +26,10 @@ if [[ "${DATABASE}" == "postgres"  || "${DATABASE}" == "mysql" ]] ; then
 
     echo platform = $(uname -m)
 
-    if [[ "arm64" == "$(uname -m)" ]] ; then
+    if [[ "aarch64" == "$(uname -m)" ]] ; then
         exit 0
     fi
-    
+
     if [ -z "$SPRING_PROFILES_ACTIVE" ] ; then
       export SPRING_PROFILES_ACTIVE=ActiveMQ
     else
