@@ -199,6 +199,7 @@ workflows:
             - build-and-test-all-tram-cdc-postgres-polling
             - build-and-test-all-tram-cdc-postgres-wal
             - build-and-test-all-tram-cdc-mssql-polling
+            - build-and-test-all-database-id-jsonschema
           script: ./scripts/build-and-test-all-cdc-unified.sh
       - build-multi-arch-images:
           context:
@@ -230,25 +231,4 @@ workflows:
           requires:
             - test-cdc-multi-arch-arm
             - test-cdc-multi-arch-intel
-  build-test-and-deploy-multi-arch:
-    jobs:
-      - build-multi-arch-images:
-          context:
-            - publish
-      - build-and-test/build-and-test:
-          name: test-cdc-multi-arch-intel
-          script:  ./scripts/build-and-test-all-tram-cdc-mysql8-multi-arch.sh
-          requires:
-            - build-multi-arch-images
-      - build-and-test/build-and-test:
-          name: test-cdc-multi-arch-arm
-          script:  ./scripts/build-and-test-all-tram-cdc-mysql8-multi-arch.sh
-          resource_class: arm.medium
-          requires:
-            - build-multi-arch-images
-      - deploy-multi-arch:
-          context:
-            - publish
-          requires:
-            - test-cdc-multi-arch-arm
-            - test-cdc-multi-arch-intel
+  
