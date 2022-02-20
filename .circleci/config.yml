@@ -53,7 +53,7 @@ jobs:
   build-multi-arch-images:
     docker:
       - image: cimg/openjdk:11.0.13
-    working_directory: ~/eventuate-common
+    working_directory: ~/eventuate-cdc
     steps:
       - checkout
       - setup_remote_docker:
@@ -75,7 +75,7 @@ jobs:
   deploy-multi-arch:
     docker:
       - image: cimg/base:stable
-    working_directory: ~/eventuate-common
+    working_directory: ~/eventuate-cdc
     steps:
       - checkout
       - run:

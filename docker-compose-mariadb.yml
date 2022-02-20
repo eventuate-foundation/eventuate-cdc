@@ -12,7 +12,7 @@ services:
       - USE_JSON_PAYLOAD_AND_HEADERS=${USE_JSON_PAYLOAD_AND_HEADERS}
 
   zookeeper:
-    image: eventuateio/eventuate-zookeeper:wip-multi-arch-docker-part-3-circleci-buildx-554
+    image: eventuateio/eventuate-zookeeper:${EVENTUATE_COMMON_VERSION?}
     ports:
       - 2181:2181
     environment:
@@ -20,7 +20,7 @@ services:
       KAFKA_HEAP_OPTS: -Xmx64m
 
   kafka:
-    image: "eventuateio/eventuate-kafka:wip-multi-arch-135"
+    image: "eventuateio/eventuate-kafka:${EVENTUATE_MESSAGING_KAFKA_IMAGE_VERSION?}"
     ports:
       - 9092:9092
       - 29092:29092
