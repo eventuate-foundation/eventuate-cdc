@@ -20,6 +20,7 @@ dockerCompose {
     environment.put "EVENTUATE_COMMON_VERSION", eventuateCommonImageVersion
     environment.put "EVENTUATE_ACTIVE_MQ_VERSION", eventuateActiveMQImageVersion
     environment.put "EVENTUATE_RABBIT_MQ_VERSION", eventuateRabbitMQImageVersion
+    environment.put "EVENTUATE_MESSAGING_KAFKA_IMAGE_VERSION", eventuateMessagingKafkaImageVersion
 
     removeOrphans = true
 

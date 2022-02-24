@@ -21,8 +21,14 @@ fi
 
 unset DOCKER_ENV_FILE
 
-if [[ "${DATABASE}" == "postgres" ]] || [[ "${DATABASE}" == "mysql" ]]; then
-  if [[ "${MODE}" == "polling" ]] || [[ "${MODE}" == "binlog" ]]; then
+if [[ "${DATABASE}" == "postgres"  || "${DATABASE}" == "mysql" ]] ; then
+  if [[ "${MODE}" == "polling" ||  "${MODE}" == "binlog" || "${MODE}" == "binlog-multi-arch" ]] ; then
+
+    echo platform = $(uname -m)
+
+    if [[ "aarch64" == "$(uname -m)" ]] ; then
+        exit 0
+    fi
 
     if [ -z "$SPRING_PROFILES_ACTIVE" ] ; then
       export SPRING_PROFILES_ACTIVE=ActiveMQ
@@ -44,5 +50,3 @@ if [[ "${DATABASE}" == "postgres" ]] || [[ "${DATABASE}" == "mysql" ]]; then
     ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-redis-e2e-tests:tramcdcComposeDown
   fi
 fi
-
-
