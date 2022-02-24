@@ -3,7 +3,7 @@
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 if [[  $BRANCH == "master" ]] ; then
-  TARGET_TAG=BUILD-${CIRCLE_BUILD_NUM?}
+  TARGET_TAG=$(sed -e '/^version=/!d' -e 's/version=//' -e 's/-SNAPSHOT/.BUILD-SNAPSHOT/' < gradle.properties)
 elif [[  $BRANCH =~ RELEASE$ ]] ; then
   TARGET_TAG=$BRANCH
 elif [[  $BRANCH =~ M[0-9]+$ ]] ; then
