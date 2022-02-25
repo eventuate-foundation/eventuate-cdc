@@ -108,40 +108,40 @@ workflows:
           name: build-and-test-postgres-polling
           script: ./scripts/build-and-test-postgres-polling.sh
       - build-and-test/build-and-test:
-          name: build-and-test-all-database-id-jsonschema
+          name: database-id-jsonschema
           script: ./scripts/build-and-test-all-database-id-jsonschema.sh
       - build-and-test/build-and-test:
-          name: build-and-test-all-eventuate-local-cdc-mysql-binlog
+          name: eventuate-local-cdc-mysql-binlog
           script: ./scripts/build-and-test-all-eventuate-local-cdc-mysql-binlog.sh
           requires:
             - build-and-test-mysql
       - build-and-test/build-and-test:
-          name: build-and-test-all-eventuate-local-cdc-mysql8-binlog
+          name: eventuate-local-cdc-mysql8-binlog
           script: ./scripts/build-and-test-all-eventuate-local-cdc-mysql8-binlog.sh
           requires:
             - build-and-test-mysql8
       - build-and-test/build-and-test:
-          name: build-and-test-all-eventuate-local-cdc-mariadb-binlog
+          name: eventuate-local-cdc-mariadb-binlog
           script: ./scripts/build-and-test-all-eventuate-local-cdc-mariadb-binlog.sh
           requires:
             - build-and-test-mariadb
       - build-and-test/build-and-test:
-          name: build-and-test-all-eventuate-local-cdc-postgres-polling
+          name: eventuate-local-cdc-postgres-polling
           script: ./scripts/build-and-test-all-eventuate-local-cdc-postgres-polling.sh
           requires:
             - build-and-test-postgres-polling
       - build-and-test/build-and-test:
-          name: build-and-test-all-eventuate-local-cdc-postgres-wal
+          name: eventuate-local-cdc-postgres-wal
           script: ./scripts/build-and-test-all-eventuate-local-cdc-postgres-wal.sh
           requires:
             - build-and-test-postgres-wal
       - build-and-test/build-and-test:
-          name: build-and-test-all-tram-cdc-mysql-binlog
+          name: tram-cdc-mysql-binlog
           script: ./scripts/build-and-test-all-tram-cdc-mysql-binlog.sh
           requires:
             - build-and-test-mysql
       - build-and-test/build-and-test:
-          name: build-and-test-all-tram-cdc-mysql8-binlog-intel
+          name: tram-cdc-mysql8-binlog-intel
           skip_multi_arch_env_vars: "true"
           script: |
             docker context create tls-env
@@ -152,7 +152,7 @@ workflows:
           requires:
             - build-and-test-mysql8
       - build-and-test/build-and-test:
-          name: build-and-test-all-tram-cdc-mysql8-binlog-arm
+          name: tram-cdc-mysql8-binlog-arm
           skip_multi_arch_env_vars: "true"
           resource_class: arm.medium
           script: |
@@ -164,22 +164,22 @@ workflows:
           requires:
             - build-and-test-mysql8
       - build-and-test/build-and-test:
-          name: build-and-test-all-tram-cdc-postgres-polling
+          name: tram-cdc-postgres-polling
           script: ./scripts/build-and-test-all-tram-cdc-postgres-polling.sh
           requires:
             - build-and-test-postgres-polling
       - build-and-test/build-and-test:
-          name: build-and-test-all-tram-cdc-postgres-wal
+          name: tram-cdc-postgres-wal
           script: ./scripts/build-and-test-all-tram-cdc-postgres-wal.sh
           requires:
             - build-and-test-postgres-wal
       - build-and-test/build-and-test:
-          name: build-and-test-all-tram-cdc-mssql-polling
+          name: tram-cdc-mssql-polling
           script: ./scripts/build-and-test-all-tram-cdc-mssql-polling.sh
           requires:
             - build-and-test-mssql-polling
       - build-and-test/build-and-test:
-          name: build-and-test-all-cdc-unified
+          name: cdc-unified
           requires:
             - build-and-test-mysql
             - build-and-test-mysql8
@@ -188,24 +188,24 @@ workflows:
             - build-and-test-postgres-wal
             - build-and-test-mssql-polling
             - build-and-test-postgres-polling
-            - build-and-test-all-eventuate-local-cdc-mysql-binlog
-            - build-and-test-all-eventuate-local-cdc-mysql8-binlog
-            - build-and-test-all-eventuate-local-cdc-mariadb-binlog
-            - build-and-test-all-eventuate-local-cdc-postgres-polling
-            - build-and-test-all-eventuate-local-cdc-postgres-wal
-            - build-and-test-all-tram-cdc-mysql-binlog
-            - build-and-test-all-tram-cdc-mysql8-binlog-intel
-            - build-and-test-all-tram-cdc-mysql8-binlog-arm
-            - build-and-test-all-tram-cdc-postgres-polling
-            - build-and-test-all-tram-cdc-postgres-wal
-            - build-and-test-all-tram-cdc-mssql-polling
-            - build-and-test-all-database-id-jsonschema
+            - eventuate-local-cdc-mysql-binlog
+            - eventuate-local-cdc-mysql8-binlog
+            - eventuate-local-cdc-mariadb-binlog
+            - eventuate-local-cdc-postgres-polling
+            - eventuate-local-cdc-postgres-wal
+            - tram-cdc-mysql-binlog
+            - tram-cdc-mysql8-binlog-intel
+            - tram-cdc-mysql8-binlog-arm
+            - tram-cdc-postgres-polling
+            - tram-cdc-postgres-wal
+            - tram-cdc-mssql-polling
+            - database-id-jsonschema
           script: ./scripts/build-and-test-all-cdc-unified.sh
       - build-multi-arch-images:
           context:
             - publish
           requires:
-            - build-and-test-all-cdc-unified
+            - cdc-unified
       - build-and-test/build-and-test:
           name: test-cdc-multi-arch-intel
           script:  ./scripts/build-and-test-all-tram-cdc-mysql8-multi-arch.sh
@@ -231,4 +231,3 @@ workflows:
           requires:
             - test-cdc-multi-arch-arm
             - test-cdc-multi-arch-intel
-  
