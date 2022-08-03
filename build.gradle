@@ -104,6 +104,20 @@ dockerCompose {
         removeContainers = project.ext.removeContainers
     }
 
+    mysql8cdcpolling {
+        projectName = null
+        useComposeFiles = ["docker-compose-mysql8.yml", "docker-compose-cdc-mysql-polling.yml"]
+        removeContainers = project.ext.removeContainers
+        startedServices = ["eventuate-cdc-service"]
+    }
+
+    mysql8cdcunifiedpolling {
+        projectName = null
+        useComposeFiles = ["docker-compose-mysql8.yml", "docker-compose-cdc-unified-polling-mysql.yml"]
+        removeContainers = project.ext.removeContainers
+        startedServices = ["eventuate-cdc-service"]
+    }
+
     mysqlonly {
         projectName = null
         useComposeFiles = ["docker-compose-mysql.yml"]
@@ -116,7 +130,7 @@ dockerCompose {
         projectName = null
         useComposeFiles = ["docker-compose-mysql8.yml"]
         removeContainers = project.ext.removeContainers
-        startedServices = ["mysql8"]
+        startedServices = ["mysql"]
         removeOrphans = false
     }
 

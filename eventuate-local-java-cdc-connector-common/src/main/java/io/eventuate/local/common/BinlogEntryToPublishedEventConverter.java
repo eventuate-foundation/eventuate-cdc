@@ -40,4 +40,9 @@ public class BinlogEntryToPublishedEventConverter implements BinlogEntryToEventC
 
     return Optional.of(publishedEvent);
   }
+
+  @Override
+  public String getDestinationColumn() {
+    return "entity_type";
+  }
 }

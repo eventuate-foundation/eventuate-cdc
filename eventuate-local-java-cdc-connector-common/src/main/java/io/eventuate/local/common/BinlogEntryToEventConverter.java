@@ -4,4 +4,6 @@ import java.util.Optional;
 
 public interface BinlogEntryToEventConverter<EVENT> {
   Optional<EVENT> convert(BinlogEntry binlogEntry);
+
+  String getDestinationColumn();
 }

@@ -1,28 +1,37 @@
 package io.eventuate.local.polling;
 
 import com.google.common.collect.ImmutableMap;
-import io.eventuate.common.spring.jdbc.EventuateSpringJdbcStatementExecutor;
 import io.eventuate.common.eventuate.local.BinLogEvent;
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.jdbc.EventuateJdbcStatementExecutor;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.SchemaAndTable;
 import io.eventuate.common.jdbc.sqldialect.EventuateSqlDialect;
+import io.eventuate.common.spring.jdbc.EventuateSpringJdbcStatementExecutor;
 import io.eventuate.local.common.*;
+import io.eventuate.local.polling.spec.PollingSpec;
+import io.eventuate.local.polling.spec.SqlFragment;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import javax.sql.DataSource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class PollingDao extends BinlogEntryReader {
   private static final String PUBLISHED_FIELD = "published";
+  private final String dataSourceUrl;
+  private final ParallelPollingChannels pollingParallelChannels;
 
   private DataSource dataSource;
   private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -44,10 +53,10 @@ public class PollingDao extends BinlogEntryReader {
                     int pollingIntervalInMilliseconds,
                     String readerName,
                     EventuateSqlDialect eventuateSqlDialect,
-                    Long outboxId) {
+                    Long outboxId,
+                    ParallelPollingChannels pollingParallelChannels) {
 
     super(meterRegistry,
-            dataSourceUrl,
             dataSource,
             readerName,
             outboxId);
@@ -56,6 +65,7 @@ public class PollingDao extends BinlogEntryReader {
       throw new IllegalArgumentException("Max events per polling parameter should be greater than 0.");
     }
 
+    this.dataSourceUrl = dataSourceUrl;
     this.dataSource = dataSource;
     this.pollingIntervalInMilliseconds = pollingIntervalInMilliseconds;
     this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
@@ -64,8 +74,8 @@ public class PollingDao extends BinlogEntryReader {
     this.maxAttemptsForPolling = maxAttemptsForPolling;
     this.pollingRetryIntervalInMilliseconds = pollingRetryIntervalInMilliseconds;
     this.eventuateSqlDialect = eventuateSqlDialect;
-
     pollingProcessingStatusService = new PollingProcessingStatusService(dataSource, PUBLISHED_FIELD, eventuateSqlDialect);
+    this.pollingParallelChannels = pollingParallelChannels;
   }
 
   @Override
@@ -83,47 +93,69 @@ public class PollingDao extends BinlogEntryReader {
     return binlogEntryHandler;
   }
 
+
   @Override
   public void start() {
-    logger.info("Starting PollingDao");
+    logger.info("Starting {} {}", readerName, pollingParallelChannels);
     super.start();
 
-    stopCountDownLatch = new CountDownLatch(1);
+    stopCountDownLatch = new CountDownLatch(1 + pollingParallelChannels.size());
     running.set(true);
 
-    while (running.get()) {
-      int processedEvents = 0;
-      try {
-        processedEvents = binlogEntryHandlers.stream().map(this::processEvents).reduce(0, (a, b) -> a + b);
-      } catch (Exception e) {
-        handleProcessingFailException(e);
-      }
+    pollingParallelChannels.makePollingSpecs().forEach(this::startPollingThread);
 
-      try {
-        if (processedEvents == 0) {
-          Thread.sleep(pollingIntervalInMilliseconds);
-        }
-      } catch (InterruptedException e) {
-        handleProcessingFailException(e);
-      }
-    }
-
-    stopCountDownLatch.countDown();
-    logger.info("PollingDao finished processing");
+    logger.info("startup completed {}", readerName);
   }
 
-  public int processEvents(BinlogEntryHandler handler) {
+
+  private ExecutorService executor = Executors.newCachedThreadPool();
+
+  public void startPollingThread(PollingSpec pollingSpec) {
+    logger.info("Starting polling thread for {}", pollingSpec);
+    executor.submit(() -> {
+      logger.info("Started polling thread for {}", pollingSpec);
+      while (running.get()) {
+        int processedEvents = 0;
+        try {
+          processedEvents = binlogEntryHandlers.stream().map(handler -> processEvents(handler, pollingSpec)).reduce(0, (a, b) -> a + b);
+        } catch (Exception e) {
+          handleProcessingFailException(e);
+        }
+
+        try {
+          if (processedEvents == 0) {
+            Thread.sleep(pollingIntervalInMilliseconds);
+          }
+        } catch (InterruptedException e) {
+          handleProcessingFailException(e);
+        }
+      }
+      logger.info("Stopped polling thread for {}", pollingSpec);
+      stopCountDownLatch.countDown();
+    });
+  }
+
+  public int processEvents(BinlogEntryHandler handler, PollingSpec pollingSpec) {
 
     String pk = getPrimaryKey(handler);
 
-    String findEventsQuery = eventuateSqlDialect.addLimitToSql(String.format("SELECT * FROM %s WHERE %s = 0 ORDER BY %s ASC",
-            handler.getQualifiedTable(), PUBLISHED_FIELD, pk), ":limit");
+    SqlFragment sqlFragment = pollingSpec.addToWhere(handler.getDestinationColumn());
+
+    String findEventsQuery = eventuateSqlDialect.addLimitToSql(String.format("SELECT * FROM %s WHERE %s = 0 %s ORDER BY %s ASC",
+            handler.getQualifiedTable(), PUBLISHED_FIELD, sqlFragment.sql, pk), ":limit");
+
+    logger.debug("Polling with query {}", findEventsQuery);
+
+    Map<String, Object> params = new HashMap<>();
+    params.put("limit", maxEventsPerPolling);
+    params.putAll(sqlFragment.params);
 
     SqlRowSet sqlRowSet = DaoUtils.handleConnectionLost(maxAttemptsForPolling,
             pollingRetryIntervalInMilliseconds,
-            () -> namedParameterJdbcTemplate.queryForRowSet(findEventsQuery, ImmutableMap.of("limit", maxEventsPerPolling)),
+            () -> namedParameterJdbcTemplate.queryForRowSet(findEventsQuery, params),
             this::onInterrupted,
             running);
+
     List<CompletableFuture<Object>> ids = new ArrayList<>();
 
     while (sqlRowSet.next()) {

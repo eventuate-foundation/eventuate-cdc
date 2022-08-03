@@ -2,8 +2,6 @@ package io.eventuate.local.common;
 
 import org.springframework.beans.factory.annotation.Value;
 
-import java.util.concurrent.TimeUnit;
-
 public class EventuateConfigurationProperties {
 
   @Value("${eventuatelocal.cdc.db.user.name:#{null}}")
@@ -35,6 +33,10 @@ public class EventuateConfigurationProperties {
 
   @Value("${eventuatelocal.cdc.polling.retry.interval.in.milleseconds:#{500}}")
   private int pollingRetryIntervalInMilliseconds;
+
+
+  @Value("${eventuatelocal.cdc.polling.parallel.channels:}")
+  private String[] pollingParallelChannels;
 
   @Value("${eventuatelocal.cdc.leadership.lock.path:#{\"/eventuatelocal/cdc/leader\"}}")
   private String leadershipLockPath;
@@ -206,5 +208,9 @@ public class EventuateConfigurationProperties {
 
   public int getMaxBatchSize() {
     return maxBatchSize;
+  }
+
+  public String[] getPollingParallelChannels() {
+    return pollingParallelChannels;
   }
 }

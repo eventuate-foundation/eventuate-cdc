@@ -1,10 +1,8 @@
 package io.eventuate.local.unified.cdc.pipeline.dblog.postgreswal.factory;
 
 import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.local.common.ConnectionPoolConfigurationProperties;
 import io.eventuate.local.postgres.wal.PostgresWalClient;
-import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.CommonCdcPipelineReaderFactory;
 import io.eventuate.local.unified.cdc.pipeline.dblog.postgreswal.properties.PostgresWalCdcPipelineReaderProperties;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -17,13 +15,9 @@ public class PostgresWalCdcPipelineReaderFactory
   public static final String TYPE = "postgres-wal";
 
   public PostgresWalCdcPipelineReaderFactory(MeterRegistry meterRegistry,
-                                             LeaderSelectorFactory leaderSelectorFactory,
-                                             BinlogEntryReaderProvider binlogEntryReaderProvider,
                                              ConnectionPoolConfigurationProperties connectionPoolConfigurationProperties) {
 
     super(meterRegistry,
-            leaderSelectorFactory,
-            binlogEntryReaderProvider,
             connectionPoolConfigurationProperties);
   }
 

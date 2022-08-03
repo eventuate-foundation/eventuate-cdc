@@ -44,4 +44,9 @@ public class BinlogEntryToMessageConverter implements BinlogEntryToEventConverte
 
     return Optional.of(message);
   }
+
+  @Override
+  public String getDestinationColumn() {
+    return "destination";
+  }
 }

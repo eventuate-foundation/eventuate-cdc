@@ -1,7 +1,6 @@
 package io.eventuate.local.unified.cdc.pipeline.common;
 
 import io.eventuate.local.common.BinlogEntryReaderLeadership;
-import io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineReaderProperties;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,7 +15,7 @@ public class BinlogEntryReaderProvider {
   */
   private ConcurrentMap<String, BinlogEntryReaderLeadership> clients = new ConcurrentHashMap<>();
 
-  public void add(String name, BinlogEntryReaderLeadership binlogEntryReaderLeadership, CdcPipelineReaderProperties properties) {
+  public void add(String name, BinlogEntryReaderLeadership binlogEntryReaderLeadership) {
     clients.put(name.toLowerCase(), binlogEntryReaderLeadership);
   }
 

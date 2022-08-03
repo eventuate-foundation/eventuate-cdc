@@ -38,4 +38,8 @@ public class BinlogEntryHandler<EVENT extends BinLogEvent> {
             .map(eventPublisher::apply)
             .orElse(CompletableFuture.completedFuture(null));
   }
+
+  public String getDestinationColumn() {
+    return binlogEntryToEventConverter.getDestinationColumn();
+  }
 }

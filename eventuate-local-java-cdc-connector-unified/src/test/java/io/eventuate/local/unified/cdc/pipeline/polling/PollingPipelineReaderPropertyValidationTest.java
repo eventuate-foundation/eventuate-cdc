@@ -1,7 +1,6 @@
 package io.eventuate.local.unified.cdc.pipeline.polling;
 
 import io.eventuate.local.unified.cdc.pipeline.common.CommonPipelineReaderPropertyValidationTest;
-import io.eventuate.local.unified.cdc.pipeline.dblog.postgreswal.properties.PostgresWalCdcPipelineReaderProperties;
 import io.eventuate.local.unified.cdc.pipeline.polling.factory.PollingCdcPipelineReaderFactory;
 import io.eventuate.local.unified.cdc.pipeline.polling.properties.PollingPipelineReaderProperties;
 import org.junit.Assert;
@@ -13,12 +12,12 @@ public class PollingPipelineReaderPropertyValidationTest extends CommonPipelineR
   public void testPollingProperties() throws Exception {
     PropertyBuilder propertyBuilder = new PropertyBuilder();
 
-    assertExceptionMessage(propertyBuilder.toString(), PostgresWalCdcPipelineReaderProperties.class, "type must not be null");
+    assertExceptionMessage(propertyBuilder.toString(), PollingPipelineReaderProperties.class, "type must not be null");
 
     propertyBuilder.addString("type", PollingCdcPipelineReaderFactory.TYPE);
-    testCommonRequiredProperties(PostgresWalCdcPipelineReaderProperties.class, propertyBuilder);
+    testCommonRequiredProperties(PollingPipelineReaderProperties.class, propertyBuilder);
 
-    assertNoException(propertyBuilder.toString(), PostgresWalCdcPipelineReaderProperties.class);
+    assertNoException(propertyBuilder.toString(), PollingPipelineReaderProperties.class);
 
     PollingPipelineReaderProperties pollingPipelineReaderProperties =
             objectMapper.readValue(propertyBuilder.toString(), PollingPipelineReaderProperties.class);

@@ -1,8 +1,6 @@
 package io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.configuration;
 
-import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.local.common.ConnectionPoolConfigurationProperties;
-import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.CdcPipelineReaderFactory;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineReaderProperties;
 import io.eventuate.local.unified.cdc.pipeline.dblog.common.configuration.CommonDbLogCdcDefaultPipelineReaderConfiguration;
@@ -20,15 +18,11 @@ public class MySqlBinlogCdcPipelineReaderConfiguration extends CommonDbLogCdcDef
 
   @Bean("eventuateLocalMySqlBinlogCdcPipelineReaderFactory")
   public CdcPipelineReaderFactory mySqlBinlogCdcPipelineReaderFactory(MeterRegistry meterRegistry,
-                                                                      LeaderSelectorFactory leaderSelectorFactory,
-                                                                      BinlogEntryReaderProvider binlogEntryReaderProvider,
                                                                       OffsetStoreFactory offsetStoreFactory,
                                                                       DebeziumOffsetStoreFactory debeziumOffsetStoreFactory,
                                                                       ConnectionPoolConfigurationProperties connectionPoolConfigurationProperties) {
 
     return new MySqlBinlogCdcPipelineReaderFactory(meterRegistry,
-            leaderSelectorFactory,
-            binlogEntryReaderProvider,
             offsetStoreFactory,
             debeziumOffsetStoreFactory,
             connectionPoolConfigurationProperties);
@@ -37,15 +31,11 @@ public class MySqlBinlogCdcPipelineReaderConfiguration extends CommonDbLogCdcDef
   @Conditional(MySqlBinlogCondition.class)
   @Bean("defaultCdcPipelineReaderFactory")
   public CdcPipelineReaderFactory defaultMySqlBinlogCdcPipelineFactory(MeterRegistry meterRegistry,
-                                                                       LeaderSelectorFactory leaderSelectorFactory,
-                                                                       BinlogEntryReaderProvider binlogEntryReaderProvider,
                                                                        OffsetStoreFactory offsetStoreFactory,
                                                                        DebeziumOffsetStoreFactory debeziumOffsetStoreFactory,
                                                                        ConnectionPoolConfigurationProperties connectionPoolConfigurationProperties) {
 
     return new MySqlBinlogCdcPipelineReaderFactory(meterRegistry,
-            leaderSelectorFactory,
-            binlogEntryReaderProvider,
             offsetStoreFactory,
             debeziumOffsetStoreFactory,
             connectionPoolConfigurationProperties);

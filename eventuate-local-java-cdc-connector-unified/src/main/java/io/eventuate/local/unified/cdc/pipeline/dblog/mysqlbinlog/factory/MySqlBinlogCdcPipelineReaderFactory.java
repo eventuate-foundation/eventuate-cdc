@@ -1,12 +1,10 @@
 package io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.factory;
 
-import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.ConnectionPoolConfigurationProperties;
 import io.eventuate.local.db.log.common.OffsetStore;
 import io.eventuate.local.mysql.binlog.DebeziumBinlogOffsetKafkaStore;
 import io.eventuate.local.mysql.binlog.MySqlBinaryLogClient;
-import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.CommonCdcPipelineReaderFactory;
 import io.eventuate.local.unified.cdc.pipeline.dblog.common.factory.OffsetStoreFactory;
 import io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.properties.MySqlBinlogCdcPipelineReaderProperties;
@@ -22,15 +20,11 @@ public class MySqlBinlogCdcPipelineReaderFactory extends CommonCdcPipelineReader
   private OffsetStoreFactory offsetStoreFactory;
 
   public MySqlBinlogCdcPipelineReaderFactory(MeterRegistry meterRegistry,
-                                             LeaderSelectorFactory leaderSelectorFactory,
-                                             BinlogEntryReaderProvider binlogEntryReaderProvider,
                                              OffsetStoreFactory offsetStoreFactory,
                                              DebeziumOffsetStoreFactory debeziumOffsetStoreFactory,
                                              ConnectionPoolConfigurationProperties connectionPoolConfigurationProperties) {
 
     super(meterRegistry,
-            leaderSelectorFactory,
-            binlogEntryReaderProvider,
             connectionPoolConfigurationProperties);
 
     this.debeziumOffsetStoreFactory = debeziumOffsetStoreFactory;

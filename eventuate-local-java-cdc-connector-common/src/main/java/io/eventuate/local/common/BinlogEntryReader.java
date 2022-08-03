@@ -22,7 +22,6 @@ public abstract class BinlogEntryReader {
   protected List<BinlogEntryHandler> binlogEntryHandlers = new CopyOnWriteArrayList<>();
   protected AtomicBoolean running = new AtomicBoolean(false);
   protected CountDownLatch stopCountDownLatch;
-  protected String dataSourceUrl;
   protected DataSource dataSource;
   protected String readerName;
   protected Long outboxId;
@@ -34,13 +33,11 @@ public abstract class BinlogEntryReader {
   protected Optional<Runnable> restartCallback = Optional.empty();
 
   public BinlogEntryReader(MeterRegistry meterRegistry,
-                           String dataSourceUrl,
                            DataSource dataSource,
                            String readerName,
                            Long outboxId) {
 
     this.meterRegistry = meterRegistry;
-    this.dataSourceUrl = dataSourceUrl;
     this.dataSource = dataSource;
     this.readerName = readerName;
     this.outboxId = outboxId;

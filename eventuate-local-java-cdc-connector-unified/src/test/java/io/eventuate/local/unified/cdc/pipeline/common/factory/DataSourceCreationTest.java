@@ -56,7 +56,7 @@ public class DataSourceCreationTest {
   }
 
   private CommonCdcPipelineReaderFactory createCdcPipelineReaderFactory() {
-    return new CommonCdcPipelineReaderFactory(null, null, null, connectionPoolConfigurationProperties) {
+    return new CommonCdcPipelineReaderFactory(null, connectionPoolConfigurationProperties) {
       @Override
       public BinlogEntryReader create(CdcPipelineReaderProperties cdcPipelineReaderProperties) {
         return null;

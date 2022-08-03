@@ -3,7 +3,10 @@ package io.eventuate.local.postgres.wal;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.SchemaAndTable;
 import io.eventuate.common.json.mapper.JSonMapper;
-import io.eventuate.local.common.*;
+import io.eventuate.local.common.BinlogEntry;
+import io.eventuate.local.common.BinlogEntryHandler;
+import io.eventuate.local.common.CdcProcessingStatusService;
+import io.eventuate.local.common.OffsetProcessor;
 import io.eventuate.local.db.log.common.DbLogClient;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.postgresql.PGConnection;
@@ -38,7 +41,7 @@ public class PostgresWalClient extends DbLogClient {
   private OffsetProcessor<LogSequenceNumber> offsetProcessor;
 
   public PostgresWalClient(MeterRegistry meterRegistry,
-                           String url,
+                           String dataSourceUrl,
                            String user,
                            String password,
                            int walIntervalInMilliseconds,
@@ -59,7 +62,7 @@ public class PostgresWalClient extends DbLogClient {
     super(meterRegistry,
             user,
             password,
-            url,
+            dataSourceUrl,
             dataSource,
             readerName,
             replicationLagMeasuringIntervalInMilliseconds,

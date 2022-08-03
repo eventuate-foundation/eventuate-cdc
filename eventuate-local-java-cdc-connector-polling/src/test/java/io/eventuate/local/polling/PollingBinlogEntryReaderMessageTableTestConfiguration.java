@@ -56,7 +56,7 @@ public class PollingBinlogEntryReaderMessageTableTestConfiguration {
             eventuateConfigurationProperties.getPollingIntervalInMilliseconds(),
             eventuateConfigurationProperties.getReaderName(),
             sqlDialectSelector.getDialect(driver),
-            eventuateConfigurationProperties.getOutboxId());
+            eventuateConfigurationProperties.getOutboxId(), ParallelPollingChannels.make(eventuateConfigurationProperties.getPollingParallelChannels()));
   }
 
   @Bean
