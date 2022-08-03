@@ -8,10 +8,10 @@ import io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineRead
 import io.eventuate.local.unified.cdc.pipeline.common.properties.RawUnifiedCdcProperties;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class PipelineConfigPropertiesProvider {
@@ -26,22 +26,22 @@ public class PipelineConfigPropertiesProvider {
         this.cdcPipelineReaderFactories = cdcPipelineReaderFactories;
     }
 
-    public Optional<List<CdcPipelineReaderProperties>> pipelineReaderProperties() {
+    public Optional<Map<String, CdcPipelineReaderProperties>> pipelineReaderProperties() {
         if (rawUnifiedCdcProperties.isReaderPropertiesDeclared()) {
-            return Optional.of(makeFromProperties(rawUnifiedCdcProperties.getReader(), this::createCdcPipelineReaderProperties));
+            return Optional.of(makeFromProperties(rawUnifiedCdcProperties.getReader(), this::createCdcPipelineReaderProperties, CdcPipelineReaderProperties::getReaderName));
         } else
             return Optional.empty();
     }
 
-    public Optional<List<CdcPipelineProperties>> pipelineProperties() {
+    public Optional<Map<String, CdcPipelineProperties>> pipelineProperties() {
         if (rawUnifiedCdcProperties.isPipelinePropertiesDeclared()) {
-            return Optional.of(makeFromProperties(rawUnifiedCdcProperties.getPipeline(), this::createPipelineProperties));
+            return Optional.of(makeFromProperties(rawUnifiedCdcProperties.getPipeline(), this::createPipelineProperties, CdcPipelineProperties::getName));
         } else
             return Optional.empty();
     }
 
-    private <T> List<T> makeFromProperties(Map<String, Map<String, Object>> properties, BiFunction<String, Map<String, Object>, T> creator) {
-        return properties.entrySet().stream().map(entry -> creator.apply(entry.getKey(), entry.getValue())).collect(Collectors.toList());
+    private <T> Map<String, T> makeFromProperties(Map<String, Map<String, Object>> properties, BiFunction<String, Map<String, Object>, T> creator, Function<T, String> nameGetter) {
+        return properties.entrySet().stream().map(entry -> creator.apply(entry.getKey(), entry.getValue())).collect(Collectors.toMap(nameGetter, x -> x));
     }
 
     private CdcPipelineReaderProperties createCdcPipelineReaderProperties(String name, Map<String, Object> properties) {
@@ -90,7 +90,7 @@ public class PipelineConfigPropertiesProvider {
                 .convertMapToPropertyClass(properties, CdcPipelineProperties.class);
 
         cdcPipelineProperties.validate();
-
+        cdcPipelineProperties.setName(name);
         return cdcPipelineProperties;
     }
 

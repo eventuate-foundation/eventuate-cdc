@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.emptySet;
+
 public class PollingPipelineReaderProperties extends CdcPipelineReaderProperties {
   private Integer pollingIntervalInMilliseconds = 500;
   private Integer maxEventsPerPolling = 1000;
@@ -58,6 +60,6 @@ public class PollingPipelineReaderProperties extends CdcPipelineReaderProperties
   }
 
   public Set<String> getPollingParallelChannels() {
-    return pollingParallelChannels;
+    return pollingParallelChannels == null ? emptySet() : pollingParallelChannels;
   }
 }

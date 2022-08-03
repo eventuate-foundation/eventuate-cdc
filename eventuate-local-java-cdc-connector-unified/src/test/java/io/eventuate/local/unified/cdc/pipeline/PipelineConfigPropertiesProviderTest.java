@@ -22,9 +22,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import static java.util.Collections.emptySet;
 import static org.junit.Assert.assertEquals;
 
 
@@ -62,18 +63,23 @@ public class PipelineConfigPropertiesProviderTest {
 
     @Test
     public void shouldProvideReaderProperties() {
-        List<CdcPipelineReaderProperties> readers = pipelineConfigPropertiesProvider.pipelineReaderProperties().get();
-        assertEquals(1, readers.size());
-        PollingPipelineReaderProperties reader = (PollingPipelineReaderProperties) readers.get(0);
+        Map<String, CdcPipelineReaderProperties> readers = pipelineConfigPropertiesProvider.pipelineReaderProperties().get();
+        assertEquals(2, readers.size());
+
+        PollingPipelineReaderProperties mysqlreader1 = (PollingPipelineReaderProperties) readers.get("mysqlreader1");
         Set<String> expectedChannels = new HashSet<>();
         expectedChannels.add("parallel_channel_1");
         expectedChannels.add("parallel_channel_2");
-        assertEquals(expectedChannels, reader.getPollingParallelChannels());
+        assertEquals(expectedChannels, mysqlreader1.getPollingParallelChannels());
+
+        PollingPipelineReaderProperties mysqlreader2 = (PollingPipelineReaderProperties) readers.get("mysqlreader2");
+        assertEquals(emptySet(), mysqlreader2.getPollingParallelChannels());
+
     }
 
     @Test
     public void shouldProvidePipelineProperties() {
-        List<CdcPipelineProperties> pipelines = pipelineConfigPropertiesProvider.pipelineProperties().get();
+        Map<String, CdcPipelineProperties> pipelines = pipelineConfigPropertiesProvider.pipelineProperties().get();
         assertEquals(2, pipelines.size());
     }
 }

@@ -8,6 +8,8 @@ import org.springframework.util.Assert;
 public class CdcPipelineProperties implements ValidatableProperties {
   private String type;
 
+  private String name;
+
   private String reader;
   private String eventuateDatabaseSchema = null;
   private String sourceTableName = null;
@@ -52,5 +54,13 @@ public class CdcPipelineProperties implements ValidatableProperties {
 
   public void setSourceTableName(String sourceTableName) {
     this.sourceTableName = sourceTableName;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 }
