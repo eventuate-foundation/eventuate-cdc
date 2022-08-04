@@ -72,13 +72,8 @@ public class UnifiedCdcConfigurator {
   public void initialize() {
     logger.info("Starting unified cdc pipelines");
 
-    Optional<Map<String, CdcPipelineReaderProperties>> readers = pipelineConfigPropertiesProvider.pipelineReaderProperties();
-
-    if (readers.isPresent()) {
-      readers.get().forEach(this::createCdcPipelineReader);
-    } else {
-      createStartSaveCdcDefaultPipelineReader(defaultCdcPipelineReaderProperties);
-    }
+    pipelineConfigPropertiesProvider.pipelineReaderProperties()
+            .ifPresentOrElse(readers -> readers.forEach(this::createCdcPipelineReader), () -> createStartSaveCdcDefaultPipelineReader(defaultCdcPipelineReaderProperties));
 
     if (dryRunOption) {
       dryRun();
@@ -98,13 +93,8 @@ public class UnifiedCdcConfigurator {
   }
 
   private void start() {
-    Optional<Map<String, CdcPipelineProperties>> pipelines = pipelineConfigPropertiesProvider.pipelineProperties();
-    if (pipelines.isPresent()) {
-      pipelines.get()
-              .forEach(this::createStartSaveCdcPipeline);
-    } else {
-      createStartSaveCdcDefaultPipeline(defaultCdcPipelineProperties);
-    }
+    pipelineConfigPropertiesProvider.pipelineProperties()
+            .ifPresentOrElse(pipelines -> pipelines.forEach(this::createStartSaveCdcPipeline), () -> createStartSaveCdcDefaultPipeline(defaultCdcPipelineProperties));
 
     binlogEntryReaderProvider.start();
 

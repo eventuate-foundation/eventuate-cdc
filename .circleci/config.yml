@@ -16,7 +16,7 @@ orbs:
             type: string
             default: ''
         machine:
-          image: ubuntu-2004:202101-01
+          image: ubuntu-2204:2022.04.1
         resource_class: <<parameters.resource_class>>
         working_directory: ~/eventuate-cdc
         steps:
@@ -180,7 +180,20 @@ workflows:
             - build-and-test-mssql-polling
       - build-and-test/build-and-test:
           name: cdc-unified
+          script: ./scripts/build-and-test-all-cdc-unified.sh
           requires:
+            - build-and-test-mysql
+            - build-and-test-mysql8
+            - build-and-test-mysql-migration
+            - build-and-test-mariadb
+            - build-and-test-postgres-wal
+            - build-and-test-mssql-polling
+            - build-and-test-postgres-polling
+      - build-multi-arch-images:
+          context:
+            - publish
+          requires:
+            - cdc-unified
             - build-and-test-mysql
             - build-and-test-mysql8
             - build-and-test-mysql-migration
@@ -200,12 +213,6 @@ workflows:
             - tram-cdc-postgres-wal
             - tram-cdc-mssql-polling
             - database-id-jsonschema
-          script: ./scripts/build-and-test-all-cdc-unified.sh
-      - build-multi-arch-images:
-          context:
-            - publish
-          requires:
-            - cdc-unified
       - build-and-test/build-and-test:
           name: test-cdc-multi-arch-intel
           script:  ./scripts/build-and-test-all-tram-cdc-mysql8-multi-arch.sh
