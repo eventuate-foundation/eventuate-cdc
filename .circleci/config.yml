@@ -18,7 +18,7 @@ orbs:
           machine_image:
               description: machine image
               type: string
-              default: 'ubuntu-2204:2022.04.1'
+              default: 'ubuntu-2004:202101-01'
         machine:
           image: <<parameters.machine_image>>
         resource_class: <<parameters.resource_class>>
