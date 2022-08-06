@@ -6,8 +6,9 @@ import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.basic.consumer.KafkaConsumerFactory;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
-import io.eventuate.messaging.kafka.spring.common.EventuateKafkaPropertiesConfiguration;
 import io.eventuate.messaging.kafka.consumer.MessageConsumerKafkaImpl;
+import io.eventuate.messaging.kafka.consumer.OriginalTopicPartitionToSwimLaneMapping;
+import io.eventuate.messaging.kafka.spring.common.EventuateKafkaPropertiesConfiguration;
 import io.eventuate.messaging.kafka.spring.consumer.KafkaConsumerFactoryConfiguration;
 import io.eventuate.tram.connector.AbstractTramCdcTest;
 import org.junit.runner.RunWith;
@@ -42,7 +43,7 @@ public class EventuateTramCdcKafkaTest extends AbstractTramCdcTest {
   protected void createConsumer(String topic, Consumer<String> consumer) {
     MessageConsumerKafkaImpl messageConsumerKafka = new MessageConsumerKafkaImpl(eventuateKafkaConfigurationProperties.getBootstrapServers(),
             EventuateKafkaConsumerConfigurationProperties.empty(),
-            kafkaConsumerFactory);
+            kafkaConsumerFactory, new OriginalTopicPartitionToSwimLaneMapping());
 
     messageConsumerKafka.subscribe(subscriberId,
             ImmutableSet.of(topic),
