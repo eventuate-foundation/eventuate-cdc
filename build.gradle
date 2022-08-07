@@ -37,7 +37,7 @@ subprojects {
 
     java {
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(17))
+            languageVersion.set(JavaLanguageVersion.of(project.name.equals("eventuate-local-java-test-util") ? 8: 17))
         }
     }
 
