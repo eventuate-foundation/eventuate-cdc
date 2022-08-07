@@ -7,7 +7,7 @@ import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigu
 import io.eventuate.messaging.kafka.basic.consumer.KafkaConsumerFactory;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
 import io.eventuate.messaging.kafka.consumer.MessageConsumerKafkaImpl;
-import io.eventuate.messaging.kafka.consumer.OriginalTopicPartitionToSwimLaneMapping;
+import io.eventuate.messaging.kafka.consumer.OriginalTopicPartitionToSwimlaneMapping;
 import io.eventuate.messaging.kafka.spring.common.EventuateKafkaPropertiesConfiguration;
 import io.eventuate.messaging.kafka.spring.consumer.KafkaConsumerFactoryConfiguration;
 import io.eventuate.tram.connector.AbstractTramCdcTest;
@@ -43,7 +43,7 @@ public class EventuateTramCdcKafkaTest extends AbstractTramCdcTest {
   protected void createConsumer(String topic, Consumer<String> consumer) {
     MessageConsumerKafkaImpl messageConsumerKafka = new MessageConsumerKafkaImpl(eventuateKafkaConfigurationProperties.getBootstrapServers(),
             EventuateKafkaConsumerConfigurationProperties.empty(),
-            kafkaConsumerFactory, new OriginalTopicPartitionToSwimLaneMapping());
+            kafkaConsumerFactory, new OriginalTopicPartitionToSwimlaneMapping());
 
     messageConsumerKafka.subscribe(subscriberId,
             ImmutableSet.of(topic),
