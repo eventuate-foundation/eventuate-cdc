@@ -93,7 +93,7 @@ dockerCompose {
     environment.put "EVENTUATE_RABBIT_MQ_VERSION", eventuateRabbitMQImageVersion
     environment.put "EVENTUATE_MESSAGING_KAFKA_IMAGE_VERSION", eventuateMessagingKafkaImageVersion
 
-    environment.put "DOCKER_IMAGE_TAG", dockerImageTag
+    environment.put "DOCKER_IMAGE_TAG", version
 
     removeOrphans = true
 
@@ -136,6 +136,14 @@ dockerCompose {
         useComposeFiles = ["docker-compose-mysql8.yml"]
         removeContainers = project.ext.removeContainers
         startedServices = ["mysql"]
+        removeOrphans = false
+    }
+
+    mysql8KafkaOnly {
+        projectName = null
+        useComposeFiles = ["docker-compose-mysql8.yml"]
+        removeContainers = project.ext.removeContainers
+        startedServices = ["kafka"]
         removeOrphans = false
     }
 

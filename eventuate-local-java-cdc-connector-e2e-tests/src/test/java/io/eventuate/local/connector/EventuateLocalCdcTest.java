@@ -1,9 +1,9 @@
 package io.eventuate.local.connector;
 
 import io.eventuate.cdc.e2e.common.AbstractEventuateCdcTest;
-import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.spring.id.IdGeneratorConfiguration;
+import io.eventuate.common.spring.jdbc.EventuateCommonJdbcOperationsConfiguration;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumer;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
@@ -26,13 +26,14 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {EventuateLocalCdcTest.Config.class,
-        KafkaConsumerFactoryConfiguration.class,
-        SqlDialectConfiguration.class,
-        IdGeneratorConfiguration.class})
+@SpringBootTest(classes = {EventuateLocalCdcTest.Config.class})
 public class EventuateLocalCdcTest extends AbstractEventuateCdcTest {
 
-  @Import(EventuateKafkaPropertiesConfiguration.class)
+  @Import({EventuateKafkaPropertiesConfiguration.class,
+          KafkaConsumerFactoryConfiguration.class,
+          SqlDialectConfiguration.class,
+          IdGeneratorConfiguration.class,
+          EventuateCommonJdbcOperationsConfiguration.class})
   @Configuration
   @EnableAutoConfiguration
   public static class Config {

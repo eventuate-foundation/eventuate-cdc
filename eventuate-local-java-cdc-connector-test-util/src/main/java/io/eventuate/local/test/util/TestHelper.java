@@ -1,14 +1,11 @@
 package io.eventuate.local.test.util;
 
-import io.eventuate.common.spring.jdbc.EventuateSpringJdbcStatementExecutor;
 import io.eventuate.common.eventuate.local.BinLogEvent;
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
-import io.eventuate.common.jdbc.EventuateJdbcOperationsUtils;
 import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.common.jdbc.sqldialect.EventuateSqlDialect;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.local.common.BinlogEntryReader;
 import io.eventuate.local.common.BinlogEntryToEventConverter;
@@ -28,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
@@ -56,18 +52,11 @@ public class TestHelper {
   @Autowired(required = false)
   private SourceTableNameSupplier sourceTableNameSupplier;
 
-  private EventuateCommonJdbcOperations eventuateCommonJdbcOperations;
+  @Autowired
+  protected EventuateCommonJdbcOperations eventuateCommonJdbcOperations;
 
   private EventuateKafkaMultiMessageConverter eventuateKafkaMultiMessageConverter = new EventuateKafkaMultiMessageConverter();
 
-  @PostConstruct
-  public void init() {
-    EventuateSqlDialect eventuateSqlDialect = sqlDialectSelector.getDialect(driver);
-
-    eventuateCommonJdbcOperations = new EventuateCommonJdbcOperations(new EventuateJdbcOperationsUtils(eventuateSqlDialect),
-            new EventuateSpringJdbcStatementExecutor(jdbcTemplate),
-            eventuateSqlDialect);
-  }
 
   public String getEventTopicName() {
     return "TestEntity";

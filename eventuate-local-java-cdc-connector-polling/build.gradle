@@ -11,6 +11,10 @@ dependencies {
     testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
     testImplementation "junit:junit:4.11"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "io.eventuate.common:eventuate-common-testcontainers:$eventuateCommonVersion"
+    testImplementation "org.testcontainers:testcontainers:$testContainersVersion"
+    testImplementation "org.assertj:assertj-core:$assertjVersion"
+
 }
 
 test {

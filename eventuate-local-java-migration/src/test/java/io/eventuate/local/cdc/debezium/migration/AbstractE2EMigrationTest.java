@@ -1,18 +1,14 @@
 package io.eventuate.local.cdc.debezium.migration;
 
-import io.eventuate.common.spring.jdbc.EventuateSpringJdbcStatementExecutor;
 import io.eventuate.common.id.ApplicationIdGenerator;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
-import io.eventuate.common.jdbc.EventuateJdbcOperationsUtils;
 import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.common.jdbc.sqldialect.EventuateSqlDialect;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.messaging.kafka.basic.consumer.*;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.Assert;
-import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -44,16 +40,9 @@ public abstract class AbstractE2EMigrationTest {
   @Autowired
   private SqlDialectSelector sqlDialectSelector;
 
-  private EventuateCommonJdbcOperations eventuateCommonJdbcOperations;
+  @Autowired
+  protected EventuateCommonJdbcOperations eventuateCommonJdbcOperations;
 
-  @Before
-  public void init() {
-    EventuateSqlDialect eventuateSqlDialect = sqlDialectSelector.getDialect(driver);
-
-    eventuateCommonJdbcOperations = new EventuateCommonJdbcOperations(new EventuateJdbcOperationsUtils(eventuateSqlDialect),
-            new EventuateSpringJdbcStatementExecutor(jdbcTemplate),
-            eventuateSqlDialect);
-  }
 
   protected void subscribe(Handler handler) {
     EventuateKafkaConsumer eventuateKafkaConsumer = new EventuateKafkaConsumer("testSubscriber",

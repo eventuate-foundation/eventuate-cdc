@@ -2,16 +2,13 @@ package io.eventuate.tram.connector.redis;
 
 import com.google.common.collect.ImmutableSet;
 import io.eventuate.common.spring.id.IdGeneratorConfiguration;
+import io.eventuate.common.spring.jdbc.EventuateCommonJdbcOperationsConfiguration;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.messaging.partitionmanagement.CoordinatorFactory;
 import io.eventuate.messaging.partitionmanagement.CoordinatorFactoryImpl;
 import io.eventuate.messaging.redis.spring.common.CommonRedisConfiguration;
 import io.eventuate.messaging.redis.spring.common.RedissonClients;
-import io.eventuate.messaging.redis.spring.consumer.MessageConsumerRedisImpl;
-import io.eventuate.messaging.redis.spring.consumer.RedisAssignmentListener;
-import io.eventuate.messaging.redis.spring.consumer.RedisAssignmentManager;
-import io.eventuate.messaging.redis.spring.consumer.RedisGroupMember;
-import io.eventuate.messaging.redis.spring.consumer.RedisMemberGroupManager;
+import io.eventuate.messaging.redis.spring.consumer.*;
 import io.eventuate.messaging.redis.spring.leadership.RedisLeaderSelector;
 import io.eventuate.tram.connector.AbstractTramCdcTest;
 import org.junit.runner.RunWith;
@@ -26,12 +23,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.function.Consumer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {EventuateTramCdcRedisTest.Config.class, IdGeneratorConfiguration.class})
+@SpringBootTest(classes = {EventuateTramCdcRedisTest.Config.class})
 public class EventuateTramCdcRedisTest extends AbstractTramCdcTest {
 
   @Configuration
   @EnableAutoConfiguration
-  @Import({CommonRedisConfiguration.class, SqlDialectConfiguration.class})
+  @Import({CommonRedisConfiguration.class, SqlDialectConfiguration.class, IdGeneratorConfiguration.class, EventuateCommonJdbcOperationsConfiguration.class})
   public static class Config {
   }
 

@@ -5,13 +5,17 @@ import io.eventuate.common.eventuate.local.BinLogEvent;
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.jdbc.EventuateJdbcStatementExecutor;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.OutboxPartitioningSpec;
 import io.eventuate.common.jdbc.SchemaAndTable;
 import io.eventuate.common.jdbc.sqldialect.EventuateSqlDialect;
 import io.eventuate.common.spring.jdbc.EventuateSpringJdbcStatementExecutor;
 import io.eventuate.local.common.*;
 import io.eventuate.local.polling.spec.PollingSpec;
 import io.eventuate.local.polling.spec.SqlFragment;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -21,10 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -32,6 +33,13 @@ public class PollingDao extends BinlogEntryReader {
   private static final String PUBLISHED_FIELD = "published";
   private final String dataSourceUrl;
   private final ParallelPollingChannels pollingParallelChannels;
+  private final Timer queryTimer;
+  private final DistributionSummary rowsToProcess;
+  private final Timer publishingTimer;
+  private final Timer markAsProcessedTimer;
+  private final Counter publishedMessages;
+  private final Timer completeTimer;
+  private final Counter sleepCounter;
 
   private DataSource dataSource;
   private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -43,6 +51,7 @@ public class PollingDao extends BinlogEntryReader {
   private Map<SchemaAndTable, String> pkFields = new HashMap<>();
   private EventuateSqlDialect eventuateSqlDialect;
   private final PollingProcessingStatusService pollingProcessingStatusService;
+  private OutboxPartitioningSpec outboxPartitioning;
 
   public PollingDao(MeterRegistry meterRegistry,
                     String dataSourceUrl,
@@ -54,12 +63,14 @@ public class PollingDao extends BinlogEntryReader {
                     String readerName,
                     EventuateSqlDialect eventuateSqlDialect,
                     Long outboxId,
-                    ParallelPollingChannels pollingParallelChannels) {
+                    ParallelPollingChannels pollingParallelChannels,
+                    OutboxPartitioningSpec outboxPartitioning) {
 
     super(meterRegistry,
             dataSource,
             readerName,
             outboxId);
+    this.outboxPartitioning = outboxPartitioning;
 
     if (maxEventsPerPolling <= 0) {
       throw new IllegalArgumentException("Max events per polling parameter should be greater than 0.");
@@ -76,6 +87,14 @@ public class PollingDao extends BinlogEntryReader {
     this.eventuateSqlDialect = eventuateSqlDialect;
     pollingProcessingStatusService = new PollingProcessingStatusService(dataSource, PUBLISHED_FIELD, eventuateSqlDialect);
     this.pollingParallelChannels = pollingParallelChannels;
+
+    this.completeTimer = meterRegistry.timer("eventuate.cdc.polling.complete", "reader", readerName);
+    this.queryTimer = meterRegistry.timer("eventuate.cdc.polling.query", "reader", readerName);
+    this.rowsToProcess = meterRegistry.summary("eventuate.cdc.polling.batchSize", "reader", readerName);
+    this.publishedMessages = meterRegistry.counter("eventuate.cdc.polling.published", "reader", readerName);
+    this.publishingTimer = meterRegistry.timer("eventuate.cdc.polling.publishing", "reader", readerName);
+    this.markAsProcessedTimer = meterRegistry.timer("eventuate.cdc.polling.marking", "reader", readerName);
+    this.sleepCounter = meterRegistry.counter("eventuate.cdc.polling.sleep", "reader", readerName);
   }
 
   @Override
@@ -96,13 +115,19 @@ public class PollingDao extends BinlogEntryReader {
 
   @Override
   public void start() {
-    logger.info("Starting {} {}", readerName, pollingParallelChannels);
-    super.start();
+    logger.info("Starting {} {} {}", readerName, pollingParallelChannels, outboxPartitioning);
 
-    stopCountDownLatch = new CountDownLatch(1 + pollingParallelChannels.size());
-    running.set(true);
+    List<String> suffixes = outboxPartitioning.outboxTableSuffixes();
+    stopCountDownLatch = new CountDownLatch((1 + pollingParallelChannels.size()) * suffixes.size());
 
-    pollingParallelChannels.makePollingSpecs().forEach(this::startPollingThread);
+    for (String suffix : suffixes) {
+      logger.info("Starting {} {} {}", readerName, pollingParallelChannels, suffix);
+      super.start();
+
+      running.set(true);
+
+      pollingParallelChannels.makePollingSpecs().forEach(pollingSpec -> startPollingThread(pollingSpec, suffix));
+    }
 
     logger.info("startup completed {}", readerName);
   }
@@ -110,14 +135,16 @@ public class PollingDao extends BinlogEntryReader {
 
   private ExecutorService executor = Executors.newCachedThreadPool();
 
-  public void startPollingThread(PollingSpec pollingSpec) {
+  public void startPollingThread(PollingSpec pollingSpec, String messageTableSuffix) {
     logger.info("Starting polling thread for {}", pollingSpec);
     executor.submit(() -> {
       logger.info("Started polling thread for {}", pollingSpec);
       while (running.get()) {
         int processedEvents = 0;
+        long startTime = System.currentTimeMillis();
+
         try {
-          processedEvents = binlogEntryHandlers.stream().map(handler -> processEvents(handler, pollingSpec)).reduce(0, (a, b) -> a + b);
+          processedEvents = binlogEntryHandlers.stream().map(handler -> processEvents(handler, pollingSpec, messageTableSuffix)).reduce(0, Integer::sum);
         } catch (Exception e) {
           handleProcessingFailException(e);
         }
@@ -125,6 +152,11 @@ public class PollingDao extends BinlogEntryReader {
         try {
           if (processedEvents == 0) {
             Thread.sleep(pollingIntervalInMilliseconds);
+            sleepCounter.increment();
+          } else {
+            long endTime = System.currentTimeMillis();
+            completeTimer.record(endTime - startTime, TimeUnit.MILLISECONDS);
+
           }
         } catch (InterruptedException e) {
           handleProcessingFailException(e);
@@ -135,14 +167,14 @@ public class PollingDao extends BinlogEntryReader {
     });
   }
 
-  public int processEvents(BinlogEntryHandler handler, PollingSpec pollingSpec) {
+  public int processEvents(BinlogEntryHandler handler, PollingSpec pollingSpec, String messageTableSuffix) {
 
     String pk = getPrimaryKey(handler);
 
     SqlFragment sqlFragment = pollingSpec.addToWhere(handler.getDestinationColumn());
 
-    String findEventsQuery = eventuateSqlDialect.addLimitToSql(String.format("SELECT * FROM %s WHERE %s = 0 %s ORDER BY %s ASC",
-            handler.getQualifiedTable(), PUBLISHED_FIELD, sqlFragment.sql, pk), ":limit");
+    String findEventsQuery = eventuateSqlDialect.addLimitToSql(String.format("SELECT * FROM %s%s WHERE %s = 0 %s ORDER BY %s ASC",
+            handler.getQualifiedTable(), messageTableSuffix, PUBLISHED_FIELD, sqlFragment.sql, pk), ":limit");
 
     logger.debug("Polling with query {}", findEventsQuery);
 
@@ -150,43 +182,54 @@ public class PollingDao extends BinlogEntryReader {
     params.put("limit", maxEventsPerPolling);
     params.putAll(sqlFragment.params);
 
-    SqlRowSet sqlRowSet = DaoUtils.handleConnectionLost(maxAttemptsForPolling,
+    SqlRowSet sqlRowSet = queryTimer.record(() -> DaoUtils.handleConnectionLost(maxAttemptsForPolling,
             pollingRetryIntervalInMilliseconds,
             () -> namedParameterJdbcTemplate.queryForRowSet(findEventsQuery, params),
             this::onInterrupted,
-            running);
+            running));
 
     List<CompletableFuture<Object>> ids = new ArrayList<>();
 
+    long publishingStartTime = System.currentTimeMillis();
     while (sqlRowSet.next()) {
       Object id = sqlRowSet.getObject(pk);
       ids.add(handleEvent(id, handler, sqlRowSet));
       onEventReceived();
     }
 
+    int nIds = ids.size();
+
+    publishedMessages.increment(nIds);
+    rowsToProcess.record(nIds);
+
     if (!ids.isEmpty()) {
-      markEventsAsProcessed(ids, pk, handler);
+      markEventsAsProcessed(ids, pk, handler, publishingStartTime, messageTableSuffix);
     }
 
     onActivity();
 
-    return ids.size();
+    return nIds;
+
   }
 
-  private void markEventsAsProcessed(List<CompletableFuture<Object>> eventIds, String pk, BinlogEntryHandler handler) {
+  private void markEventsAsProcessed(List<CompletableFuture<Object>> eventIds, String pk, BinlogEntryHandler handler, long publishingStartTime, String messageTableSuffix) {
     List<Object> ids = eventIds
             .stream()
             .map(this::extractId)
             .collect(Collectors.toList());
 
-    String markEventsAsReadQuery = String.format("UPDATE %s SET %s = 1 WHERE %s in (:ids)",
-            handler.getQualifiedTable(), PUBLISHED_FIELD, pk);
+    long publishingEndTime = System.currentTimeMillis();
 
-    DaoUtils.handleConnectionLost(maxAttemptsForPolling,
+    publishingTimer.record(publishingEndTime - publishingStartTime, TimeUnit.MILLISECONDS);
+
+    String markEventsAsReadQuery = String.format("UPDATE %s%s SET %s = 1 WHERE %s in (:ids)",
+            handler.getQualifiedTable(), messageTableSuffix, PUBLISHED_FIELD, pk);
+
+    markAsProcessedTimer.record(() -> DaoUtils.handleConnectionLost(maxAttemptsForPolling,
             pollingRetryIntervalInMilliseconds,
             () -> namedParameterJdbcTemplate.update(markEventsAsReadQuery, ImmutableMap.of("ids", ids)),
             this::onInterrupted,
-            running);
+            running));
   }
 
   private Object extractId(CompletableFuture<Object> id) {

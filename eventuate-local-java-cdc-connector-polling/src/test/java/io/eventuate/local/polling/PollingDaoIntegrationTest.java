@@ -13,6 +13,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 
@@ -22,13 +23,15 @@ import static org.junit.Assert.assertEquals;
 @EnableAutoConfiguration
 public class PollingDaoIntegrationTest extends AbstractPollingDaoIntegrationTest {
 
+    private final String messageTableSuffix = ""; // TODO
+
     @Test
     public void testThatPollingEventCountAreLimited() {
         BinlogEntryHandler binlogEntryHandler = prepareBinlogEntryHandler(CompletableFuture.completedFuture(null));
 
         List<String> eventIds = saveEvents();
 
-        pollingDao.processEvents(binlogEntryHandler, PollingSpec.ALL);
+        pollingDao.processEvents(binlogEntryHandler, PollingSpec.ALL, messageTableSuffix);
 
         assertEquals(EVENTS_PER_POLLING_ITERATION, processedEvents.get());
 
@@ -46,16 +49,20 @@ public class PollingDaoIntegrationTest extends AbstractPollingDaoIntegrationTest
         CountDownLatch allIterationsComplete = new CountDownLatch(1);
 
         CompletableFuture.supplyAsync(() -> {
-            for (int i = 0; i < (NUMBER_OF_EVENTS_TO_PUBLISH / EVENTS_PER_POLLING_ITERATION) * 2; i++) {
-                pollingDao.processEvents(binlogEntryHandler, PollingSpec.ALL);
+            try {
+                for (int i = 0; i < (NUMBER_OF_EVENTS_TO_PUBLISH / EVENTS_PER_POLLING_ITERATION) * 2; i++) {
+                    pollingDao.processEvents(binlogEntryHandler, PollingSpec.ALL, messageTableSuffix);
+                }
+                allIterationsComplete.countDown();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            allIterationsComplete.countDown();
             return null;
         });
 
         Thread.sleep(3000);
         completableFuture.complete(null);
-        allIterationsComplete.await();
+        allIterationsComplete.await(30, TimeUnit.SECONDS);
 
         assertEquals(NUMBER_OF_EVENTS_TO_PUBLISH, processedEvents.get());
     }

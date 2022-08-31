@@ -2,6 +2,7 @@ package io.eventuate.local.polling;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.OutboxPartitioningSpec;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.common.spring.id.IdGeneratorConfiguration;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
@@ -100,7 +101,8 @@ public class PollingIntegrationTestConfiguration {
             eventuateConfigurationProperties.getPollingIntervalInMilliseconds(),
             eventuateConfigurationProperties.getReaderName(),
             sqlDialectSelector.getDialect(driver),
-            eventuateConfigurationProperties.getOutboxId(), ParallelPollingChannels.make(eventuateConfigurationProperties.getPollingParallelChannels()));
+            eventuateConfigurationProperties.getOutboxId(), ParallelPollingChannels.make(eventuateConfigurationProperties.getPollingParallelChannels()),
+            new OutboxPartitioningSpec(eventuateConfigurationProperties.getOutboxTables(), eventuateConfigurationProperties.getOutboxTablePartitions()));
   }
 
   @Bean

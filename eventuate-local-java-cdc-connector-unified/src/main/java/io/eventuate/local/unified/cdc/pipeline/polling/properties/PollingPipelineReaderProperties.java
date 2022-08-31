@@ -1,6 +1,7 @@
 package io.eventuate.local.unified.cdc.pipeline.polling.properties;
 
 
+import io.eventuate.common.jdbc.OutboxPartitioningSpec;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineReaderProperties;
 
 import java.util.Arrays;
@@ -15,6 +16,7 @@ public class PollingPipelineReaderProperties extends CdcPipelineReaderProperties
   private Integer maxAttemptsForPolling = 100;
   private Integer pollingRetryIntervalInMilliseconds = 500;
   private Set<String> pollingParallelChannels;
+  private OutboxPartitioningSpec outboxPartitioning = OutboxPartitioningSpec.DEFAULT;
 
   public Integer getPollingIntervalInMilliseconds() {
     return pollingIntervalInMilliseconds;
@@ -61,5 +63,13 @@ public class PollingPipelineReaderProperties extends CdcPipelineReaderProperties
 
   public Set<String> getPollingParallelChannels() {
     return pollingParallelChannels == null ? emptySet() : pollingParallelChannels;
+  }
+
+  public void setOutboxPartitioning(OutboxPartitioningSpec outboxPartitioning) {
+    this.outboxPartitioning = outboxPartitioning;
+  }
+
+  public OutboxPartitioningSpec getOutboxPartitioning() {
+    return outboxPartitioning;
   }
 }

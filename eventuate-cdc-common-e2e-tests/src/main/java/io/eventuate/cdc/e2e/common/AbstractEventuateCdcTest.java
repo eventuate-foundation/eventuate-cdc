@@ -1,16 +1,12 @@
 package io.eventuate.cdc.e2e.common;
 
-import io.eventuate.common.spring.jdbc.EventuateSpringJdbcStatementExecutor;
 import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
-import io.eventuate.common.jdbc.EventuateJdbcOperationsUtils;
 import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.common.jdbc.sqldialect.EventuateSqlDialect;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +14,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
@@ -28,6 +25,7 @@ public abstract class AbstractEventuateCdcTest {
 
   protected String subscriberId = generateId();
 
+  @Autowired
   protected EventuateCommonJdbcOperations eventuateCommonJdbcOperations;
 
   @Autowired
@@ -42,14 +40,6 @@ public abstract class AbstractEventuateCdcTest {
   @Autowired
   protected IdGenerator idGenerator;
 
-  @Before
-  public void init() {
-    EventuateSqlDialect eventuateSqlDialect = sqlDialectSelector.getDialect(driver);
-
-    eventuateCommonJdbcOperations = new EventuateCommonJdbcOperations(new EventuateJdbcOperationsUtils(eventuateSqlDialect),
-            new EventuateSpringJdbcStatementExecutor(jdbcTemplate),
-            eventuateSqlDialect);
-  }
 
   @Test
   public void insertToEventTableAndWaitEventInBroker() throws Exception {

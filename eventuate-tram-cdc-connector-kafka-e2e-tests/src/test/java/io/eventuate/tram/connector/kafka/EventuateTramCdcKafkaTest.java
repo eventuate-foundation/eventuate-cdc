@@ -2,6 +2,7 @@ package io.eventuate.tram.connector.kafka;
 
 import com.google.common.collect.ImmutableSet;
 import io.eventuate.common.spring.id.IdGeneratorConfiguration;
+import io.eventuate.common.spring.jdbc.EventuateCommonJdbcOperationsConfiguration;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.basic.consumer.KafkaConsumerFactory;
@@ -22,14 +23,14 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.function.Consumer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {EventuateTramCdcKafkaTest.Config.class, IdGeneratorConfiguration.class})
+@SpringBootTest(classes = {EventuateTramCdcKafkaTest.Config.class})
 public class EventuateTramCdcKafkaTest extends AbstractTramCdcTest {
 
   @Configuration
   @EnableAutoConfiguration
   @Import({EventuateKafkaPropertiesConfiguration.class,
           SqlDialectConfiguration.class,
-          KafkaConsumerFactoryConfiguration.class})
+          KafkaConsumerFactoryConfiguration.class, IdGeneratorConfiguration.class, EventuateCommonJdbcOperationsConfiguration.class})
   public static class Config {
   }
 

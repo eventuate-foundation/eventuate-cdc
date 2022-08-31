@@ -38,6 +38,12 @@ public class EventuateConfigurationProperties {
   @Value("${eventuatelocal.cdc.polling.parallel.channels:}")
   private String[] pollingParallelChannels;
 
+  @Value("${eventuate.cdc.outbox.partitioning.outbox.tables:#{null}}")
+  private Integer outboxTables;
+
+  @Value("${eventuate.cdc.outbox.partitioning.message.partitions:#{null}}")
+  private Integer outboxTablePartitions;
+
   @Value("${eventuatelocal.cdc.leadership.lock.path:#{\"/eventuatelocal/cdc/leader\"}}")
   private String leadershipLockPath;
 
@@ -212,5 +218,13 @@ public class EventuateConfigurationProperties {
 
   public String[] getPollingParallelChannels() {
     return pollingParallelChannels;
+  }
+
+  public Integer getOutboxTables() {
+    return outboxTables;
+  }
+
+  public Integer getOutboxTablePartitions() {
+    return outboxTablePartitions;
   }
 }

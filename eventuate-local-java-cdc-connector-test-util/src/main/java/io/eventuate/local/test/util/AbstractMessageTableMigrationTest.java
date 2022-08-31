@@ -76,10 +76,10 @@ public abstract class AbstractMessageTableMigrationTest {
     messageAssertion.assertEventReceived(assertion().withPayload(rawPayload).build());
   }
 
-  private void sendMessage() {
+  private String sendMessage() {
     rawPayload = "\"" + "payload-" + testHelper.generateId() + "\"";
 
-    testHelper.saveMessage(idGenerator, rawPayload, testHelper.generateId(), Collections.emptyMap(), eventuateSchema);
+    return testHelper.saveMessage(idGenerator, rawPayload, testHelper.generateId(), Collections.emptyMap(), eventuateSchema);
   }
 
   private void executeSql(String sql) {

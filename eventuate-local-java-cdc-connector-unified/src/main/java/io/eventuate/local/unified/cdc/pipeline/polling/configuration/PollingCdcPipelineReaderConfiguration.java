@@ -1,5 +1,6 @@
 package io.eventuate.local.unified.cdc.pipeline.polling.configuration;
 
+import io.eventuate.common.jdbc.OutboxPartitioningSpec;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.local.common.ConnectionPoolConfigurationProperties;
 import io.eventuate.local.unified.cdc.pipeline.common.configuration.CommonCdcDefaultPipelineReaderConfiguration;
@@ -59,6 +60,9 @@ public class PollingCdcPipelineReaderConfiguration extends CommonCdcDefaultPipel
     pollingPipelineReaderProperties.setMaxAttemptsForPolling(eventuateConfigurationProperties.getMaxAttemptsForPolling());
     pollingPipelineReaderProperties.setPollingRetryIntervalInMilliseconds(eventuateConfigurationProperties.getPollingRetryIntervalInMilliseconds());
     pollingPipelineReaderProperties.setPollingParallelChannels(new HashSet<>(Arrays.asList(eventuateConfigurationProperties.getPollingParallelChannels())));
+
+    pollingPipelineReaderProperties.setOutboxPartitioning(new OutboxPartitioningSpec(eventuateConfigurationProperties.getOutboxTables(), eventuateConfigurationProperties.getOutboxTablePartitions()));
+
     return pollingPipelineReaderProperties;
   }
 }

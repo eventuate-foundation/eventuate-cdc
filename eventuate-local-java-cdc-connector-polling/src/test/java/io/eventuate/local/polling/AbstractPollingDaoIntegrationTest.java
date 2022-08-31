@@ -2,19 +2,20 @@ package io.eventuate.local.polling;
 
 import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.OutboxPartitioningSpec;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.common.spring.id.IdGeneratorConfiguration;
+import io.eventuate.common.spring.jdbc.EventuateCommonJdbcOperationsConfiguration;
 import io.eventuate.common.spring.jdbc.EventuateSchemaConfiguration;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.common.BinlogEntryHandler;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.EventuateConfigurationProperties;
 import io.eventuate.local.test.util.TestHelper;
-import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.Assert;
 import org.junit.Before;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +32,7 @@ public class AbstractPollingDaoIntegrationTest {
 
 
   @Configuration
-  @Import({EventuateSchemaConfiguration.class, SqlDialectConfiguration.class, IdGeneratorConfiguration.class})
+  @Import({EventuateSchemaConfiguration.class, SqlDialectConfiguration.class, IdGeneratorConfiguration.class, EventuateCommonJdbcOperationsConfiguration.class})
   public static class Config {
     @Bean
     public EventuateConfigurationProperties eventuateConfigurationProperties() {
@@ -50,7 +51,7 @@ public class AbstractPollingDaoIntegrationTest {
   protected static final int NUMBER_OF_EVENTS_TO_PUBLISH = 10;
 
   @Autowired
-  private IdGenerator idGenerator;
+  protected IdGenerator idGenerator;
 
   @Value("${spring.datasource.url}")
   private String dataSourceURL;
@@ -59,20 +60,20 @@ public class AbstractPollingDaoIntegrationTest {
   private String driver;
 
   @Autowired
-  private EventuateSchema eventuateSchema;
+  protected EventuateSchema eventuateSchema;
 
 
   @Autowired
   private DataSource dataSource;
 
   @Autowired
-  private JdbcTemplate jdbcTemplate;
+  protected JdbcTemplate jdbcTemplate;
 
   @Autowired
   private SqlDialectSelector sqlDialectSelector;
 
   @Autowired
-  private TestHelper testHelper;
+  protected TestHelper testHelper;
 
   @Autowired
   protected EventuateConfigurationProperties eventuateConfigurationProperties;
@@ -100,9 +101,7 @@ public class AbstractPollingDaoIntegrationTest {
   }
 
   private PollingDao createPollingDao() {
-    MeterRegistry meterRegistry = Mockito.mock(MeterRegistry.class);
-    Mockito.when(meterRegistry.counter(Mockito.anyString(), Mockito.anyCollection())).thenReturn(Mockito.mock(Counter.class));
-
+    MeterRegistry meterRegistry = new SimpleMeterRegistry();
     return new PollingDao(meterRegistry,
             dataSourceURL,
             dataSource,
@@ -113,7 +112,8 @@ public class AbstractPollingDaoIntegrationTest {
             testHelper.generateId(),
             sqlDialectSelector.getDialect(driver),
             eventuateConfigurationProperties.getOutboxId(),
-            new ParallelPollingChannels(new HashSet<>(Arrays.asList(eventuateConfigurationProperties.getPollingParallelChannels()))));
+            new ParallelPollingChannels(new HashSet<>(Arrays.asList(eventuateConfigurationProperties.getPollingParallelChannels()))),
+            new OutboxPartitioningSpec(eventuateConfigurationProperties.getOutboxTables(), eventuateConfigurationProperties.getOutboxTablePartitions()));
   }
 
   protected void assertEventsArePublished(List<String> eventIds) {

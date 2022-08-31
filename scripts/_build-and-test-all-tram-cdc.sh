@@ -26,7 +26,8 @@ if [[ "${DATABASE}" == "postgres"  || "${DATABASE}" == "mysql" ]] ; then
 
     echo platform = $(uname -m)
 
-    if [[ "aarch64" == "$(uname -m)" ]] ; then
+    if [[ "aarch64" == "$(uname -m)" || "arm64" == "$(uname -m)" ]] ; then
+        echo Arm platform: Skipping ActiveMQ and RabbitMQ
         exit 0
     fi
 
