@@ -1,7 +1,6 @@
 package io.eventuate.local.db.log.test.common;
 
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
-import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.spring.id.IdGeneratorConfiguration;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.common.EventuateConfigurationProperties;
@@ -21,7 +20,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
@@ -58,10 +56,6 @@ public class DatabaseOffsetKafkaStoreTest {
               eventuateKafkaProducerConfigurationProperties);
     }
 
-    @Bean
-    public EventuateSchema eventuateSchema(@Value("${eventuate.database.schema:#{null}}") String eventuateDatabaseSchema) {
-      return new EventuateSchema(eventuateDatabaseSchema);
-    }
 
   }
 

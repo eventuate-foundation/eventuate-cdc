@@ -25,11 +25,6 @@ import java.util.Optional;
 public class MySqlBinlogEntryReaderMessageTableTestConfiguration {
 
   @Bean
-  public EventuateSchema eventuateSchema(@Value("${eventuate.database.schema:#{null}}") String eventuateDatabaseSchema) {
-    return new EventuateSchema(eventuateDatabaseSchema);
-  }
-
-  @Bean
   public SourceTableNameSupplier sourceTableNameSupplier(EventuateConfigurationProperties eventuateConfigurationProperties) {
     return new SourceTableNameSupplier(eventuateConfigurationProperties.getSourceTableName() == null ? "message" : eventuateConfigurationProperties.getSourceTableName());
   }

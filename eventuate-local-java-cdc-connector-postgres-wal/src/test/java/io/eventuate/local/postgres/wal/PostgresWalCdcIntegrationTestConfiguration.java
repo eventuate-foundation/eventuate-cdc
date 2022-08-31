@@ -47,12 +47,6 @@ import java.util.stream.Collectors;
         TestHelperConfiguration.class})
 public class PostgresWalCdcIntegrationTestConfiguration {
 
-
-  @Bean
-  public EventuateSchema eventuateSchema(@Value("${eventuate.database.schema:#{null}}") String eventuateDatabaseSchema) {
-    return new EventuateSchema(eventuateDatabaseSchema);
-  }
-
   @Bean
   public SourceTableNameSupplier sourceTableNameSupplier(EventuateConfigurationProperties eventuateConfigurationProperties) {
     return new SourceTableNameSupplier(eventuateConfigurationProperties.getSourceTableName() == null ? "events" : eventuateConfigurationProperties.getSourceTableName());

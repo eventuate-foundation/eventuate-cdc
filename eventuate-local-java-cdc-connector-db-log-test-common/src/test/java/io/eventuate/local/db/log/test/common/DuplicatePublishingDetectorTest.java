@@ -2,7 +2,6 @@ package io.eventuate.local.db.log.test.common;
 
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.eventuate.local.PublishedEvent;
-import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.common.spring.id.IdGeneratorConfiguration;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
@@ -20,10 +19,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -50,10 +47,6 @@ public class DuplicatePublishingDetectorTest {
           TestHelperConfiguration.class})
   public static class Config {
 
-    @Bean
-    public EventuateSchema eventuateSchema(@Value("${eventuate.database.schema:#{null}}") String eventuateDatabaseSchema) {
-      return new EventuateSchema(eventuateDatabaseSchema);
-    }
   }
 
   @Autowired

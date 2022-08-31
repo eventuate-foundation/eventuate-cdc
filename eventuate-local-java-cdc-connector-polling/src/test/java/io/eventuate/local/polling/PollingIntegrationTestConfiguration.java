@@ -1,7 +1,6 @@
 package io.eventuate.local.polling;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
-import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.OutboxPartitioningSpec;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.common.spring.id.IdGeneratorConfiguration;
@@ -45,11 +44,6 @@ import javax.sql.DataSource;
         IdGeneratorConfiguration.class,
         TestHelperConfiguration.class})
 public class PollingIntegrationTestConfiguration {
-
-  @Bean
-  public EventuateSchema eventuateSchema(@Value("${eventuate.database.schema:#{null}}") String eventuateDatabaseSchema) {
-    return new EventuateSchema(eventuateDatabaseSchema);
-  }
 
   @Bean
   public SourceTableNameSupplier sourceTableNameSupplier(EventuateConfigurationProperties eventuateConfigurationProperties) {

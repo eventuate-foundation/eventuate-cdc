@@ -21,12 +21,6 @@ import javax.sql.DataSource;
         TestHelperConfiguration.class})
 public class PostgresWalBinlogEntryReaderMessageTableTestConfiguration {
 
-
-  @Bean
-  public EventuateSchema eventuateSchema(@Value("${eventuate.database.schema:#{null}}") String eventuateDatabaseSchema) {
-    return new EventuateSchema(eventuateDatabaseSchema);
-  }
-
   @Bean
   public EventuateConfigurationProperties eventuateConfigurationProperties() {
     return new EventuateConfigurationProperties();

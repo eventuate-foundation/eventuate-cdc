@@ -50,11 +50,6 @@ import java.util.Optional;
 public class MySqlBinlogCdcIntegrationTestConfiguration {
 
   @Bean
-  public EventuateSchema eventuateSchema(@Value("${eventuate.database.schema:#{null}}") String eventuateDatabaseSchema) {
-    return new EventuateSchema(eventuateDatabaseSchema);
-  }
-
-  @Bean
   public EventuateConfigurationProperties eventuateConfigurationProperties() {
     return new EventuateConfigurationProperties();
   }
