@@ -10,7 +10,7 @@ import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.coordination.leadership.zookeeper.ZkLeaderSelector;
 import io.eventuate.local.common.*;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
-import io.eventuate.local.test.util.TestHelper;
+import io.eventuate.local.test.util.TestHelperConfiguration;
 import io.eventuate.local.testutil.SqlScriptEditor;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.basic.consumer.KafkaConsumerFactory;
@@ -43,7 +43,8 @@ import java.util.stream.Collectors;
         EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration.class,
         KafkaConsumerFactoryConfiguration.class,
         SqlDialectConfiguration.class,
-        IdGeneratorConfiguration.class})
+        IdGeneratorConfiguration.class,
+        TestHelperConfiguration.class})
 public class PostgresWalCdcIntegrationTestConfiguration {
 
 
@@ -161,8 +162,4 @@ public class PostgresWalCdcIntegrationTestConfiguration {
     return client;
   }
 
-  @Bean
-  public TestHelper testHelper() {
-    return new TestHelper();
-  }
 }

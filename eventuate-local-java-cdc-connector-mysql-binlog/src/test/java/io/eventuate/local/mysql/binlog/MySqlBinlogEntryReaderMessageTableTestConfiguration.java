@@ -6,7 +6,7 @@ import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.common.EventuateConfigurationProperties;
 import io.eventuate.local.db.log.common.OffsetStore;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
-import io.eventuate.local.test.util.TestHelper;
+import io.eventuate.local.test.util.TestHelperConfiguration;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +20,8 @@ import java.util.Optional;
 
 @Configuration
 @EnableAutoConfiguration
-@Import({SqlDialectConfiguration.class, OffsetStoreMockConfiguration.class, IdGeneratorConfiguration.class})
+@Import({SqlDialectConfiguration.class, OffsetStoreMockConfiguration.class, IdGeneratorConfiguration.class,
+        TestHelperConfiguration.class})
 public class MySqlBinlogEntryReaderMessageTableTestConfiguration {
 
   @Bean
@@ -64,8 +65,4 @@ public class MySqlBinlogEntryReaderMessageTableTestConfiguration {
             eventuateConfigurationProperties.getOutboxId());
   }
 
-  @Bean
-  public TestHelper testHelper() {
-    return new TestHelper();
-  }
 }

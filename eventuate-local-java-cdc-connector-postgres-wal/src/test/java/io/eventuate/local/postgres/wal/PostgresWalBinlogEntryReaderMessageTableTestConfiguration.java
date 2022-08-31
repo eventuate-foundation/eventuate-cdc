@@ -5,7 +5,7 @@ import io.eventuate.common.spring.id.IdGeneratorConfiguration;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.common.EventuateConfigurationProperties;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
-import io.eventuate.local.test.util.TestHelper;
+import io.eventuate.local.test.util.TestHelperConfiguration;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -17,7 +17,8 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableAutoConfiguration
-@Import({SqlDialectConfiguration.class, IdGeneratorConfiguration.class})
+@Import({SqlDialectConfiguration.class, IdGeneratorConfiguration.class,
+        TestHelperConfiguration.class})
 public class PostgresWalBinlogEntryReaderMessageTableTestConfiguration {
 
 
@@ -64,8 +65,4 @@ public class PostgresWalBinlogEntryReaderMessageTableTestConfiguration {
             eventuateConfigurationProperties.getOutboxId());
   }
 
-  @Bean
-  public TestHelper testHelper() {
-    return new TestHelper();
-  }
 }

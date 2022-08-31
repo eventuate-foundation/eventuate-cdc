@@ -8,6 +8,7 @@ import io.eventuate.local.common.EventuateConfigurationProperties;
 import io.eventuate.local.db.log.common.DatabaseOffsetKafkaStore;
 import io.eventuate.local.db.log.common.OffsetStore;
 import io.eventuate.local.test.util.TestHelper;
+import io.eventuate.local.test.util.TestHelperConfiguration;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
@@ -42,7 +43,8 @@ public class DatabaseOffsetKafkaStoreTest {
           EventuateKafkaProducerSpringConfigurationPropertiesConfiguration.class,
           EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration.class,
           SqlDialectConfiguration.class,
-          IdGeneratorConfiguration.class})
+          IdGeneratorConfiguration.class,
+          TestHelperConfiguration.class})
   public static class Config {
     @Bean
     public EventuateConfigurationProperties eventuateConfigurationProperties() {
@@ -61,10 +63,6 @@ public class DatabaseOffsetKafkaStoreTest {
       return new EventuateSchema(eventuateDatabaseSchema);
     }
 
-    @Bean
-    public TestHelper testHelper() {
-      return new TestHelper();
-    }
   }
 
   @Autowired

@@ -8,6 +8,7 @@ import io.eventuate.common.spring.id.IdGeneratorConfiguration;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.common.DuplicatePublishingDetector;
 import io.eventuate.local.test.util.TestHelper;
+import io.eventuate.local.test.util.TestHelperConfiguration;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.basic.consumer.KafkaConsumerFactory;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
@@ -45,17 +46,13 @@ public class DuplicatePublishingDetectorTest {
   @Import({EventuateKafkaPropertiesConfiguration.class,
           KafkaConsumerFactoryConfiguration.class,
           SqlDialectConfiguration.class,
-          IdGeneratorConfiguration.class})
+          IdGeneratorConfiguration.class,
+          TestHelperConfiguration.class})
   public static class Config {
 
     @Bean
     public EventuateSchema eventuateSchema(@Value("${eventuate.database.schema:#{null}}") String eventuateDatabaseSchema) {
       return new EventuateSchema(eventuateDatabaseSchema);
-    }
-
-    @Bean
-    public TestHelper testHelper() {
-      return new TestHelper();
     }
   }
 

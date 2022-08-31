@@ -11,7 +11,7 @@ import io.eventuate.coordination.leadership.zookeeper.ZkLeaderSelector;
 import io.eventuate.local.common.*;
 import io.eventuate.local.db.log.common.OffsetStore;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
-import io.eventuate.local.test.util.TestHelper;
+import io.eventuate.local.test.util.TestHelperConfiguration;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.basic.consumer.KafkaConsumerFactory;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
@@ -45,7 +45,8 @@ import java.util.Optional;
         EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration.class,
         KafkaConsumerFactoryConfiguration.class,
         SqlDialectConfiguration.class,
-        IdGeneratorConfiguration.class})
+        IdGeneratorConfiguration.class,
+        TestHelperConfiguration.class})
 public class MySqlBinlogCdcIntegrationTestConfiguration {
 
   @Bean
@@ -164,8 +165,4 @@ public class MySqlBinlogCdcIntegrationTestConfiguration {
     return client;
   }
 
-  @Bean
-  public TestHelper testHelper() {
-    return new TestHelper();
-  }
 }

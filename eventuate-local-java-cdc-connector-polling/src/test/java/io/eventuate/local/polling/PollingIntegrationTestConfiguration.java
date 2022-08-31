@@ -10,7 +10,7 @@ import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.coordination.leadership.zookeeper.ZkLeaderSelector;
 import io.eventuate.local.common.*;
 import io.eventuate.local.test.util.SourceTableNameSupplier;
-import io.eventuate.local.test.util.TestHelper;
+import io.eventuate.local.test.util.TestHelperConfiguration;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.basic.consumer.KafkaConsumerFactory;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
@@ -42,7 +42,8 @@ import javax.sql.DataSource;
         EventuateKafkaConsumerSpringConfigurationPropertiesConfiguration.class,
         SqlDialectConfiguration.class,
         KafkaConsumerFactoryConfiguration.class,
-        IdGeneratorConfiguration.class})
+        IdGeneratorConfiguration.class,
+        TestHelperConfiguration.class})
 public class PollingIntegrationTestConfiguration {
 
   @Bean
@@ -132,8 +133,4 @@ public class PollingIntegrationTestConfiguration {
             kafkaConsumerFactory);
   }
 
-  @Bean
-  public TestHelper testHelper() {
-    return new TestHelper();
-  }
 }

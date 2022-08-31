@@ -6,7 +6,6 @@ import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.id.IdGenerator;
 import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
 import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.local.common.BinlogEntryReader;
 import io.eventuate.local.common.BinlogEntryToEventConverter;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
@@ -23,7 +22,6 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -34,14 +32,9 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class TestHelper {
-  @Autowired
-  private JdbcTemplate jdbcTemplate;
 
   @Autowired
   private EventuateSchema eventuateSchema;
-
-  @Autowired
-  private SqlDialectSelector sqlDialectSelector;
 
   @Autowired
   private IdGenerator idGenerator;

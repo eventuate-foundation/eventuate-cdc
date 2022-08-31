@@ -5,13 +5,13 @@ import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.OutboxPartitioningSpec;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.common.spring.id.IdGeneratorConfiguration;
-import io.eventuate.common.spring.jdbc.EventuateCommonJdbcOperationsConfiguration;
 import io.eventuate.common.spring.jdbc.EventuateSchemaConfiguration;
 import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.common.BinlogEntryHandler;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.EventuateConfigurationProperties;
 import io.eventuate.local.test.util.TestHelper;
+import io.eventuate.local.test.util.TestHelperConfiguration;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.Assert;
@@ -32,16 +32,11 @@ public class AbstractPollingDaoIntegrationTest {
 
 
   @Configuration
-  @Import({EventuateSchemaConfiguration.class, SqlDialectConfiguration.class, IdGeneratorConfiguration.class, EventuateCommonJdbcOperationsConfiguration.class})
+  @Import({EventuateSchemaConfiguration.class, SqlDialectConfiguration.class, IdGeneratorConfiguration.class, TestHelperConfiguration.class})
   public static class Config {
     @Bean
     public EventuateConfigurationProperties eventuateConfigurationProperties() {
       return new EventuateConfigurationProperties();
-    }
-
-    @Bean
-    public TestHelper testHelper() {
-      return new TestHelper();
     }
 
 
