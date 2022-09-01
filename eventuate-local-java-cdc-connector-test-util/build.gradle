@@ -4,7 +4,8 @@ dependencies {
     api project(":eventuate-local-java-cdc-connector-common")
     api project(":eventuate-tram-cdc-connector")
     api "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
-    api "junit:junit:4.12"
+    api "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+    api "junit:junit"
 }
 
 test {

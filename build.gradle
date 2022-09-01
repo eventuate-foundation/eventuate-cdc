@@ -49,11 +49,15 @@ subprojects {
 
     dependencies {
         implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")) {
-            exclude group: 'org.apache.kafka'
             exclude group: 'ch.qos.logback'
         }
 
         constraints {
+            implementation("org.apache.kafka:kafka-clients") {
+                version {
+                    strictly(kafkaClientVersion)
+                }
+            }
             implementation("org.redisson:redisson") {
                 version {
                     strictly("3.16.8")
