@@ -58,6 +58,11 @@ subprojects {
                     strictly(kafkaClientVersion)
                 }
             }
+            implementation("org.apache.kafka:connect-api") {
+                version {
+                    strictly("0.10.0.1")
+                }
+            }
             implementation("org.redisson:redisson") {
                 version {
                     strictly("3.16.8")
