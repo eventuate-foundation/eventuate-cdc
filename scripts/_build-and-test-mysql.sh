@@ -28,6 +28,7 @@ ${docker}Up
              -x :eventuate-tram-cdc-connector-kafka-e2e-tests:test \
              -x :eventuate-tram-cdc-connector-activemq-e2e-tests:test \
              -x :eventuate-tram-cdc-connector-rabbitmq-e2e-tests:test \
-             -x :eventuate-tram-cdc-connector-redis-e2e-tests:test
+             -x :eventuate-tram-cdc-connector-redis-e2e-tests:test \
+             -x :eventuate-local-java-migration:test
 
 ${docker}Down
