@@ -37,7 +37,7 @@ subprojects {
 
     java {
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(project.name.equals("eventuate-local-java-test-util") ? 8: 17))
+            languageVersion.set(JavaLanguageVersion.of(project.name.equals("eventuate-local-java-test-util") ? 8 : 17))
         }
     }
 
@@ -48,24 +48,26 @@ subprojects {
     }
 
     dependencies {
-        implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")) {
-            exclude group: 'ch.qos.logback'
-        }
+        if (project.name != "eventuate-local-java-test-util") {
+            implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")) {
+                exclude group: 'ch.qos.logback'
+            }
 
-        constraints {
-            implementation("org.apache.kafka:kafka-clients") {
-                version {
-                    strictly(kafkaClientVersion)
+            constraints {
+                implementation("org.apache.kafka:kafka-clients") {
+                    version {
+                        strictly(kafkaClientVersion)
+                    }
                 }
-            }
-            implementation("org.apache.kafka:connect-api") {
-                version {
-                    strictly("0.10.0.1")
+                implementation("org.apache.kafka:connect-api") {
+                    version {
+                        strictly("0.10.0.1")
+                    }
                 }
-            }
-            implementation("org.redisson:redisson") {
-                version {
-                    strictly("3.16.8")
+                implementation("org.redisson:redisson") {
+                    version {
+                        strictly("3.16.8")
+                    }
                 }
             }
         }
@@ -219,9 +221,9 @@ dockerCompose {
 }
 
 task aggregatedTestReport(type: TestReport) {
-  destinationDir = file("$buildDir/reports/allTests")
-  // Include the results from the 'test' task in all subprojects
-  reportOn subprojects*.test
+    destinationDir = file("$buildDir/reports/allTests")
+    // Include the results from the 'test' task in all subprojects
+    reportOn subprojects*.test
 }
 
 gradle.projectsEvaluated {
