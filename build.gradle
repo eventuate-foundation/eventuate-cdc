@@ -33,11 +33,13 @@ projects {
     }
 }
 
+def testLibraries = ["eventuate-local-java-test-util", "eventuate-cdc-testcontainers"]
+
 subprojects {
 
     java {
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(project.name.equals("eventuate-local-java-test-util") ? 8 : 17))
+            languageVersion.set(JavaLanguageVersion.of(testLibraries.contains(project.name) ? 8 : 17))
         }
     }
 
@@ -48,7 +50,7 @@ subprojects {
     }
 
     dependencies {
-        if (project.name != "eventuate-local-java-test-util") {
+        if (!testLibraries.contains(project.name)) {
             implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")) {
                 exclude group: 'ch.qos.logback'
             }

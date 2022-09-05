@@ -22,4 +22,6 @@ include 'eventuate-tram-cdc-connector-activemq-e2e-tests'
 include 'eventuate-tram-cdc-connector-rabbitmq-e2e-tests'
 include 'eventuate-tram-cdc-connector-redis-e2e-tests'
 
+include 'eventuate-cdc-testcontainers'
+
 rootProject.name = 'eventuate-cdc'
