@@ -73,7 +73,7 @@ jobs:
             # https://github.com/docker/buildx/issues/493#issuecomment-754834977
             # https://github.com/tonistiigi/binfmt#installing-emulators
 
-            docker run --privileged --rm tonistiigi/binfm:qemu-v6.t2.0 --install arm64,arm
+            docker run --privileged --rm tonistiigi/binfmt:qemu-v6.2.0 --install arm64,arm
 
             ./scripts/build-multi-arch-images.sh
   deploy-multi-arch:
@@ -147,7 +147,7 @@ workflows:
           script: |
             docker context create tls-env
             docker buildx create tls-env --use
-            docker run --privileged --rm tonistiigi/binfmt --install arm64,arm
+            docker run --privileged --rm tonistiigi/binfmt:qemu-v6.2.0 --install arm64,arm
             export DOCKER_HOST_NAME=$(hostname)
             ./scripts/build-and-test-all-tram-cdc-mysql8-multi-arch-locally.sh
           requires:
@@ -160,7 +160,7 @@ workflows:
           script: |
             docker context create tls-env
             docker buildx create tls-env --use
-            docker run --privileged --rm tonistiigi/binfmt --install amd64
+            docker run --privileged --rm tonistiigi/binfmt:qemu-v6.2.0 --install amd64
             export DOCKER_HOST_NAME=$(hostname)
             ./scripts/build-and-test-all-tram-cdc-mysql8-multi-arch-locally.sh
           requires:
