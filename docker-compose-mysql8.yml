@@ -34,6 +34,7 @@ services:
       - MYSQL_PASSWORD=mysqlpw
       - USE_DB_ID=${USE_DB_ID}
       - USE_JSON_PAYLOAD_AND_HEADERS=${USE_JSON_PAYLOAD_AND_HEADERS}
+      - EVENTUATE_OUTBOX_TABLES=${EVENTUATE_OUTBOX_TABLES}
 
   activemq:
     image: eventuateio/eventuate-activemq:$EVENTUATE_ACTIVE_MQ_VERSION

@@ -10,6 +10,22 @@ dependencies {
     api project(":eventuate-local-java-cdc-connector-unified:")
     api "org.springframework.boot:spring-boot-starter-web"
 
+
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "org.assertj:assertj-core:$assertjVersion"
+    testImplementation 'mysql:mysql-connector-java:8.0.21'
+
+    testImplementation project(":eventuate-local-java-test-util")
+    testImplementation project(":eventuate-local-java-cdc-connector-test-util")
+    testImplementation "io.eventuate.common:eventuate-common-testcontainers:$eventuateCommonVersion"
+    testImplementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-testcontainers:$eventuateMessagingKafkaVersion"
+
+    testImplementation "org.testcontainers:testcontainers:$testContainersVersion"
+}
+
+test {
+
+    if (System.getenv("SPRING_PROFILES_ACTIVE") !=  null) {
+        exclude '**/MultiPipelineMultipleOutboxPollingDaoIntegrationTest**'
+    }
 }

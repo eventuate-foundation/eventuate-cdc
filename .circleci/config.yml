@@ -73,7 +73,7 @@ jobs:
             # https://github.com/docker/buildx/issues/493#issuecomment-754834977
             # https://github.com/tonistiigi/binfmt#installing-emulators
 
-            docker run --privileged --rm tonistiigi/binfmt --install arm64,arm
+            docker run --privileged --rm tonistiigi/binfm:qemu-v6.t2.0 --install arm64,arm
 
             ./scripts/build-multi-arch-images.sh
   deploy-multi-arch:

@@ -47,6 +47,6 @@ public class PropertyReaderTest {
     }
 
     Assert.assertNotNull(exception);
-    Assert.assertEquals("Unknown properties: [somepropname]", exception.getMessage());
+    Assert.assertEquals("Unknown properties: [somepropname] for class io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineProperties", exception.getMessage());
   }
 }

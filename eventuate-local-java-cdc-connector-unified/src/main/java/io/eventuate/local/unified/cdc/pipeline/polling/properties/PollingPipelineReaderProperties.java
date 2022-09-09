@@ -69,6 +69,14 @@ public class PollingPipelineReaderProperties extends CdcPipelineReaderProperties
     this.outboxPartitioning = outboxPartitioning;
   }
 
+  public void setOutboxTables(int outboxTables) {
+    this.outboxPartitioning = outboxPartitioning.withOutboxTables(outboxTables);
+  }
+
+  public void setOutboxTablePartitions(int tablePartitions) {
+    this.outboxPartitioning = outboxPartitioning.withTablePartitions(tablePartitions);
+  }
+
   public OutboxPartitioningSpec getOutboxPartitioning() {
     return outboxPartitioning;
   }

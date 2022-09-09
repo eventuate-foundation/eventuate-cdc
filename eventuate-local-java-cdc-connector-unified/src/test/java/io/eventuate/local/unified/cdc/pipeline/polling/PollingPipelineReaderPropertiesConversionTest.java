@@ -4,10 +4,9 @@ import io.eventuate.local.unified.cdc.pipeline.common.PropertyReader;
 import io.eventuate.local.unified.cdc.pipeline.polling.properties.PollingPipelineReaderProperties;
 import org.junit.Test;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -22,5 +21,14 @@ public class PollingPipelineReaderPropertiesConversionTest {
         expectedNames.add("x");
         expectedNames.add("y");
         assertEquals(expectedNames, readerProps.getPollingParallelChannels());
+    }
+
+    @Test
+    public void shouldConvertPropertiesForOutboxPartitioning() {
+        PropertyReader propertyReader = new PropertyReader();
+        Map<String, Object> properties = Collections.singletonMap("outboxTables", "8");
+        PollingPipelineReaderProperties readerProps = propertyReader.convertMapToPropertyClass(properties, PollingPipelineReaderProperties.class);
+        List<String> suffixes = IntStream.range(0, 8).mapToObj(Integer::toString).collect(Collectors.toList());
+        assertEquals(suffixes, readerProps.getOutboxPartitioning().outboxTableSuffixes());
     }
 }

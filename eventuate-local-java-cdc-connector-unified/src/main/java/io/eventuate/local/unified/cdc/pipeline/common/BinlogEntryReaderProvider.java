@@ -23,6 +23,13 @@ public class BinlogEntryReaderProvider {
     return clients.get(name.toLowerCase());
   }
 
+  public BinlogEntryReaderLeadership getRequired(String name) {
+    BinlogEntryReaderLeadership x = get(name);
+    if (x == null)
+      throw new NullPointerException(String.format("Reader %s not found", name));
+    return x;
+  }
+
   public void start() {
     clients.values().forEach(BinlogEntryReaderLeadership::start);
   }
@@ -34,4 +41,5 @@ public class BinlogEntryReaderProvider {
   public void stop() {
     clients.values().forEach(BinlogEntryReaderLeadership::stop);
   }
+
 }
