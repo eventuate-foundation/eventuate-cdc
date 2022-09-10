@@ -1,5 +1,6 @@
 package io.eventuate.local.polling;
 
+import io.eventuate.common.jdbc.OutboxTableSuffix;
 import io.eventuate.local.common.BinlogEntryHandler;
 import io.eventuate.local.polling.spec.PollingSpec;
 import io.eventuate.local.testutil.DefaultAndPollingProfilesResolver;
@@ -23,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 @EnableAutoConfiguration
 public class PollingDaoIntegrationTest extends AbstractPollingDaoIntegrationTest {
 
-    private final String messageTableSuffix = ""; // TODO
+    private final OutboxTableSuffix messageTableSuffix = new OutboxTableSuffix(null); // TODO
 
     @Test
     public void testThatPollingEventCountAreLimited() {

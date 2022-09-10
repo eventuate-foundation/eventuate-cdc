@@ -3,10 +3,7 @@ package io.eventuate.local.polling;
 import com.google.common.collect.ImmutableMap;
 import io.eventuate.common.eventuate.local.BinLogEvent;
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
-import io.eventuate.common.jdbc.EventuateJdbcStatementExecutor;
-import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.common.jdbc.OutboxPartitioningSpec;
-import io.eventuate.common.jdbc.SchemaAndTable;
+import io.eventuate.common.jdbc.*;
 import io.eventuate.common.jdbc.sqldialect.EventuateSqlDialect;
 import io.eventuate.common.spring.jdbc.EventuateSpringJdbcStatementExecutor;
 import io.eventuate.local.common.*;
@@ -117,10 +114,10 @@ public class PollingDao extends BinlogEntryReader {
   public void start() {
     logger.info("Starting {} {} {}", readerName, pollingParallelChannels, outboxPartitioning);
 
-    List<String> suffixes = outboxPartitioning.outboxTableSuffixes();
+    List<OutboxTableSuffix> suffixes = outboxPartitioning.outboxTableSuffixes();
     stopCountDownLatch = new CountDownLatch((1 + pollingParallelChannels.size()) * suffixes.size());
 
-    for (String suffix : suffixes) {
+    for (OutboxTableSuffix suffix : suffixes) {
       logger.info("Starting {} {} {}", readerName, pollingParallelChannels, suffix);
       super.start();
 
@@ -135,7 +132,7 @@ public class PollingDao extends BinlogEntryReader {
 
   private ExecutorService executor = Executors.newCachedThreadPool();
 
-  public void startPollingThread(PollingSpec pollingSpec, String messageTableSuffix) {
+  public void startPollingThread(PollingSpec pollingSpec, OutboxTableSuffix messageTableSuffix) {
     logger.info("Starting polling thread for {}", pollingSpec);
     executor.submit(() -> {
       logger.info("Started polling thread for {}", pollingSpec);
@@ -167,14 +164,14 @@ public class PollingDao extends BinlogEntryReader {
     });
   }
 
-  public int processEvents(BinlogEntryHandler handler, PollingSpec pollingSpec, String messageTableSuffix) {
+  public int processEvents(BinlogEntryHandler handler, PollingSpec pollingSpec, OutboxTableSuffix messageTableSuffix) {
 
     String pk = getPrimaryKey(handler);
 
     SqlFragment sqlFragment = pollingSpec.addToWhere(handler.getDestinationColumn());
 
     String findEventsQuery = eventuateSqlDialect.addLimitToSql(String.format("SELECT * FROM %s%s WHERE %s = 0 %s ORDER BY %s ASC",
-            handler.getQualifiedTable(), messageTableSuffix, PUBLISHED_FIELD, sqlFragment.sql, pk), ":limit");
+            handler.getQualifiedTable(), messageTableSuffix.suffixAsString, PUBLISHED_FIELD, sqlFragment.sql, pk), ":limit");
 
     logger.debug("Polling with query {}", findEventsQuery);
 
@@ -193,7 +190,7 @@ public class PollingDao extends BinlogEntryReader {
     long publishingStartTime = System.currentTimeMillis();
     while (sqlRowSet.next()) {
       Object id = sqlRowSet.getObject(pk);
-      ids.add(handleEvent(id, handler, sqlRowSet));
+      ids.add(handleEvent(id, handler, sqlRowSet, messageTableSuffix.suffix));
       onEventReceived();
     }
 
@@ -203,7 +200,7 @@ public class PollingDao extends BinlogEntryReader {
     rowsToProcess.record(nIds);
 
     if (!ids.isEmpty()) {
-      markEventsAsProcessed(ids, pk, handler, publishingStartTime, messageTableSuffix);
+      markEventsAsProcessed(ids, pk, handler, publishingStartTime, messageTableSuffix.suffixAsString);
     }
 
     onActivity();
@@ -241,7 +238,7 @@ public class PollingDao extends BinlogEntryReader {
     return null;
   }
 
-  private CompletableFuture<Object> handleEvent(Object id, BinlogEntryHandler handler, SqlRowSet sqlRowSet) {
+  private CompletableFuture<Object> handleEvent(Object id, BinlogEntryHandler handler, SqlRowSet sqlRowSet, Integer partitionOffset) {
     SchemaAndTable schemaAndTable = handler.getSchemaAndTable();
 
     CompletableFuture<?> future = null;
@@ -267,7 +264,7 @@ public class PollingDao extends BinlogEntryReader {
                           name,
                           eventuateJdbcStatementExecutor);
         }
-      });
+      }, partitionOffset);
     } catch (Exception e) {
       handleProcessingFailException(e);
     }

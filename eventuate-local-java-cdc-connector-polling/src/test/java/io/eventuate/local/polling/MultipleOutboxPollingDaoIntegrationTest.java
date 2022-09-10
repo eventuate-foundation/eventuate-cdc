@@ -20,22 +20,23 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 @ActiveProfiles(resolver = DefaultAndPollingProfilesResolver.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = MultipleOutboxPollingDaoIntegrationTest.Config.class, properties = {"eventuate.cdc.outbox.partitioning.outbox.tables=8", "eventuate.cdc.outbox.partitioning.message.partitions=4"})
 @EnableAutoConfiguration
 public class MultipleOutboxPollingDaoIntegrationTest extends AbstractPollingDaoIntegrationTest {
+
+    static {
+        System.setProperty("eventuate.outbox.id", "1");
+    }
     public static final int OUTBOX_TABLES = 8;
 
     @Autowired
@@ -71,11 +72,14 @@ public class MultipleOutboxPollingDaoIntegrationTest extends AbstractPollingDaoI
 
     @Test
     public void testPolling() throws Exception {
+        List<String> publishedIds = new ArrayList<>(NUMBER_OF_EVENTS_TO_PUBLISH);
+
         BinlogEntryHandler binlogEntryHandler = pollingDao.addBinlogEntryHandler(eventuateSchema,
                 "message",
                 new BinlogEntryToMessageConverter(idGenerator),
-                event -> {
+                messageWithDestination -> {
                     processedEvents.incrementAndGet();
+                    publishedIds.add(messageWithDestination.getId());
                     return CompletableFuture.completedFuture(null);
                 });
 
@@ -86,7 +90,9 @@ public class MultipleOutboxPollingDaoIntegrationTest extends AbstractPollingDaoI
         Eventually.eventually(() -> {
             assertThat(processedEvents.get()).isGreaterThanOrEqualTo(NUMBER_OF_EVENTS_TO_PUBLISH);
             assertMessagesPublished(messageIds);
+            assertThat(publishedIds).containsAll(messageIds);
         });
+
 
         pollingDao.stop();
         f.get(1, TimeUnit.SECONDS);
@@ -94,15 +100,24 @@ public class MultipleOutboxPollingDaoIntegrationTest extends AbstractPollingDaoI
     }
 
     private void assertMessagesPublished(List<String> messageIds) {
-        messageIds.forEach(this::assertMessagePublished);
+        List<String> unpublished = messageIds.stream().filter(id -> !assertMessagePublished(id)).collect(Collectors.toList());
+        assertThat(unpublished).isEmpty();
     }
 
-    private void assertMessagePublished(String id) {
-        assertEquals(1, outboxPartitioningSpec.outboxTableSuffixes().stream().map(suffix -> {
-                    Map<String, Object> count = jdbcTemplate.queryForMap(String.format("select count(*) as c from %s%s where id = ? and published = 1",
-                            eventuateSchema.qualifyTable("message"), suffix), id);
-                    return ((Number) count.get("c")).intValue();
-                }).reduce(0, Integer::sum).intValue());
+    private boolean assertMessagePublished(String id) {
+        int actual = outboxPartitioningSpec.outboxTableSuffixes().stream().map(suffix -> {
+            String query = String.format("select count(*) as c from %s%s where id = ? and published = 1",
+                    eventuateSchema.qualifyTable("message"), suffix.suffixAsString);
+            System.out.println(query);
+            Map<String, Object> count = jdbcTemplate.queryForMap(query, id);
+            return ((Number) count.get("c")).intValue();
+        }).reduce(0, Integer::sum);
+        if (actual == 0)
+            return false;
+        if (actual == 1)
+            return false;
+        fail(String.format("should not be greater than 1: %s%s", id, actual));
+        return false;
     }
 
 

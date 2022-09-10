@@ -227,7 +227,7 @@ public class PostgresWalClient extends DbLogClient {
     CompletableFuture<?> future = null;
 
     try {
-      future = handler.publish(entry);
+      future = handler.publish(entry, null);
     } catch (Exception e) {
       handleProcessingFailException(e);
     }

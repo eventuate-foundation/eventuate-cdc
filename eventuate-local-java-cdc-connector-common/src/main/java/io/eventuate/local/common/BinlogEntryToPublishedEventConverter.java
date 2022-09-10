@@ -16,7 +16,7 @@ public class BinlogEntryToPublishedEventConverter implements BinlogEntryToEventC
   }
 
   @Override
-  public Optional<PublishedEvent> convert(BinlogEntry binlogEntry) {
+  public Optional<PublishedEvent> convert(BinlogEntry binlogEntry, Integer partitionOffset) {
 
     if (binlogEntry.getBooleanColumn("published")) {
       return Optional.empty();
@@ -26,7 +26,7 @@ public class BinlogEntryToPublishedEventConverter implements BinlogEntryToEventC
 
     if (StringUtils.isEmpty(eventId)) {
       Long dbId = binlogEntry.getLongColumn(EventuateJdbcOperationsUtils.EVENT_AUTO_GENERATED_ID_COLUMN);
-      eventId = idGenerator.genId(dbId).asString();
+      eventId = idGenerator.genId(dbId, partitionOffset).asString();
     }
 
     PublishedEvent publishedEvent = new PublishedEvent(

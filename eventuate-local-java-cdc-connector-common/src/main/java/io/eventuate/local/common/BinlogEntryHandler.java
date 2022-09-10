@@ -32,9 +32,9 @@ public class BinlogEntryHandler<EVENT extends BinLogEvent> {
     return this.schemaAndTable.equals(schemaAndTable);
   }
 
-  public CompletableFuture<?> publish(BinlogEntry binlogEntry) {
+  public CompletableFuture<?> publish(BinlogEntry binlogEntry, Integer partitionOffset) {
     return binlogEntryToEventConverter
-            .convert(binlogEntry)
+            .convert(binlogEntry, partitionOffset)
             .map(eventPublisher::apply)
             .orElse(CompletableFuture.completedFuture(null));
   }

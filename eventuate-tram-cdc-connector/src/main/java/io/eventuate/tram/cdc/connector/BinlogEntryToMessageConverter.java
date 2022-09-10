@@ -19,7 +19,7 @@ public class BinlogEntryToMessageConverter implements BinlogEntryToEventConverte
   }
 
   @Override
-  public Optional<MessageWithDestination> convert(BinlogEntry binlogEntry) {
+  public Optional<MessageWithDestination> convert(BinlogEntry binlogEntry, Integer partitionOffset) {
 
     if (binlogEntry.getBooleanColumn("published")) {
       return Optional.empty();
@@ -31,7 +31,7 @@ public class BinlogEntryToMessageConverter implements BinlogEntryToEventConverte
       headers = new HashMap<>(headers);
 
       String generatedId = idGenerator
-              .genId(binlogEntry.getLongColumn(EventuateJdbcOperationsUtils.MESSAGE_AUTO_GENERATED_ID_COLUMN))
+              .genId(binlogEntry.getLongColumn(EventuateJdbcOperationsUtils.MESSAGE_AUTO_GENERATED_ID_COLUMN), partitionOffset)
               .asString();
 
       headers.put("ID", generatedId);

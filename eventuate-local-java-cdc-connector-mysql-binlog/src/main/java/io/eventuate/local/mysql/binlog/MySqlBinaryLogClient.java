@@ -9,7 +9,10 @@ import com.google.common.collect.ImmutableSet;
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.SchemaAndTable;
-import io.eventuate.local.common.*;
+import io.eventuate.local.common.BinlogEntry;
+import io.eventuate.local.common.BinlogEntryHandler;
+import io.eventuate.local.common.CdcProcessingStatusService;
+import io.eventuate.local.common.OffsetProcessor;
 import io.eventuate.local.db.log.common.DbLogClient;
 import io.eventuate.local.db.log.common.OffsetKafkaStore;
 import io.eventuate.local.db.log.common.OffsetStore;
@@ -18,7 +21,9 @@ import io.micrometer.core.instrument.Timer;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
@@ -340,7 +345,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
     CompletableFuture<?> publishingFuture = null;
     try {
-      publishingFuture = binlogEntryHandler.publish(entry);
+      publishingFuture = binlogEntryHandler.publish(entry, null);
     } catch (Exception e) {
       handleProcessingFailException(e);
     }
