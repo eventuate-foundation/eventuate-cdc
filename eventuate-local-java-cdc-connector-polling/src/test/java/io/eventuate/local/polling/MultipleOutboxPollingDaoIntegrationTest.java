@@ -1,5 +1,6 @@
 package io.eventuate.local.polling;
 
+import io.eventuate.common.id.Int128;
 import io.eventuate.common.jdbc.OutboxPartitioningSpec;
 import io.eventuate.common.testcontainers.EventuateMySqlContainer;
 import io.eventuate.common.testcontainers.PropertyProvidingContainer;
@@ -25,6 +26,8 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static io.eventuate.common.jdbc.EventuateJdbcOperationsUtils.MESSAGE_APPLICATION_GENERATED_ID_COLUMN;
+import static io.eventuate.common.jdbc.EventuateJdbcOperationsUtils.MESSAGE_AUTO_GENERATED_ID_COLUMN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
@@ -34,9 +37,6 @@ import static org.junit.Assert.fail;
 @EnableAutoConfiguration
 public class MultipleOutboxPollingDaoIntegrationTest extends AbstractPollingDaoIntegrationTest {
 
-    static {
-        System.setProperty("eventuate.outbox.id", "1");
-    }
     public static final int OUTBOX_TABLES = 8;
 
     @Autowired
@@ -66,7 +66,11 @@ public class MultipleOutboxPollingDaoIntegrationTest extends AbstractPollingDaoI
     }
 
     private String sendMessage() {
-        String rawPayload = "\"" + "payload-" + testHelper.generateId() + "\"";
+        return sendMessage(testHelper.generateId());
+    }
+
+    private String sendMessage(String payload) {
+        String rawPayload = "\"" + "payload-" + payload + "\"";
         return testHelper.saveMessage(idGenerator, rawPayload, testHelper.generateId(), Collections.singletonMap("PARTITION_ID", UUID.randomUUID().toString()), eventuateSchema);
     }
 
@@ -79,18 +83,28 @@ public class MultipleOutboxPollingDaoIntegrationTest extends AbstractPollingDaoI
                 new BinlogEntryToMessageConverter(idGenerator),
                 messageWithDestination -> {
                     processedEvents.incrementAndGet();
-                    publishedIds.add(messageWithDestination.getId());
+                    synchronized (publishedIds) {
+                        publishedIds.add(messageWithDestination.getId());
+                    }
                     return CompletableFuture.completedFuture(null);
                 });
 
-        List<String> messageIds = IntStream.range(0, NUMBER_OF_EVENTS_TO_PUBLISH).mapToObj(i -> sendMessage()).collect(Collectors.toList());
+        List<String> messageIds = IntStream.range(0, NUMBER_OF_EVENTS_TO_PUBLISH).mapToObj(i -> sendMessage("message: " + i)).collect(Collectors.toList());
 
-        Future<?> f = executor.submit(() -> pollingDao.start());
+        Future<?> f = executor.submit(() -> {
+            try {
+                pollingDao.start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
 
         Eventually.eventually(() -> {
-            assertThat(processedEvents.get()).isGreaterThanOrEqualTo(NUMBER_OF_EVENTS_TO_PUBLISH);
+            // assertThat(processedEvents.get()).isGreaterThanOrEqualTo(NUMBER_OF_EVENTS_TO_PUBLISH);
             assertMessagesPublished(messageIds);
-            assertThat(publishedIds).containsAll(messageIds);
+            synchronized (publishedIds) {
+                assertThat(publishedIds).containsAll(messageIds);
+            }
         });
 
 
@@ -105,18 +119,24 @@ public class MultipleOutboxPollingDaoIntegrationTest extends AbstractPollingDaoI
     }
 
     private boolean assertMessagePublished(String id) {
+        String actualId = idGenerator.databaseIdRequired() ? Long.toString(Int128.fromString(id).getHi()) : id;
+        String idColumn = idGenerator.databaseIdRequired() ? MESSAGE_AUTO_GENERATED_ID_COLUMN : MESSAGE_APPLICATION_GENERATED_ID_COLUMN;
+
         int actual = outboxPartitioningSpec.outboxTableSuffixes().stream().map(suffix -> {
-            String query = String.format("select count(*) as c from %s%s where id = ? and published = 1",
-                    eventuateSchema.qualifyTable("message"), suffix.suffixAsString);
-            System.out.println(query);
-            Map<String, Object> count = jdbcTemplate.queryForMap(query, id);
+            String query = String.format("select count(*) as c from %s%s where %s = ? and published = 1",
+                    eventuateSchema.qualifyTable("message"),  suffix.suffixAsString, idColumn);
+            Map<String, Object> count = jdbcTemplate.queryForMap(query, actualId);
             return ((Number) count.get("c")).intValue();
         }).reduce(0, Integer::sum);
-        if (actual == 0)
-            return false;
-        if (actual == 1)
-            return false;
-        fail(String.format("should not be greater than 1: %s%s", id, actual));
+        switch (actual) {
+            case 0:
+                return false;
+            case 1:
+                return true;
+            default:
+                fail(String.format("should not be greater than 1: %s%s", id, actual));
+                break;
+        }
         return false;
     }
 
