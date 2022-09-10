@@ -1,5 +1,6 @@
 package io.eventuate.local.unified.cdc.pipeline.polling;
 
+import io.eventuate.common.jdbc.OutboxTableSuffix;
 import io.eventuate.local.unified.cdc.pipeline.common.PropertyReader;
 import io.eventuate.local.unified.cdc.pipeline.polling.properties.PollingPipelineReaderProperties;
 import org.junit.Test;
@@ -28,7 +29,7 @@ public class PollingPipelineReaderPropertiesConversionTest {
         PropertyReader propertyReader = new PropertyReader();
         Map<String, Object> properties = Collections.singletonMap("outboxTables", "8");
         PollingPipelineReaderProperties readerProps = propertyReader.convertMapToPropertyClass(properties, PollingPipelineReaderProperties.class);
-        List<String> suffixes = IntStream.range(0, 8).mapToObj(Integer::toString).collect(Collectors.toList());
+        List<OutboxTableSuffix> suffixes = IntStream.range(0, 8).mapToObj(OutboxTableSuffix::new).collect(Collectors.toList());
         assertEquals(suffixes, readerProps.getOutboxPartitioning().outboxTableSuffixes());
     }
 }
