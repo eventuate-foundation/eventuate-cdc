@@ -104,12 +104,12 @@ public class PostgresWalClient extends DbLogClient {
   private void connectWithRetriesOnFail() {
     for (int i = 1; running.get(); i++) {
       try {
-        logger.info("trying to connect to postgres wal");
+        logger.info("trying to connect to postgres wal {}", dataSourceUrl);
         connectAndRun();
         break;
       } catch (SQLException e) {
         onDisconnected();
-        logger.error("connection to postgres wal failed");
+        logger.error("connection to postgres wal failed", e);
         if (i == maxAttemptsForBinlogConnection) {
           handleProcessingFailException(e);
         }
