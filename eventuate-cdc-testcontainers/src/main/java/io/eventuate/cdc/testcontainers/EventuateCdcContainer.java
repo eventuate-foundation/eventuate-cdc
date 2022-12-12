@@ -46,24 +46,28 @@ public class EventuateCdcContainer extends EventuateGenericContainer<EventuateCd
         newPipeline();
 
         withEnv("EVENTUATE_CDC_READER_READERX_DATASOURCEURL", database.getJdbcUrl());
-
-        withEnv("EVENTUATE_CDC_READER_READERX_TYPE", database.getCdcReaderType());
-        withEnv("EVENTUATE_CDC_READER_READERX_MONITORINGSCHEMA", database.getMonitoringSchema());
         withEnv("EVENTUATE_CDC_READER_READERX_DATASOURCEUSERNAME", database.getAdminCredentials().userName);
         withEnv("EVENTUATE_CDC_READER_READERX_DATASOURCEPASSWORD", database.getAdminCredentials().password);
-        withEnv("EVENTUATE_CDC_READER_READERX_DATASOURCEDRIVERCLASSNAME", database.getDriverClassName());
+        withEnv("EVENTUATE_CDC_READER_READERX_MONITORINGSCHEMA", database.getMonitoringSchema());
         withEnv("EVENTUATE_CDC_READER_READERX_LEADERSHIPLOCKPATH", () -> String.format("/eventuate/cdc/leader/%s", database.getContainerId()));
-        withEnv("EVENTUATE_CDC_READER_READERX_CDCDBUSERNAME", database.getAdminCredentials().userName);
-        withEnv("EVENTUATE_CDC_READER_READERX_CDCDBPASSWORD", database.getAdminCredentials().password);
-        withEnv("EVENTUATE_CDC_READER_READERX_READOLDDEBEZIUMDBOFFSETSTORAGETOPIC", "false");
-        withEnv("EVENTUATE_CDC_READER_READERX_MYSQLBINLOGCLIENTUNIQUEID", Integer.toString(pipelineIdx));
-        withEnv("EVENTUATE_CDC_READER_READERX_OFFSETSTOREKEY", database::getContainerId);
         withEnv("EVENTUATE_CDC_READER_READERX_OFFSETSTORAGETOPICNAME", "db.history.common");
+        withEnv("EVENTUATE_CDC_READER_READERX_DATASOURCEDRIVERCLASSNAME", database.getDriverClassName());
         withEnv("EVENTUATE_CDC_READER_READERX_OUTBOXID", Integer.toString(pipelineIdx));
+
+        String cdcReaderType = database.getCdcReaderType();
+        withEnv("EVENTUATE_CDC_READER_READERX_TYPE", cdcReaderType);
+
+        if (cdcReaderType.equals("mysql-binlog")) {
+            withEnv("EVENTUATE_CDC_READER_READERX_CDCDBUSERNAME", database.getAdminCredentials().userName);
+            withEnv("EVENTUATE_CDC_READER_READERX_CDCDBPASSWORD", database.getAdminCredentials().password);
+            withEnv("EVENTUATE_CDC_READER_READERX_READOLDDEBEZIUMDBOFFSETSTORAGETOPIC", "false");
+            withEnv("EVENTUATE_CDC_READER_READERX_MYSQLBINLOGCLIENTUNIQUEID", Integer.toString(pipelineIdx));
+            withEnv("EVENTUATE_CDC_READER_READERX_OFFSETSTOREKEY", database::getContainerId);
+        }
 
         withEnv("EVENTUATE_CDC_PIPELINE_PIPELINEX_TYPE", "eventuate-tram");
         withEnv("EVENTUATE_CDC_PIPELINE_PIPELINEX_READER", "reader" + pipelineIdx);
-        withEnv("EVENTUATE_CDC_PIPELINE_PIPELINEX_EVENTUATEDATABASESCHEMA", database.getDatabaseName());
+        withEnv("EVENTUATE_CDC_PIPELINE_PIPELINEX_EVENTUATEDATABASESCHEMA", database.getEventuateDatabaseSchema());
         return this;
     }
 
