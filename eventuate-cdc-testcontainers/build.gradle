@@ -1,5 +1,6 @@
 dependencies {
     implementation "io.eventuate.common:eventuate-common-testcontainers:$eventuateCommonVersion"
+    implementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-testcontainers:$eventuateMessagingKafkaVersion"
     implementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
 
     implementation "org.testcontainers:testcontainers:$testContainersVersion"
