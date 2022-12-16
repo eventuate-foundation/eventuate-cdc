@@ -48,33 +48,34 @@ subprojects {
         mavenCentral()
         eventuateMavenRepoUrl.split(',').each { repoUrl -> maven { url repoUrl } }
     }
+    if (!project.name.endsWith("-bom")) {
+        dependencies {
+            if (!testLibraries.contains(project.name)) {
+                implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")) {
+                    exclude group: 'ch.qos.logback'
+                }
 
-    dependencies {
-        if (!testLibraries.contains(project.name)) {
-            implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")) {
-                exclude group: 'ch.qos.logback'
+                constraints {
+                    implementation("org.apache.kafka:kafka-clients") {
+                        version {
+                            strictly(kafkaClientVersion)
+                        }
+                    }
+                    implementation("org.apache.kafka:connect-api") {
+                        version {
+                            strictly("0.10.0.1")
+                        }
+                    }
+                    implementation("org.redisson:redisson") {
+                        version {
+                            strictly("3.16.8")
+                        }
+                    }
+                }
             }
 
-            constraints {
-                implementation("org.apache.kafka:kafka-clients") {
-                    version {
-                        strictly(kafkaClientVersion)
-                    }
-                }
-                implementation("org.apache.kafka:connect-api") {
-                    version {
-                        strictly("0.10.0.1")
-                    }
-                }
-                implementation("org.redisson:redisson") {
-                    version {
-                        strictly("3.16.8")
-                    }
-                }
-            }
+            testImplementation "junit:junit:4.12"
         }
-
-        testImplementation "junit:junit:4.12"
     }
 }
 
@@ -235,7 +236,7 @@ tasks*.each { t ->
 task aggregatedTestReport(type: TestReport) {
     destinationDir = file("$buildDir/reports/allTests")
     // Include the results from the 'test' task in all subprojects
-    reportOn subprojects*.test
+    reportOn subprojects.findAll { it.name != "eventuate-cdc-bom" }*.test
 }
 
 gradle.projectsEvaluated {

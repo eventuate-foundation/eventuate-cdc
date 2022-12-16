@@ -24,4 +24,6 @@ include 'eventuate-tram-cdc-connector-redis-e2e-tests'
 
 include 'eventuate-cdc-testcontainers'
 
+include 'eventuate-cdc-bom'
+
 rootProject.name = 'eventuate-cdc'
