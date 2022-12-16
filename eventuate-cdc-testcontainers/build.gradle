@@ -13,5 +13,6 @@ task writeProperties(type: WriteProperties) {
     property 'version', version
 }
 
+test.dependsOn(":eventuate-cdc-service:assemble")
 
 processResources.from(writeProperties)
