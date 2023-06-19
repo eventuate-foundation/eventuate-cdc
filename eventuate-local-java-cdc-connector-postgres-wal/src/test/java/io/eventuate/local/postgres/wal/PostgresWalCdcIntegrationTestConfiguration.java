@@ -88,7 +88,9 @@ public class PostgresWalCdcIntegrationTestConfiguration {
             eventuateConfigurationProperties.getAdditionalServiceReplicationSlotName(),
             eventuateConfigurationProperties.getWaitForOffsetSyncTimeoutInMilliseconds(),
             new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA),
-            eventuateConfigurationProperties.getOutboxId());
+            eventuateConfigurationProperties.getOutboxId(),
+            eventuateConfigurationProperties.getMaxLsnDiffInMb(),
+            new PostgresConnectionFactory());
   }
 
 

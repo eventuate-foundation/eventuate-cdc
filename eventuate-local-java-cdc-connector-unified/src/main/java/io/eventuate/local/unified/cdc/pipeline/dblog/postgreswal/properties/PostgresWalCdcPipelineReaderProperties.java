@@ -10,6 +10,8 @@ public class PostgresWalCdcPipelineReaderProperties extends CommonDbLogCdcPipeli
   private String additionalServiceReplicationSlotName = "eventuate_offset_control_slot";
   private long waitForOffsetSyncTimeoutInMilliseconds = 60000;
 
+  private int maxLsnDiffInMb = 1000;
+
   public Integer getPostgresWalIntervalInMilliseconds() {
     return postgresWalIntervalInMilliseconds;
   }
@@ -48,5 +50,13 @@ public class PostgresWalCdcPipelineReaderProperties extends CommonDbLogCdcPipeli
 
   public void setWaitForOffsetSyncTimeoutInMilliseconds(long waitForOffsetSyncTimeoutInMilliseconds) {
     this.waitForOffsetSyncTimeoutInMilliseconds = waitForOffsetSyncTimeoutInMilliseconds;
+  }
+
+  public int getMaxLsnDiffInMb() {
+    return maxLsnDiffInMb;
+  }
+
+  public void setMaxLsnDiffInMb(int maxLsnDiffInMb) {
+    this.maxLsnDiffInMb = maxLsnDiffInMb;
   }
 }

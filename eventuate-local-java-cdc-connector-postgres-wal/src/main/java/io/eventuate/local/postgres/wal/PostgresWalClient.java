@@ -37,8 +37,10 @@ public class PostgresWalClient extends DbLogClient {
   private PGReplicationStream stream;
   private int replicationStatusIntervalInMilliseconds;
   private String replicationSlotName;
+  private final int maxLsnDiffInMb;
   private final PostgresWalCdcProcessingStatusService postgresWalCdcProcessingStatusService;
   private OffsetProcessor<LogSequenceNumber> offsetProcessor;
+  private final PostgresConnectionFactory connectionFactory;
 
   public PostgresWalClient(MeterRegistry meterRegistry,
                            String dataSourceUrl,
@@ -57,7 +59,9 @@ public class PostgresWalClient extends DbLogClient {
                            String additionalServiceReplicationSlotName,
                            long waitForOffsetSyncTimeoutInMilliseconds,
                            EventuateSchema monitoringSchema,
-                           Long outboxId) {
+                           Long outboxId,
+                           int maxLsnDiffInMb,
+                           PostgresConnectionFactory connectionFactory) {
 
     super(meterRegistry,
             user,
@@ -77,6 +81,8 @@ public class PostgresWalClient extends DbLogClient {
     this.replicationStatusIntervalInMilliseconds = replicationStatusIntervalInMilliseconds;
     this.replicationSlotName = replicationSlotName;
     this.postgresWalBinlogEntryExtractor = new PostgresWalBinlogEntryExtractor();
+    this.maxLsnDiffInMb = maxLsnDiffInMb;
+    this.connectionFactory = connectionFactory;
 
     postgresWalCdcProcessingStatusService = new PostgresWalCdcProcessingStatusService(dataSource,
             additionalServiceReplicationSlotName,
@@ -136,7 +142,7 @@ public class PostgresWalClient extends DbLogClient {
     PGProperty.REPLICATION.set(props, "database");
     PGProperty.PREFER_QUERY_MODE.set(props, "simple");
 
-    connection = DriverManager.getConnection(dataSourceUrl, props);
+    connection = connectionFactory.create(dataSourceUrl, props);
 
     PGConnection replConnection = connection.unwrap(PGConnection.class);
 
@@ -169,13 +175,13 @@ public class PostgresWalClient extends DbLogClient {
       ByteBuffer messageBuffer = stream.readPending();
 
       if (messageBuffer == null) {
+        long lsnDiffInMb = getLsnDiffInMb(stream.getLastReceiveLSN(), stream.getLastFlushedLSN());
+        if (lsnDiffInMb > maxLsnDiffInMb) {
+          offsetProcessor.saveOffset(CompletableFuture.completedFuture(Optional.of(stream.getLastReceiveLSN())));
+        }
         saveOffsetOfLastProcessedEvent();
         logger.debug("Got empty message, sleeping");
-        try {
-          TimeUnit.MILLISECONDS.sleep(walIntervalInMilliseconds);
-        } catch (InterruptedException e) {
-          handleProcessingFailException(e);
-        }
+        sleep();
         continue;
       }
 
@@ -210,14 +216,26 @@ public class PostgresWalClient extends DbLogClient {
 
       binlogEntryHandlers.forEach(handler ->
               inserts
-                  .stream()
-                  .filter(entry -> handler.isFor(entry.getSchemaAndTable()))
-                  .map(BinlogEntryWithSchemaAndTable::getBinlogEntry)
-                  .forEach(e -> handleBinlogEntry(e, handler)));
+                      .stream()
+                      .filter(entry -> handler.isFor(entry.getSchemaAndTable()))
+                      .map(BinlogEntryWithSchemaAndTable::getBinlogEntry)
+                      .forEach(e -> handleBinlogEntry(e, handler)));
       saveOffsetOfLastProcessedEvent();
     }
 
     stopCountDownLatch.countDown();
+  }
+
+  private void sleep() {
+    try {
+      TimeUnit.MILLISECONDS.sleep(walIntervalInMilliseconds);
+    } catch (InterruptedException e) {
+      handleProcessingFailException(e);
+    }
+  }
+
+  private long getLsnDiffInMb(LogSequenceNumber lsn1, LogSequenceNumber lsn2) {
+    return (lsn1.asLong() - lsn2.asLong()) / (1024 * 1024);
   }
 
   private void handleBinlogEntry(BinlogEntry entry, BinlogEntryHandler handler) {

@@ -92,6 +92,9 @@ public class EventuateConfigurationProperties {
   @Value("${eventuate.cdc.kafka.batch.processing.max.batch.size:#{1000000}}")
   private int maxBatchSize;
 
+  @Value("${eventuate.cdc.postgres.max.lsn.diff.size.in.mb:#{1000}}")
+  private int maxLsnDiffInMb;
+
   public String getDbUserName() {
     return dbUserName;
   }
@@ -226,5 +229,13 @@ public class EventuateConfigurationProperties {
 
   public Integer getOutboxTablePartitions() {
     return outboxTablePartitions;
+  }
+
+  public int getMaxLsnDiffInMb() {
+    return maxLsnDiffInMb;
+  }
+
+  public void setMaxLsnDiffInMb(int maxLsnDiffInMb) {
+    this.maxLsnDiffInMb = maxLsnDiffInMb;
   }
 }
