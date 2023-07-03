@@ -25,7 +25,7 @@ dockerCompose {
 
     tramcdc {
         projectName = null
-        removeContainers = project.ext.removeContainers
+        removeContainers = project.ext.removeContainers.toBoolean()
         upAdditionalArgs = ['--no-deps']
         useComposeFiles = ["../${databaseDockerFile}", "../${databaseDockerCdcFile}"]
         if (mode != "unified") {
