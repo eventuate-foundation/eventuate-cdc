@@ -7,7 +7,7 @@ class DockerServicesPlugin implements Plugin<Project> {
             if (!project.ext.has("composeServices")) {
                 return System.env.COMPOSE_SERVICES == null || System.env.COMPOSE_SERVICES == "" ? [] : "$System.env.COMPOSE_SERVICES".split(",")
             } else {
-                return "${project.ext.composeServices}".split(",")
+                return "${project.ext.composeServices}".split(",").toList()
             }
         }
     }
