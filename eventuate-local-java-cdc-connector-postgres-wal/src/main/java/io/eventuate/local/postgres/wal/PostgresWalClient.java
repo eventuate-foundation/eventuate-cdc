@@ -281,6 +281,7 @@ public class PostgresWalClient extends DbLogClient {
       int index = Arrays.asList(change.getColumnnames()).indexOf("last_time");
       dbLogMetrics.onLagMeasurementEventReceived(Long.parseLong(change.getColumnvalues()[index]));
       onEventReceived();
+      offsetProcessor.saveOffset(CompletableFuture.completedFuture(Optional.of(stream.getLastReceiveLSN())));
     });
   }
 
