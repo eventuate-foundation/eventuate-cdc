@@ -8,6 +8,8 @@ import com.github.shyiko.mysql.binlog.event.deserialization.NullEventDataDeseria
 import com.google.common.collect.ImmutableSet;
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.jdbc.JdbcUrl;
+import io.eventuate.common.jdbc.JdbcUrlParser;
 import io.eventuate.common.jdbc.SchemaAndTable;
 import io.eventuate.local.common.BinlogEntry;
 import io.eventuate.local.common.BinlogEntryHandler;
@@ -62,6 +64,8 @@ public class MySqlBinaryLogClient extends DbLogClient {
   private AtomicLong timeOfLatestMessage = new AtomicLong();;
   private Timer messagePublishingTimer;
   private BinaryLogClient.EventListener eventListener;
+  private final String host;
+  private final int port;
 
   public MySqlBinaryLogClient(MeterRegistry meterRegistry,
                               String dbUserName,
@@ -97,6 +101,10 @@ public class MySqlBinaryLogClient extends DbLogClient {
     this.maxAttemptsForBinlogConnection = maxAttemptsForBinlogConnection;
     this.offsetStore = offsetStore;
     this.debeziumBinlogOffsetKafkaStore = debeziumBinlogOffsetKafkaStore;
+
+    JdbcUrl jdbcUrl = JdbcUrlParser.parse(dataSourceUrl);
+    host = jdbcUrl.getHost();
+    port = jdbcUrl.getPort();
 
     timestampExtractor = new MySqlBinlogCdcMonitoringTimestampExtractor(dataSource);
     mySqlBinlogEntryExtractor = new MySqlBinlogEntryExtractor(dataSource);

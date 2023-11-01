@@ -2,8 +2,6 @@ package io.eventuate.local.db.log.common;
 
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
 import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.common.jdbc.JdbcUrl;
-import io.eventuate.common.jdbc.JdbcUrlParser;
 import io.eventuate.local.common.BinlogEntryReader;
 import io.eventuate.local.common.CdcMonitoringDao;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -15,11 +13,9 @@ public abstract class DbLogClient extends BinlogEntryReader {
 
   protected String dbUserName;
   protected String dbPassword;
-  protected String host;
-  protected int port;
   protected DbLogMetrics dbLogMetrics;
-    protected String dataSourceUrl;
-    private boolean checkEntriesForDuplicates;
+  protected String dataSourceUrl;
+  private boolean checkEntriesForDuplicates;
   protected volatile boolean connected;
   protected CdcMonitoringDao cdcMonitoringDao;
 
@@ -53,10 +49,6 @@ public abstract class DbLogClient extends BinlogEntryReader {
     this.dbUserName = dbUserName;
     this.dbPassword = dbPassword;
     this.dataSourceUrl = dataSourceUrl;
-
-    JdbcUrl jdbcUrl = JdbcUrlParser.parse(dataSourceUrl);
-    host = jdbcUrl.getHost();
-    port = jdbcUrl.getPort();
   }
 
   public boolean isConnected() {
