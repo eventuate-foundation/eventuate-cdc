@@ -5,31 +5,44 @@ import io.eventuate.common.testcontainers.EventuateDatabaseContainer;
 import io.eventuate.common.testcontainers.EventuateZookeeperContainer;
 import io.eventuate.messaging.kafka.testcontainers.EventuateKafkaCluster;
 import io.eventuate.messaging.kafka.testcontainers.EventuateKafkaContainer;
-import org.junit.ClassRule;
 import org.junit.Test;
+import org.testcontainers.lifecycle.Startables;
 
 public class EventuateCdcContainerTest {
 
-    public static EventuateKafkaCluster eventuateKafkaCluster = new EventuateKafkaCluster("CustomersAndOrdersE2ETest");
+    public static EventuateKafkaCluster eventuateKafkaCluster = new EventuateKafkaCluster("EventuateCdcTest");
 
-    @ClassRule
     public static EventuateZookeeperContainer zookeeper = eventuateKafkaCluster.zookeeper;
 
-    @ClassRule
     public static EventuateKafkaContainer kafka = eventuateKafkaCluster.kafka;
 
-    @ClassRule
     public static EventuateDatabaseContainer<?> customerServiceDatabase =
             DatabaseContainerFactory.makeDatabaseContainer()
                     .withNetwork(eventuateKafkaCluster.network)
-                    .withNetworkAliases("customer-service-db");
+                    .withNetworkAliases("customer-service-db")
+                    .withReuse(true)
+            ;
 
-    @ClassRule
-    public static EventuateCdcContainer cdc = EventuateCdcContainer.makeFromDockerfile()
-            .withKafkaCluster(eventuateKafkaCluster)
-            .withTramPipeline(customerServiceDatabase);
 
     @Test
-    public void shouldStart() {}
+    public void shouldStart() {
+        EventuateCdcContainer cdc = EventuateCdcContainer.makeFromDockerfile()
+                .withKafkaCluster(eventuateKafkaCluster)
+                .withTramPipeline(customerServiceDatabase)
+                .dependsOn(zookeeper, kafka, customerServiceDatabase);
+        Startables.deepStart(cdc).join();
+        cdc.stop();
+    }
+
+    @Test
+    public void shouldStartWithKafkaCoordination() {
+        EventuateCdcContainer cdc = EventuateCdcContainer.makeFromDockerfile()
+                .withKafka(eventuateKafkaCluster.network, eventuateKafkaCluster.kafka)
+                .withKafkaLeadership()
+                .withTramPipeline(customerServiceDatabase)
+                .dependsOn(zookeeper, kafka, customerServiceDatabase);
+        Startables.deepStart(cdc).join();
+        cdc.stop();
+    }
 
 }

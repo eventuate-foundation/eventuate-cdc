@@ -5,7 +5,9 @@ import io.eventuate.common.testcontainers.EventuateDatabaseContainer;
 import io.eventuate.common.testcontainers.EventuateGenericContainer;
 import io.eventuate.common.testcontainers.PropertyProvidingContainer;
 import io.eventuate.messaging.kafka.testcontainers.EventuateKafkaCluster;
+import io.eventuate.messaging.kafka.testcontainers.EventuateKafkaContainer;
 import org.jetbrains.annotations.NotNull;
+import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 
@@ -46,6 +48,12 @@ public class EventuateCdcContainer extends EventuateGenericContainer<EventuateCd
         withNetwork(eventuateKafkaCluster.network);
         withEnv("EVENTUATELOCAL_ZOOKEEPER_CONNECTION_STRING", eventuateKafkaCluster.zookeeper.getConnectionString());
         withEnv("EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS", eventuateKafkaCluster.kafka.getConnectionString());
+        return this;
+    }
+
+    public EventuateCdcContainer withKafka(Network network, EventuateKafkaContainer kafka) {
+        withNetwork(network);
+        withEnv("EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS", kafka.getConnectionString());
         return this;
     }
     public EventuateCdcContainer withTramPipeline(EventuateDatabaseContainer<?> database) {
@@ -101,4 +109,10 @@ public class EventuateCdcContainer extends EventuateGenericContainer<EventuateCd
     protected int getPort() {
         return 8080;
     }
+
+    public EventuateCdcContainer withKafkaLeadership() {
+        withEnv("SPRING_PROFILES_ACTIVE", "KafkaLeadership");
+        return this;
+    }
+
 }

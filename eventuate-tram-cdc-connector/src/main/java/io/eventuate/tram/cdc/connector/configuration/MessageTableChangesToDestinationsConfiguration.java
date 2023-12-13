@@ -5,9 +5,9 @@ import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.mysql.binlog.DebeziumBinlogOffsetKafkaStore;
 import io.eventuate.local.unified.cdc.pipeline.dblog.common.factory.OffsetStoreFactory;
 import io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.factory.DebeziumOffsetStoreFactory;
-import io.eventuate.tram.cdc.connector.configuration.condition.ActiveMQOrRabbitMQOrRedisCondition;
 import io.eventuate.tram.cdc.connector.EventuateTramChannelProperties;
 import io.eventuate.tram.cdc.connector.JdbcOffsetStore;
+import io.eventuate.tram.cdc.connector.configuration.condition.ActiveMQOrRabbitMQOrRedisCondition;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -21,6 +21,7 @@ import java.util.Optional;
 @Import({SqlDialectConfiguration.class,
         CommonMessageTableChangesToDestinationsConfiguration.class,
         ZookeeperConfiguration.class,
+        KafkaLeadershipConfiguration.class,
         KafkaMessageTableChangesToDestinationsConfiguration.class,
         ActiveMQMessageTableChangesToDestinationsConfiguration.class,
         RabbitMQMessageTableChangesToDestinationsConfiguration.class,

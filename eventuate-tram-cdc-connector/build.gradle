@@ -10,6 +10,7 @@ dependencies {
     api project(":eventuate-local-java-cdc-connector-unified:")
     api "org.springframework.boot:spring-boot-starter-web"
 
+    implementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-leadership:$eventuateMessagingKafkaVersion"
 
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "org.assertj:assertj-core:$assertjVersion"
