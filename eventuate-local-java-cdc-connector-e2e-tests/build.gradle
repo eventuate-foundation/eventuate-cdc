@@ -6,6 +6,10 @@ dependencies {
     api project (":eventuate-cdc-common-e2e-tests")
     api project (":eventuate-local-java-cdc-connector-common")
     testImplementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-common:$eventuateMessagingKafkaVersion"
+
+    // Extra
+    implementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-common:$eventuateMessagingKafkaVersion"
+
     testImplementation "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
     testImplementation "io.eventuate.common:eventuate-common-spring-id:$eventuateCommonVersion"
     testImplementation "junit:junit:4.11"

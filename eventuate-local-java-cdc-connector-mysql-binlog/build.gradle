@@ -1,6 +1,9 @@
 apply plugin: 'java-library'
 
 dependencies {
+    // Extra
+    implementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-common:$eventuateMessagingKafkaVersion"
+
     api 'com.zendesk:mysql-binlog-connector-java:0.23.2'
     api project(":eventuate-local-java-cdc-connector-db-log-common")
     api project(":eventuate-local-java-cdc-connector-common")

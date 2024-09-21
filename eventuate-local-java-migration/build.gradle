@@ -14,6 +14,9 @@ dependencies {
     api "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
 
     testImplementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-common:$eventuateMessagingKafkaVersion"
+    // Extra
+    implementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-common:$eventuateMessagingKafkaVersion"
+
     testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
     testImplementation "junit:junit:4.11"
     testImplementation "org.springframework.boot:spring-boot-starter-test"

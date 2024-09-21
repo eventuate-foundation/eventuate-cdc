@@ -4,6 +4,9 @@ dependencies {
     api project(":eventuate-local-java-cdc-connector-db-log-common")
     api "io.eventuate.common:eventuate-common-coordination-leadership-zookeeper:$eventuateCommonVersion"
 
+    // Extra
+    implementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-common:$eventuateMessagingKafkaVersion"
+
     api ('org.postgresql:postgresql:42.1.4') {
         exclude group: "org.slf4j", module: "slf4j-simple"
     }

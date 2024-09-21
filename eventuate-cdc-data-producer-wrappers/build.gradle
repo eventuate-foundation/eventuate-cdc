@@ -2,6 +2,11 @@ apply plugin: 'java-library'
 
 dependencies {
     api "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-producer:$eventuateMessagingKafkaVersion"
+    // Extra
+    implementation "org.apache.kafka:kafka-clients:$kafkaClientVersion"
+    implementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-producer:$eventuateMessagingKafkaVersion"
+    implementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-common:$eventuateMessagingKafkaVersion"
+
     api "io.eventuate.messaging.activemq:eventuate-messaging-activemq-spring-producer:$eventuateMessagingActiveMQVersion"
     api "io.eventuate.messaging.rabbitmq:eventuate-messaging-rabbitmq-spring-producer:$eventuateMessagingRabbitMQVersion"
     api "io.eventuate.messaging.redis:eventuate-messaging-redis-spring-producer:$eventuateMessagingRedisVersion"

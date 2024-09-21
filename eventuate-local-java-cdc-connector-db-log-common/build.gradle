@@ -2,6 +2,10 @@ apply plugin: 'java-library'
 
 dependencies {
     api project(":eventuate-local-java-cdc-connector-common")
+
+    // Extra
+    implementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-common:$eventuateMessagingKafkaVersion"
+
 }
 
 test {

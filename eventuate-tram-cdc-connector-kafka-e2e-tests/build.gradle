@@ -7,6 +7,9 @@ dependencies {
     testImplementation project (":eventuate-tram-cdc-connector-e2e-tests")
 
     testImplementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-consumer:$eventuateMessagingKafkaVersion"
+    // Extra
+    implementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-common:$eventuateMessagingKafkaVersion"
+
     testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
     testImplementation "junit:junit:4.11"
     testImplementation "org.springframework.boot:spring-boot-starter-test"

@@ -7,6 +7,9 @@ dependencies {
     api "io.eventuate.messaging.redis:eventuate-messaging-redis-spring-common:$eventuateMessagingRedisVersion"
     api "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-common:$eventuateMessagingKafkaVersion"
 
+    // Extra
+    implementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-common:$eventuateMessagingKafkaVersion"
+
     api project(":eventuate-local-java-cdc-connector-unified:")
     api "org.springframework.boot:spring-boot-starter-web"
 
