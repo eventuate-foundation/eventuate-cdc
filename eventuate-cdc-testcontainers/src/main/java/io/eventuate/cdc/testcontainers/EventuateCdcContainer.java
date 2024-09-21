@@ -6,6 +6,8 @@ import io.eventuate.common.testcontainers.EventuateGenericContainer;
 import io.eventuate.common.testcontainers.PropertyProvidingContainer;
 import io.eventuate.messaging.kafka.testcontainers.EventuateKafkaCluster;
 import io.eventuate.messaging.kafka.testcontainers.EventuateKafkaContainer;
+import io.eventuate.messaging.kafka.testcontainers.EventuateKafkaNativeCluster;
+import io.eventuate.messaging.kafka.testcontainers.EventuateKafkaNativeContainer;
 import org.jetbrains.annotations.NotNull;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.Wait;
