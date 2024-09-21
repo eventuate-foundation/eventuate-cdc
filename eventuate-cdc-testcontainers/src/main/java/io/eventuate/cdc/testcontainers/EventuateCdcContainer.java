@@ -51,12 +51,31 @@ public class EventuateCdcContainer extends EventuateGenericContainer<EventuateCd
         return this;
     }
 
+    public EventuateCdcContainer withKafkaCluster(EventuateKafkaNativeCluster eventuateKafkaCluster) {
+        withNetwork(eventuateKafkaCluster.network);
+        withKafkaLeadership();
+        withEnv("EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS", eventuateKafkaCluster.kafka.getBootstrapServersForContainer());
+        return this;
+    }
+
     public EventuateCdcContainer withKafka(Network network, EventuateKafkaContainer kafka) {
         withNetwork(network);
+        dependsOn(kafka);
+        withKafkaLeadership();
         withEnv("EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS", kafka.getConnectionString());
         return this;
     }
+
+    public EventuateCdcContainer withKafka(EventuateKafkaNativeContainer kafka) {
+        withNetwork(kafka.getNetwork());
+        dependsOn(kafka);
+        withEnv("EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS", kafka.getBootstrapServersForContainer());
+        return this;
+    }
     public EventuateCdcContainer withTramPipeline(EventuateDatabaseContainer<?> database) {
+
+        dependsOn(database);
+
         newPipeline();
 
         withEnv("EVENTUATE_CDC_READER_READERX_DATASOURCEURL", database.getJdbcUrl());
