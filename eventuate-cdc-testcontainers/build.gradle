@@ -4,7 +4,7 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
 
     api "org.testcontainers:kafka:$testContainersVersion"
-π    implementation "org.assertj:assertj-core:$assertjVersion"
+    implementation "org.assertj:assertj-core:$assertjVersion"
 
 }
 
