@@ -9,7 +9,7 @@ buildscript {
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
-        classpath "com.avast.gradle:gradle-docker-compose-plugin:0.12.0"
+        classpath "com.avast.gradle:gradle-docker-compose-plugin:$dockerComposePluginVersion"
         classpath "io.eventuate.plugins.gradle:eventuate-plugins-gradle-publish:$eventuatePluginsGradleVersion"
     }
 }
@@ -110,23 +110,21 @@ dockerCompose {
     environment.put "DOCKER_IMAGE_TAG", version
 
     removeOrphans = true
+    retainContainersOnStartupFailure = true
 
     mysql {
         projectName = null
         useComposeFiles = ["docker-compose-mysql.yml"]
-        removeContainers = project.ext.removeContainers
     }
 
     mysql8 {
         projectName = null
         useComposeFiles = ["docker-compose-mysql8.yml"]
-        removeContainers = project.ext.removeContainers
     }
 
     mysql8cdcpolling {
         projectName = null
         useComposeFiles = ["docker-compose-mysql8.yml", "docker-compose-cdc-mysql-polling.yml"]
-        removeContainers = project.ext.removeContainers
         startedServices = ["eventuate-cdc-service"]
     }
 
@@ -134,14 +132,12 @@ dockerCompose {
         environment.put "EVENTUATE_OUTBOX_TABLES", "8"
         projectName = null
         useComposeFiles = ["docker-compose-mysql8.yml", "docker-compose-cdc-unified-polling-mysql.yml"]
-        removeContainers = project.ext.removeContainers
         startedServices = ["eventuate-cdc-service"]
     }
 
     mysqlonly {
         projectName = null
         useComposeFiles = ["docker-compose-mysql.yml"]
-        removeContainers = project.ext.removeContainers
         startedServices = ["mysql"]
         removeOrphans = false
     }
@@ -149,7 +145,6 @@ dockerCompose {
     mysql8only {
         projectName = null
         useComposeFiles = ["docker-compose-mysql8.yml"]
-        removeContainers = project.ext.removeContainers
         startedServices = ["mysql"]
         removeOrphans = false
     }
@@ -157,14 +152,12 @@ dockerCompose {
     mysql8KafkaOnly {
         projectName = null
         useComposeFiles = ["docker-compose-mysql8.yml"]
-        removeContainers = project.ext.removeContainers
         startedServices = ["kafka"]
         removeOrphans = false
     }
 
     mysqlmigration {
         projectName = null
-        removeContainers = project.ext.removeContainers
         useComposeFiles = ["docker-compose-eventuate-local-mysql-for-migration.yml"]
         startedServices = project.ext.composeStartedServices()
     }
@@ -172,13 +165,11 @@ dockerCompose {
     mariadb {
         projectName = null
         useComposeFiles = ["docker-compose-mariadb.yml"]
-        removeContainers = project.ext.removeContainers
     }
 
     mariadbonly {
         projectName = null
         useComposeFiles = ["docker-compose-mariadb.yml"]
-        removeContainers = project.ext.removeContainers
         startedServices = ["mariadb"]
         removeOrphans = false
     }
@@ -186,13 +177,11 @@ dockerCompose {
     mssql {
         projectName = null
         useComposeFiles = ["docker-compose-mssql.yml"]
-        removeContainers = project.ext.removeContainers
     }
 
     mssqlonly {
         projectName = null
         useComposeFiles = ["docker-compose-mssql.yml"]
-        removeContainers = project.ext.removeContainers
         startedServices = ["mssql"]
         removeOrphans = false
     }
@@ -200,13 +189,11 @@ dockerCompose {
     postgres {
         projectName = null
         useComposeFiles = ["docker-compose-postgres.yml"]
-        removeContainers = project.ext.removeContainers
     }
 
     postgresonly {
         projectName = null
         useComposeFiles = ["docker-compose-postgres.yml"]
-        removeContainers = project.ext.removeContainers
         startedServices = ["postgres"]
         removeOrphans = false
     }
@@ -214,13 +201,11 @@ dockerCompose {
     unified {
         projectName = null
         useComposeFiles = ["docker-compose-unified.yml", "docker-compose-cdc-unified.yml"]
-        removeContainers = project.ext.removeContainers
     }
 
     publish {
         projectName = null
         useComposeFiles = ["docker-compose-mysql.yml", "docker-compose-cdc-mysql-binlog.yml"]
-        removeContainers = project.ext.removeContainers
     }
 }
 
