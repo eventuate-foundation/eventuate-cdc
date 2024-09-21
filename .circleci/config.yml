@@ -156,7 +156,7 @@ workflows:
           name: tram-cdc-mysql8-binlog-arm
           skip_multi_arch_env_vars: "true"
           resource_class: arm.medium
-          machine_image: ubuntu-2004:202101-01
+          machine_image: ubuntu-2204:2024.01.1
           script: |
             docker context create tls-env
             docker buildx create tls-env --use
@@ -222,7 +222,7 @@ workflows:
           name: test-cdc-multi-arch-arm
           script:  ./scripts/build-and-test-all-tram-cdc-mysql8-multi-arch.sh
           resource_class: arm.medium
-          machine_image: ubuntu-2004:202101-01
+          machine_image: ubuntu-2204:2024.01.1
           requires:
             - build-multi-arch-images
       - build-and-test/build-and-test:
