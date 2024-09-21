@@ -8,7 +8,7 @@ services:
     image: eventuateio/eventuate-cdc-service:${DOCKER_IMAGE_TAG:-latest}
     ports:
       - "8099:8080"
-    links:
+    depends_on:
       - mysql
       - kafka
       - zookeeper

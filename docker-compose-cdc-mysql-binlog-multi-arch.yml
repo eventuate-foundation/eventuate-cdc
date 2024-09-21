@@ -4,7 +4,7 @@ services:
     image: ${EVENTUATE_CDC_SERVICE_MULTI_ARCH_IMAGE:-localhost:5002/eventuate-cdc-service:multi-arch-local-build}
     ports:
       - "8099:8080"
-    links:
+    depends_on:
       - mysql
       - kafka
       - zookeeper

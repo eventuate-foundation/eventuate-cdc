@@ -6,7 +6,7 @@ services:
     build: ./eventuate-cdc-service
     ports:
       - "8099:8080"
-    links:
+    depends_on:
       - postgres
       - kafka
       - redis
