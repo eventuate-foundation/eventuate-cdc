@@ -61,7 +61,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.11
+          version: docker23
       - run:
           name: docker buildx build
           command: |
@@ -87,18 +87,12 @@ jobs:
             . ./scripts/set-multi-arch-image-env-vars.sh
             ./scripts/deploy-multi-arch.sh
 workflows:
-  version: 2.1
+  version: 2
   build-test-and-deploy:
     jobs:
       - build-and-test/build-and-test:
-          name: build-and-test-mysql
-          script: ./scripts/build-and-test-mysql.sh
-      - build-and-test/build-and-test:
           name: build-and-test-mysql8
           script: ./scripts/build-and-test-mysql8.sh
-      - build-and-test/build-and-test:
-          name: build-and-test-mariadb
-          script: ./scripts/build-and-test-mariadb.sh
       - build-and-test/build-and-test:
           name: build-and-test-postgres-wal
           script: ./scripts/build-and-test-postgres-wal.sh
@@ -112,20 +106,10 @@ workflows:
           name: database-id-jsonschema
           script: ./scripts/build-and-test-all-database-id-jsonschema.sh
       - build-and-test/build-and-test:
-          name: eventuate-local-cdc-mysql-binlog
-          script: ./scripts/build-and-test-all-eventuate-local-cdc-mysql-binlog.sh
-          requires:
-            - build-and-test-mysql
-      - build-and-test/build-and-test:
           name: eventuate-local-cdc-mysql8-binlog
           script: ./scripts/build-and-test-all-eventuate-local-cdc-mysql8-binlog.sh
           requires:
             - build-and-test-mysql8
-      - build-and-test/build-and-test:
-          name: eventuate-local-cdc-mariadb-binlog
-          script: ./scripts/build-and-test-all-eventuate-local-cdc-mariadb-binlog.sh
-          requires:
-            - build-and-test-mariadb
       - build-and-test/build-and-test:
           name: eventuate-local-cdc-postgres-polling
           script: ./scripts/build-and-test-all-eventuate-local-cdc-postgres-polling.sh
@@ -136,11 +120,6 @@ workflows:
           script: ./scripts/build-and-test-all-eventuate-local-cdc-postgres-wal.sh
           requires:
             - build-and-test-postgres-wal
-      - build-and-test/build-and-test:
-          name: tram-cdc-mysql-binlog
-          script: ./scripts/build-and-test-all-tram-cdc-mysql-binlog.sh
-          requires:
-            - build-and-test-mysql
       - build-and-test/build-and-test:
           name: tram-cdc-mysql8-binlog-intel
           skip_multi_arch_env_vars: "true"
@@ -184,9 +163,7 @@ workflows:
           name: cdc-unified
           script: ./scripts/build-and-test-all-cdc-unified.sh
           requires:
-            - build-and-test-mysql
             - build-and-test-mysql8
-            - build-and-test-mariadb
             - build-and-test-postgres-wal
             - build-and-test-mssql-polling
             - build-and-test-postgres-polling
@@ -195,18 +172,13 @@ workflows:
             - publish
           requires:
             - cdc-unified
-            - build-and-test-mysql
             - build-and-test-mysql8
-            - build-and-test-mariadb
             - build-and-test-postgres-wal
             - build-and-test-mssql-polling
             - build-and-test-postgres-polling
-            - eventuate-local-cdc-mysql-binlog
             - eventuate-local-cdc-mysql8-binlog
-            - eventuate-local-cdc-mariadb-binlog
             - eventuate-local-cdc-postgres-polling
             - eventuate-local-cdc-postgres-wal
-            - tram-cdc-mysql-binlog
             - tram-cdc-mysql8-binlog-intel
             - tram-cdc-mysql8-binlog-arm
             - tram-cdc-postgres-polling

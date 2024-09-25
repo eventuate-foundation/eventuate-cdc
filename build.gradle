@@ -162,18 +162,6 @@ dockerCompose {
         startedServices = project.ext.composeStartedServices()
     }
 
-    mariadb {
-        projectName = null
-        useComposeFiles = ["docker-compose-mariadb.yml"]
-    }
-
-    mariadbonly {
-        projectName = null
-        useComposeFiles = ["docker-compose-mariadb.yml"]
-        startedServices = ["mariadb"]
-        removeOrphans = false
-    }
-
     mssql {
         projectName = null
         useComposeFiles = ["docker-compose-mssql.yml"]

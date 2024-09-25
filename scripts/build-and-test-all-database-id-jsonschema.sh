@@ -7,7 +7,6 @@ set -e
 . ./scripts/set-env.sh
 
 dockermysql="./gradlew mysqlonlyCompose"
-dockermariadb="./gradlew mariadbonlyCompose"
 dockerpostgres="./gradlew postgresonlyCompose"
 dockermssql="./gradlew mssqlonlyCompose"
 
@@ -61,8 +60,6 @@ function restartContainer() {
 }
 
 stopContainer mysql
-stopContainer mariadb
-stopContainer mssql
 stopContainer postgres
 
 
@@ -100,9 +97,6 @@ startContainer mysql
 testMysql
 stopContainer mysql
 
-startContainer mariadb
-testMysql
-
 startContainer postgres
 testPostgresWal
 
@@ -119,9 +113,6 @@ echo "TESTING DATABASE GENERATION ID"
 
 unset SPRING_PROFILES_ACTIVE
 export EVENTUATE_OUTBOX_ID=1
-
-testMysql
-stopContainer mariadb
 
 startContainer mysql
 testMysql
