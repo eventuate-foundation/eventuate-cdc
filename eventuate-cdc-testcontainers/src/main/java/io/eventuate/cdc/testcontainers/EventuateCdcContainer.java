@@ -86,16 +86,17 @@ public class EventuateCdcContainer extends EventuateGenericContainer<EventuateCd
         withEnv("EVENTUATE_CDC_READER_READERX_LEADERSHIPLOCKPATH", () -> String.format("/eventuate/cdc/leader/%s", database.getContainerId()));
         withEnv("EVENTUATE_CDC_READER_READERX_DATASOURCEDRIVERCLASSNAME", database.getDriverClassName());
         withEnv("EVENTUATE_CDC_READER_READERX_OUTBOXID", Integer.toString(pipelineIdx));
-        withEnv("EVENTUATE_CDC_READER_READERX_POLLINGINTERVALINMILLISECONDS", "1000");
 
         String cdcReaderType = database.getCdcReaderType();
 
-        if (!"polling".equals(cdcReaderType)) {
-            withEnv("EVENTUATE_CDC_READER_READERX_MONITORINGSCHEMA", database.getMonitoringSchema());
-            withEnv("EVENTUATE_CDC_READER_READERX_OFFSETSTORAGETOPICNAME", "db.history.common");
-        }
+      if ("polling".equals(cdcReaderType)) {
+          withEnv("EVENTUATE_CDC_READER_READERX_POLLINGINTERVALINMILLISECONDS", "1000");
+      } else {
+          withEnv("EVENTUATE_CDC_READER_READERX_MONITORINGSCHEMA", database.getMonitoringSchema());
+          withEnv("EVENTUATE_CDC_READER_READERX_OFFSETSTORAGETOPICNAME", "db.history.common");
+      }
 
-        withEnv("EVENTUATE_CDC_READER_READERX_TYPE", cdcReaderType);
+      withEnv("EVENTUATE_CDC_READER_READERX_TYPE", cdcReaderType);
 
         if (cdcReaderType.equals("mysql-binlog")) {
             withEnv("EVENTUATE_CDC_READER_READERX_CDCDBUSERNAME", database.getAdminCredentials().userName);
