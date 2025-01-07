@@ -6,6 +6,13 @@ dependencies {
     api "org.testcontainers:kafka:$testContainersVersion"
     implementation "org.assertj:assertj-core:$assertjVersion"
 
+    testImplementation "io.eventuate.common:eventuate-common-flyway:$eventuateCommonVersion"
+    testImplementation "org.flywaydb:flyway-core:$flywayVersion"
+    testRuntimeOnly "org.flywaydb:flyway-mysql:$flywayVersion"
+    testRuntimeOnly "org.flywaydb:flyway-sqlserver:$flywayVersion"
+
+
+
 }
 
 task writeProperties(type: WriteProperties) {
