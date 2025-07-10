@@ -3,8 +3,7 @@ package io.eventuate.local.test.util;
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.local.common.BinlogEntryReader;
 import io.eventuate.local.test.util.assertion.BinlogAssertion;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static io.eventuate.local.test.util.assertion.EventAssertOperationBuilder.fromEventInfo;

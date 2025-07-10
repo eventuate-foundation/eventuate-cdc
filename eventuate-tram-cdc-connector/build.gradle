@@ -29,7 +29,8 @@ dependencies {
 
 test {
 
-    if (System.getenv("SPRING_PROFILES_ACTIVE") !=  null) {
+    if (System.getenv("SPRING_PROFILES_ACTIVE") != null) {
         exclude '**/MultiPipelineMultipleOutboxPollingDaoIntegrationTest**'
     }
+    useJUnitPlatform()
 }

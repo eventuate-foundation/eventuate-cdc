@@ -2,7 +2,7 @@ package io.eventuate.local.test.util.assertion;
 
 import io.eventuate.common.eventuate.local.BinLogEvent;
 import io.eventuate.util.test.async.Eventually;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
@@ -26,7 +26,7 @@ public class BinlogAssertion<EVENT extends BinLogEvent> {
     Eventually.eventually(waitIterations, iterationTimeoutMilliseconds, TimeUnit.MILLISECONDS,() -> {
       EVENT event = events.poll();
 
-      Assert.assertNotNull(event);
+      Assertions.assertNotNull(event);
 
       try {
         assertOperation.applyOnlyOnce(event);

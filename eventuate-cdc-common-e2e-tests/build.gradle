@@ -4,17 +4,17 @@ dependencies {
     api project (":eventuate-local-java-cdc-connector-common")
 
     api "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
-    api "junit:junit:4.11"
     api "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
     api "org.springframework.boot:spring-boot-starter-test"
 }
 
 test {
-    def testMessageCleaner = System.env['TEST_MESSAGE_CLEANER']
+    def  testMessageCleaner = System.env['TEST_MESSAGE_CLEANER']
 
     if (testMessageCleaner != 'true') {
         exclude '**/MessageCleanerE2ETest**'
     }
 
     forkEvery 1
+    useJUnitPlatform()
 }

@@ -2,8 +2,8 @@ package io.eventuate.local.mysql.binlog;
 
 import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.SchemaAndTable;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -27,8 +27,8 @@ public abstract class AbstractColumnOrderExtractorTest {
             .extractColumnOrders(new SchemaAndTable(schema == null ? EventuateSchema.DEFAULT_SCHEMA : schema,
                     "cdc_monitoring"));
 
-    Assert.assertFalse(columnOrders.isEmpty());
-    Assert.assertTrue(columnOrders.containsKey("last_time"));
-    Assert.assertTrue(columnOrders.containsKey("reader_id"));
+    Assertions.assertFalse(columnOrders.isEmpty());
+    Assertions.assertTrue(columnOrders.containsKey("last_time"));
+    Assertions.assertTrue(columnOrders.containsKey("reader_id"));
   }
 }

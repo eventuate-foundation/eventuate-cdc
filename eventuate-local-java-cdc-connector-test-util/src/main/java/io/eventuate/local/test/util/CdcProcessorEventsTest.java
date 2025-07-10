@@ -6,8 +6,8 @@ import io.eventuate.local.common.BinlogEntryReader;
 import io.eventuate.local.common.CdcProcessingStatusService;
 import io.eventuate.local.test.util.assertion.BinlogAssertion;
 import io.eventuate.util.test.async.Eventually;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.TimeUnit;
@@ -83,12 +83,12 @@ public abstract class CdcProcessorEventsTest implements CdcProcessorCommon {
 
     CdcProcessingStatusService pollingProcessingStatusService = binlogEntryReader.getCdcProcessingStatusService();
 
-    Assert.assertFalse(pollingProcessingStatusService.getCurrentStatus().isCdcProcessingFinished());
+    Assertions.assertFalse(pollingProcessingStatusService.getCurrentStatus().isCdcProcessingFinished());
 
     Eventually.eventually(60,
             500,
             TimeUnit.MILLISECONDS,
-            () -> Assert.assertTrue(pollingProcessingStatusService.getCurrentStatus().isCdcProcessingFinished()));
+            () -> Assertions.assertTrue(pollingProcessingStatusService.getCurrentStatus().isCdcProcessingFinished()));
 
     stopEventProcessing();
   }

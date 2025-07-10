@@ -8,8 +8,7 @@ import io.eventuate.local.common.BinlogEntryHandler;
 import io.eventuate.local.testutil.DefaultAndPollingProfilesResolver;
 import io.eventuate.tram.cdc.connector.BinlogEntryToMessageConverter;
 import io.eventuate.util.test.async.Eventually;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,7 +18,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -29,10 +27,9 @@ import java.util.stream.IntStream;
 import static io.eventuate.common.jdbc.EventuateJdbcOperationsUtils.MESSAGE_APPLICATION_GENERATED_ID_COLUMN;
 import static io.eventuate.common.jdbc.EventuateJdbcOperationsUtils.MESSAGE_AUTO_GENERATED_ID_COLUMN;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @ActiveProfiles(resolver = DefaultAndPollingProfilesResolver.class)
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = MultipleOutboxPollingDaoIntegrationTest.Config.class, properties = {"eventuate.cdc.outbox.partitioning.outbox.tables=8", "eventuate.cdc.outbox.partitioning.message.partitions=4"})
 @EnableAutoConfiguration
 public class MultipleOutboxPollingDaoIntegrationTest extends AbstractPollingDaoIntegrationTest {

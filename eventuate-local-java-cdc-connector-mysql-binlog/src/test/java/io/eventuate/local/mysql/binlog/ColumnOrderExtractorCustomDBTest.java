@@ -3,18 +3,15 @@ package io.eventuate.local.mysql.binlog;
 import io.eventuate.local.testutil.CustomDBCreator;
 import io.eventuate.local.testutil.CustomDBTestConfiguration;
 import io.eventuate.local.testutil.SqlScriptEditor;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.List;
 import java.util.Map;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = CustomDBTestConfiguration.class)
 public class ColumnOrderExtractorCustomDBTest extends AbstractColumnOrderExtractorTest {
   @Autowired
@@ -27,7 +24,7 @@ public class ColumnOrderExtractorCustomDBTest extends AbstractColumnOrderExtract
 
   private String monitoringSchemaSql;
 
-  @Before
+  @BeforeEach
   public void createCustomDBAndDropDefaultMonitoringTable() {
     customDBCreator.create(eventuateLocalCustomDBSqlEditor);
 
@@ -37,7 +34,7 @@ public class ColumnOrderExtractorCustomDBTest extends AbstractColumnOrderExtract
     jdbcTemplate.execute("drop table cdc_monitoring");
   }
 
-  @After
+  @AfterEach
   public void restoreDefaultMonitoringTable() {
     jdbcTemplate.execute(monitoringSchemaSql);
   }

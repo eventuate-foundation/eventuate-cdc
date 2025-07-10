@@ -6,12 +6,10 @@ import io.eventuate.local.test.util.AbstractBinlogEntryReaderMessageTableTest;
 import io.eventuate.local.test.util.assertion.BinlogAssertion;
 import io.eventuate.tram.cdc.connector.MessageWithDestination;
 import io.eventuate.util.test.async.Eventually;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Collections;
@@ -21,7 +19,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import static io.eventuate.local.test.util.assertion.MessageAssertOperationBuilder.assertion;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = MySqlBinlogEntryReaderMessageTableTestConfiguration.class)
 public class MySqlBinlogEntryReaderMessageTableTest extends AbstractBinlogEntryReaderMessageTableTest {
 
@@ -95,7 +92,7 @@ public class MySqlBinlogEntryReaderMessageTableTest extends AbstractBinlogEntryR
     assertEventPublished(messageId1, payload1);
     assertEventPublished(messageId2, payload2);
 
-    Eventually.eventually(() -> Assert.assertEquals(2, offsets.size()));
+    Eventually.eventually(() -> Assertions.assertEquals(2, offsets.size()));
   }
 
   private void assertSecondEventPublished() {

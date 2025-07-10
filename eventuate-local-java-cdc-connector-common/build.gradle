@@ -29,11 +29,11 @@ dependencies {
     }
     api 'com.microsoft.sqlserver:mssql-jdbc:7.2.1.jre8'
     api 'org.apache.kafka:kafka-clients:2.3.0'
-    testImplementation "junit:junit:4.11"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
 }
 
 test {
     forkEvery 1
+    useJUnitPlatform()
 }

@@ -12,7 +12,6 @@ dependencies {
     testImplementation project(":eventuate-local-java-test-util")
     testImplementation project(":eventuate-local-java-cdc-connector-test-util")
     testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
-    testImplementation "junit:junit:4.11"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "io.eventuate.common:eventuate-common-testcontainers:$eventuateCommonVersion"
     testImplementation "org.testcontainers:testcontainers:$testContainersVersion"
@@ -30,4 +29,5 @@ test {
     }
 
     forkEvery 1
+    useJUnitPlatform()
 }

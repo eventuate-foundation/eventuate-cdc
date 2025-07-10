@@ -3,20 +3,17 @@ package io.eventuate.local.polling;
 import io.eventuate.local.common.BinlogEntryHandler;
 import io.eventuate.local.testutil.DefaultAndPollingProfilesResolver;
 import io.eventuate.util.test.async.Eventually;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.List;
 import java.util.concurrent.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles(resolver = DefaultAndPollingProfilesResolver.class)
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = AbstractPollingDaoIntegrationTest.Config.class, properties = "eventuatelocal.cdc.polling.parallel.channels=x,y")
 @EnableAutoConfiguration
 public class ParallelPollingDaoIntegrationTest extends AbstractPollingDaoIntegrationTest {

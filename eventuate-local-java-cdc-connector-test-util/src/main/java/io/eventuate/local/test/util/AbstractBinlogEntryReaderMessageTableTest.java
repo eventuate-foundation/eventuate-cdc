@@ -6,7 +6,7 @@ import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogEntryReader;
 import io.eventuate.local.test.util.assertion.BinlogAssertion;
 import io.eventuate.tram.cdc.connector.MessageWithDestination;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;

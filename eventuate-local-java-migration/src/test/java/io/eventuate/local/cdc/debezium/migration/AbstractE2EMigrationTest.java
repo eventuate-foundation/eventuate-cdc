@@ -8,7 +8,7 @@ import io.eventuate.messaging.kafka.basic.consumer.*;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
 import io.eventuate.messaging.kafka.common.EventuateKafkaMultiMessageConverter;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -85,11 +85,11 @@ public abstract class AbstractE2EMigrationTest {
     }
 
     public void assertContainsEvent() throws InterruptedException {
-      Assert.assertNotNull(events.poll(60, TimeUnit.SECONDS));
+      Assertions.assertNotNull(events.poll(60, TimeUnit.SECONDS));
     }
 
     public void assertContainsEventWithId(String id) throws InterruptedException {
-      Assert.assertTrue(events.poll(60, TimeUnit.SECONDS).contains(id));
+      Assertions.assertTrue(events.poll(60, TimeUnit.SECONDS).contains(id));
     }
   }
 }

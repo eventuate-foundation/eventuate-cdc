@@ -3,9 +3,7 @@ package io.eventuate.local.common;
 import io.eventuate.coordination.leadership.EventuateLeaderSelector;
 import io.eventuate.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.util.test.async.Eventually;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static io.eventuate.util.test.async.Eventually.eventually;

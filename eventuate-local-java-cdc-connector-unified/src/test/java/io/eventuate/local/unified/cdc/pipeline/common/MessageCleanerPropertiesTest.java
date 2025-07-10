@@ -1,8 +1,8 @@
 package io.eventuate.local.unified.cdc.pipeline.common;
 
 import io.eventuate.local.unified.cdc.pipeline.common.properties.MessageCleanerProperties;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +17,7 @@ public class MessageCleanerPropertiesTest {
 
     MessageCleanerProperties messageCleanerProperties = convertProperties(properties);
 
-    Assert.assertEquals("somePipeline", messageCleanerProperties.getPipeline());
+    Assertions.assertEquals("somePipeline", messageCleanerProperties.getPipeline());
   }
 
   @Test
@@ -38,16 +38,16 @@ public class MessageCleanerPropertiesTest {
 
     MessageCleanerProperties messageCleanerProperties = convertProperties(properties);
 
-    Assert.assertEquals("someUrl", messageCleanerProperties.getDataSourceUrl());
-    Assert.assertEquals("someUserName", messageCleanerProperties.getDataSourceUserName());
-    Assert.assertEquals("somePassword", messageCleanerProperties.getDataSourcePassword());
-    Assert.assertEquals("someClass", messageCleanerProperties.getDataSourceDriverClassName());
-    Assert.assertEquals("someSchema", messageCleanerProperties.getEventuateSchema());
-    Assert.assertEquals(true, messageCleanerProperties.isMessageCleaningEnabled());
-    Assert.assertEquals(1, messageCleanerProperties.getMessagesMaxAgeInSeconds());
-    Assert.assertEquals(true, messageCleanerProperties.isReceivedMessageCleaningEnabled());
-    Assert.assertEquals(2, messageCleanerProperties.getReceivedMessagesMaxAgeInSeconds());
-    Assert.assertEquals(3, messageCleanerProperties.getIntervalInSeconds());
+    Assertions.assertEquals("someUrl", messageCleanerProperties.getDataSourceUrl());
+    Assertions.assertEquals("someUserName", messageCleanerProperties.getDataSourceUserName());
+    Assertions.assertEquals("somePassword", messageCleanerProperties.getDataSourcePassword());
+    Assertions.assertEquals("someClass", messageCleanerProperties.getDataSourceDriverClassName());
+    Assertions.assertEquals("someSchema", messageCleanerProperties.getEventuateSchema());
+    Assertions.assertEquals(true, messageCleanerProperties.isMessageCleaningEnabled());
+    Assertions.assertEquals(1, messageCleanerProperties.getMessagesMaxAgeInSeconds());
+    Assertions.assertEquals(true, messageCleanerProperties.isReceivedMessageCleaningEnabled());
+    Assertions.assertEquals(2, messageCleanerProperties.getReceivedMessagesMaxAgeInSeconds());
+    Assertions.assertEquals(3, messageCleanerProperties.getIntervalInSeconds());
   }
 
   @Test
@@ -61,21 +61,21 @@ public class MessageCleanerPropertiesTest {
 
     MessageCleanerProperties messageCleanerProperties = convertProperties(properties);
 
-    Assert.assertEquals("someUrl", messageCleanerProperties.getDataSourceUrl());
-    Assert.assertEquals("someUserName", messageCleanerProperties.getDataSourceUserName());
-    Assert.assertEquals("somePassword", messageCleanerProperties.getDataSourcePassword());
-    Assert.assertEquals("someClass", messageCleanerProperties.getDataSourceDriverClassName());
-    Assert.assertEquals(false, messageCleanerProperties.isMessageCleaningEnabled());
-    Assert.assertEquals(2*24*60*60, messageCleanerProperties.getMessagesMaxAgeInSeconds());
-    Assert.assertEquals(false, messageCleanerProperties.isReceivedMessageCleaningEnabled());
-    Assert.assertEquals(2*24*60*60, messageCleanerProperties.getReceivedMessagesMaxAgeInSeconds());
-    Assert.assertEquals(60, messageCleanerProperties.getIntervalInSeconds());
+    Assertions.assertEquals("someUrl", messageCleanerProperties.getDataSourceUrl());
+    Assertions.assertEquals("someUserName", messageCleanerProperties.getDataSourceUserName());
+    Assertions.assertEquals("somePassword", messageCleanerProperties.getDataSourcePassword());
+    Assertions.assertEquals("someClass", messageCleanerProperties.getDataSourceDriverClassName());
+    Assertions.assertEquals(false, messageCleanerProperties.isMessageCleaningEnabled());
+    Assertions.assertEquals(2*24*60*60, messageCleanerProperties.getMessagesMaxAgeInSeconds());
+    Assertions.assertEquals(false, messageCleanerProperties.isReceivedMessageCleaningEnabled());
+    Assertions.assertEquals(2*24*60*60, messageCleanerProperties.getReceivedMessagesMaxAgeInSeconds());
+    Assertions.assertEquals(60, messageCleanerProperties.getIntervalInSeconds());
   }
 
   private MessageCleanerProperties convertProperties(String properties) {
     List<Map<String, Object>> propertyMaps = propertyReader.convertPropertiesToListOfMaps(properties);
 
-    Assert.assertEquals(1, propertyMaps.size());
+    Assertions.assertEquals(1, propertyMaps.size());
 
     Map<String, Object> props = propertyMaps.get(0);
 

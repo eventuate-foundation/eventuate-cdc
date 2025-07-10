@@ -5,3 +5,6 @@ dependencies {
     api "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
     api "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
 }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

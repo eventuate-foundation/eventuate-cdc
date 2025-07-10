@@ -5,15 +5,12 @@ import io.eventuate.local.common.BinlogEntryReaderLeadership;
 import io.eventuate.local.test.util.EventInfo;
 import io.eventuate.local.test.util.TestHelper;
 import io.eventuate.local.test.util.assertion.BinlogAssertion;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static io.eventuate.local.test.util.assertion.EventAssertOperationBuilder.fromEventInfo;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {MySqlBinlogCdcIntegrationTestConfiguration.class, KafkaOffsetStoreConfiguration.class})
 public class MySqlBinaryLogClientTest {
 

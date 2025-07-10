@@ -1,8 +1,8 @@
 package io.eventuate.local.unified.cdc.pipeline.common;
 
 import io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineProperties;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
@@ -16,7 +16,7 @@ public class PropertyReaderTest {
     List<Map<String, Object>> propertyMaps = propertyReader
             .convertPropertiesToListOfMaps("[{\"type\" : \"mysql\", \"reader\" : \"reader1\"}]");
 
-    Assert.assertEquals(1, propertyMaps.size());
+    Assertions.assertEquals(1, propertyMaps.size());
 
     Map<String, Object> props = propertyMaps.get(0);
 
@@ -25,8 +25,8 @@ public class PropertyReaderTest {
     CdcPipelineProperties cdcPipelineProperties = propertyReader
             .convertMapToPropertyClass(props, CdcPipelineProperties.class);
 
-    Assert.assertEquals("mysql", cdcPipelineProperties.getType());
-    Assert.assertEquals("reader1", cdcPipelineProperties.getReader());
+    Assertions.assertEquals("mysql", cdcPipelineProperties.getType());
+    Assertions.assertEquals("reader1", cdcPipelineProperties.getReader());
   }
 
   @Test
@@ -34,7 +34,7 @@ public class PropertyReaderTest {
     List<Map<String, Object>> propertyMaps = propertyReader
             .convertPropertiesToListOfMaps("[{\"type\" : \"mysql\", \"reader\" : \"reader1\", \"somepropname\" : \"somepropvalue\"}]");
 
-    Assert.assertEquals(1, propertyMaps.size());
+    Assertions.assertEquals(1, propertyMaps.size());
 
     Map<String, Object> props = propertyMaps.get(0);
 
@@ -46,7 +46,7 @@ public class PropertyReaderTest {
       exception = e;
     }
 
-    Assert.assertNotNull(exception);
-    Assert.assertEquals("Unknown properties: [somepropname] for class io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineProperties", exception.getMessage());
+    Assertions.assertNotNull(exception);
+    Assertions.assertEquals("Unknown properties: [somepropname] for class io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineProperties", exception.getMessage());
   }
 }

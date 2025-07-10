@@ -12,20 +12,17 @@ import org.apache.kafka.connect.runtime.WorkerConfig;
 import org.apache.kafka.connect.storage.Converter;
 import org.apache.kafka.connect.storage.KafkaOffsetBackingStore;
 import org.apache.kafka.connect.storage.OffsetStorageWriter;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.ExecutionException;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = MigrationToNewCdcTest.EventTableChangesToAggregateTopicRelayTestConfiguration.class)
 @DirtiesContext
 public class MigrationToNewCdcTest {
@@ -49,8 +46,8 @@ public class MigrationToNewCdcTest {
 
     BinlogFileOffset debeziumBinlogFileOffset = getDebeziumOffset();
 
-    Assert.assertEquals(file, debeziumBinlogFileOffset.getBinlogFilename());
-    Assert.assertEquals(offset, debeziumBinlogFileOffset.getOffset());
+    Assertions.assertEquals(file, debeziumBinlogFileOffset.getBinlogFilename());
+    Assertions.assertEquals(offset, debeziumBinlogFileOffset.getOffset());
   }
 
   private BinlogFileOffset getDebeziumOffset() {

@@ -3,8 +3,8 @@ package io.eventuate.local.unified.cdc.pipeline.polling;
 import io.eventuate.local.unified.cdc.pipeline.common.CommonPipelineReaderPropertyValidationTest;
 import io.eventuate.local.unified.cdc.pipeline.polling.factory.PollingCdcPipelineReaderFactory;
 import io.eventuate.local.unified.cdc.pipeline.polling.properties.PollingPipelineReaderProperties;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class PollingPipelineReaderPropertyValidationTest extends CommonPipelineReaderPropertyValidationTest {
 
@@ -22,9 +22,9 @@ public class PollingPipelineReaderPropertyValidationTest extends CommonPipelineR
     PollingPipelineReaderProperties pollingPipelineReaderProperties =
             objectMapper.readValue(propertyBuilder.toString(), PollingPipelineReaderProperties.class);
 
-    Assert.assertEquals(500, (int)pollingPipelineReaderProperties.getPollingIntervalInMilliseconds());
-    Assert.assertEquals(1000, (int)pollingPipelineReaderProperties.getMaxEventsPerPolling());
-    Assert.assertEquals(100, (int)pollingPipelineReaderProperties.getMaxAttemptsForPolling());
-    Assert.assertEquals(500, (int)pollingPipelineReaderProperties.getPollingRetryIntervalInMilliseconds());
+    Assertions.assertEquals(500, (int)pollingPipelineReaderProperties.getPollingIntervalInMilliseconds());
+    Assertions.assertEquals(1000, (int)pollingPipelineReaderProperties.getMaxEventsPerPolling());
+    Assertions.assertEquals(100, (int)pollingPipelineReaderProperties.getMaxAttemptsForPolling());
+    Assertions.assertEquals(500, (int)pollingPipelineReaderProperties.getPollingRetryIntervalInMilliseconds());
   }
 }

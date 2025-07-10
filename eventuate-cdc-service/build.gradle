@@ -24,3 +24,6 @@ configurations {
 }
 
 publish.dependsOn(tasks.findByName('bootRepackage') == null ? tasks['bootJar'] : tasks['bootRepackage'])
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

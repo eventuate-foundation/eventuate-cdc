@@ -8,12 +8,11 @@ dependencies {
     api "io.eventuate.common:eventuate-common-coordination-leadership-zookeeper:$eventuateCommonVersion"
 
     api 'com.zaxxer:HikariCP:3.2.0'
-
-    testImplementation "junit:junit:4.11"
     testImplementation "com.h2database:h2:1.4.199"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
 }
 
 test {
     forkEvery 1
+    useJUnitPlatform()
 }

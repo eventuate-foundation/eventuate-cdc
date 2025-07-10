@@ -1,7 +1,7 @@
 package io.eventuate.local.unified.cdc.pipeline.common;
 
 import io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineProperties;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CommonPipelinePropertyValidationTest extends CommonPropertyValidationTest {
 

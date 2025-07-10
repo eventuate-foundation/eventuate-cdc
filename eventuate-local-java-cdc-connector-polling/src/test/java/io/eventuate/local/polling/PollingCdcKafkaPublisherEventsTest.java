@@ -10,16 +10,13 @@ import io.eventuate.local.testutil.DefaultAndPollingProfilesResolver;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducerConfigurationProperties;
 import io.micrometer.core.instrument.logging.LoggingMeterRegistry;
-import org.junit.Before;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 
 @ActiveProfiles(resolver = DefaultAndPollingProfilesResolver.class)
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = PollingIntegrationTestConfiguration.class)
 public class PollingCdcKafkaPublisherEventsTest extends CdcKafkaPublisherEventsTest {
 
@@ -29,7 +26,7 @@ public class PollingCdcKafkaPublisherEventsTest extends CdcKafkaPublisherEventsT
   @Autowired
   private DuplicatePublishingDetector duplicatePublishingDetector;
 
-  @Before
+  @BeforeEach
   public void init() {
     super.init();
 

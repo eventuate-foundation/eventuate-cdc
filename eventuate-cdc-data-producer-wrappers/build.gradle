@@ -16,10 +16,10 @@ dependencies {
     api 'io.micrometer:micrometer-registry-prometheus:0.12.0.RELEASE'
 
     testImplementation project(":eventuate-local-java-cdc-connector-test-util")
-    testImplementation "junit:junit:4.11"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
 }
 
 test {
     forkEvery 1
+    useJUnitPlatform()
 }

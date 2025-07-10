@@ -12,12 +12,12 @@ dependencies {
 
     testImplementation "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
     testImplementation "io.eventuate.common:eventuate-common-spring-id:$eventuateCommonVersion"
-    testImplementation "junit:junit:4.11"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
 }
 
 test {
     forkEvery 1
+    useJUnitPlatform()
 }
 
 dockerCompose {

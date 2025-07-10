@@ -17,8 +17,7 @@ import io.eventuate.messaging.kafka.testcontainers.EventuateKafkaContainer;
 import io.eventuate.tram.cdc.connector.pipeline.CdcTramPipelineConfiguration;
 import io.eventuate.util.test.async.Eventually;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -32,7 +31,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.DockerHealthcheckWaitStrategy;
 
@@ -46,10 +44,9 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles(resolver = DefaultAndPollingProfilesResolver.class)
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = MultiPipelineMultipleOutboxPollingDaoIntegrationTest.Config.class)
 @EnableAutoConfiguration
 @TestPropertySource("/multi-pipeline-multi-outbox.properties")

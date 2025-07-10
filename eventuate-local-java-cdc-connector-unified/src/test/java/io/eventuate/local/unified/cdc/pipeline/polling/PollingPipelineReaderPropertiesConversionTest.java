@@ -3,13 +3,13 @@ package io.eventuate.local.unified.cdc.pipeline.polling;
 import io.eventuate.common.jdbc.OutboxTableSuffix;
 import io.eventuate.local.unified.cdc.pipeline.common.PropertyReader;
 import io.eventuate.local.unified.cdc.pipeline.polling.properties.PollingPipelineReaderProperties;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PollingPipelineReaderPropertiesConversionTest {
 

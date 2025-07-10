@@ -1,19 +1,16 @@
 package io.eventuate.cdc.e2e.common;
 
 import io.eventuate.util.test.async.Eventually;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {MessageCleanerE2ETest.Config.class})
 public class MessageCleanerE2ETest {
 
@@ -31,6 +28,6 @@ public class MessageCleanerE2ETest {
   @Test
   public void assertMessagesCleaned() throws Exception {
     Eventually.eventually(() ->
-      Assert.assertEquals(0, jdbcTemplate.queryForList("select * from eventuate.message").size()));
+      Assertions.assertEquals(0, jdbcTemplate.queryForList("select * from eventuate.message").size()));
   }
 }

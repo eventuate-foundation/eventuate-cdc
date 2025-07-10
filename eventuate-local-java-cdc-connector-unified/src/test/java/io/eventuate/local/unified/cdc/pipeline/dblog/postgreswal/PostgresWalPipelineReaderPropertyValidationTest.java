@@ -3,7 +3,7 @@ package io.eventuate.local.unified.cdc.pipeline.dblog.postgreswal;
 import io.eventuate.local.unified.cdc.pipeline.dblog.common.CommonDbLogPipelineReaderPropertyValidationTest;
 import io.eventuate.local.unified.cdc.pipeline.dblog.postgreswal.factory.PostgresWalCdcPipelineReaderFactory;
 import io.eventuate.local.unified.cdc.pipeline.dblog.postgreswal.properties.PostgresWalCdcPipelineReaderProperties;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PostgresWalPipelineReaderPropertyValidationTest extends CommonDbLogPipelineReaderPropertyValidationTest {
   @Test

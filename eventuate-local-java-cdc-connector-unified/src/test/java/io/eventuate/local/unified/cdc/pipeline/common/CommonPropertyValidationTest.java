@@ -2,7 +2,7 @@ package io.eventuate.local.unified.cdc.pipeline.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.ValidatableProperties;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,11 +41,11 @@ public class CommonPropertyValidationTest {
     Exception ee = exception;
 
     message.map(msg -> {
-      Assert.assertNotNull(ee);
-      Assert.assertEquals(msg, ee.getMessage());
+      Assertions.assertNotNull(ee);
+      Assertions.assertEquals(msg, ee.getMessage());
       return msg;
     }).orElseGet(() -> {
-      Assert.assertNull(ee);
+      Assertions.assertNull(ee);
       return null;
     });
   }

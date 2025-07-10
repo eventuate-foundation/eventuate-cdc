@@ -8,18 +8,15 @@ import io.eventuate.messaging.activemq.spring.common.EventuateActiveMQCommonConf
 import io.eventuate.messaging.activemq.spring.common.EventuateActiveMQConfigurationProperties;
 import io.eventuate.messaging.activemq.spring.consumer.MessageConsumerActiveMQImpl;
 import io.eventuate.tram.connector.AbstractTramCdcTest;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Optional;
 import java.util.function.Consumer;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {EventuateTramCdcActiveMQTest.Config.class})
 public class EventuateTramCdcActiveMQTest extends AbstractTramCdcTest {
 

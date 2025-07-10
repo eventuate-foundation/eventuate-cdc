@@ -4,17 +4,14 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.eventuate.local.common.BinlogEntryReader;
 import io.eventuate.local.common.ConnectionPoolConfigurationProperties;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineReaderProperties;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = DataSourceCreationTest.Config.class)
 @TestPropertySource(properties = {"eventuate.cdc.connection.properties.maximumPoolSize = 100",
         "eventuate.cdc.connection.properties.poolName = testPool"})
@@ -33,9 +30,9 @@ public class DataSourceCreationTest {
     CommonCdcPipelineReaderFactory commonCdcPipelineReaderFactory = createCdcPipelineReaderFactory();
     HikariDataSource dataSource = (HikariDataSource) commonCdcPipelineReaderFactory.createDataSource(cdcPipelineReaderProperties());
 
-    Assert.assertEquals(100, dataSource.getMaximumPoolSize());
-    Assert.assertEquals("testPool", dataSource.getPoolName());
-    Assert.assertEquals(ConnectionPoolConfigurationProperties.DEFAULT_MINIMUM_IDLE_CONNECTIONS, dataSource.getMinimumIdle());
+    Assertions.assertEquals(100, dataSource.getMaximumPoolSize());
+    Assertions.assertEquals("testPool", dataSource.getPoolName());
+    Assertions.assertEquals(ConnectionPoolConfigurationProperties.DEFAULT_MINIMUM_IDLE_CONNECTIONS, dataSource.getMinimumIdle());
   }
 
   @Test
@@ -51,8 +48,8 @@ public class DataSourceCreationTest {
       exception = e;
     }
 
-    Assert.assertNotNull(exception);
-    Assert.assertEquals("Property someUnknownProperty does not exist on target class com.zaxxer.hikari.HikariConfig", exception.getMessage());
+    Assertions.assertNotNull(exception);
+    Assertions.assertEquals("Property someUnknownProperty does not exist on target class com.zaxxer.hikari.HikariConfig", exception.getMessage());
   }
 
   private CommonCdcPipelineReaderFactory createCdcPipelineReaderFactory() {

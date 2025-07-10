@@ -1,7 +1,7 @@
 package io.eventuate.local.test.util.assertion;
 
 import io.eventuate.tram.cdc.connector.MessageWithDestination;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,21 +20,21 @@ public class MessageAssertOperationBuilder implements BinlogAssertOperationBuild
   public BinlogAssertOperation<MessageWithDestination> build() {
     return message -> {
       if (id != null) {
-        Assert.assertEquals(id, message.getId());
+        Assertions.assertEquals(id, message.getId());
       }
 
       if (destination != null) {
-        Assert.assertEquals(destination, message.getDestination());
+        Assertions.assertEquals(destination, message.getDestination());
       }
 
       if (payload != null) {
-        Assert.assertEquals(payload, message.getPayload());
+        Assertions.assertEquals(payload, message.getPayload());
       }
 
       if (headers != null) {
         headers.put("ID", message.getId());
 
-        Assert.assertEquals(headers, message.getHeaders());
+        Assertions.assertEquals(headers, message.getHeaders());
       }
     };
   }

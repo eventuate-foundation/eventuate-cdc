@@ -7,7 +7,7 @@ import io.eventuate.common.testcontainers.PropertyProvidingContainer;
 import io.eventuate.messaging.kafka.testcontainers.EventuateKafkaCluster;
 import io.eventuate.messaging.kafka.testcontainers.EventuateKafkaContainer;
 import org.flywaydb.core.Flyway;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.jdbc.DatabaseDriver;

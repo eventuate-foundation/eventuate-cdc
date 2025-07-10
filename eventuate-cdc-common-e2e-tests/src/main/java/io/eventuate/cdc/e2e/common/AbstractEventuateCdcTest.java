@@ -6,8 +6,8 @@ import io.eventuate.common.jdbc.EventuateSchema;
 import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.util.test.async.Eventually;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,8 +18,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class AbstractEventuateCdcTest {
 
@@ -56,7 +56,7 @@ public abstract class AbstractEventuateCdcTest {
 
     Eventually.eventually(120, 500, TimeUnit.MILLISECONDS, () -> assertTrue(messageQueue.size() > 0));
 
-    Assert.assertEquals(1, messageQueue.size());
+    Assertions.assertEquals(1, messageQueue.size());
 
     String m = messageQueue.poll();
 

@@ -4,17 +4,14 @@ import io.eventuate.messaging.kafka.basic.consumer.MessageConsumerBacklog;
 import io.eventuate.messaging.kafka.spring.consumer.KafkaConsumerFactoryConfiguration;
 import io.eventuate.util.test.async.Eventually;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {MigrationE2ETestConfiguration.class, KafkaConsumerFactoryConfiguration.class})
 @DirtiesContext
 public class MigrationOldCdcPhaseE2ETest extends AbstractE2EMigrationTest {
@@ -43,7 +40,7 @@ public class MigrationOldCdcPhaseE2ETest extends AbstractE2EMigrationTest {
 
       @Override
       public void assertContainsEvent() throws InterruptedException {
-        Eventually.eventually(() -> Assert.assertTrue(secondEventFailed));
+        Eventually.eventually(() -> Assertions.assertTrue(secondEventFailed));
         super.assertContainsEvent();
       }
     };

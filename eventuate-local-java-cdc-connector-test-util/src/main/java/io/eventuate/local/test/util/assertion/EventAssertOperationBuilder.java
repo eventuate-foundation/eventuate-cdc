@@ -2,7 +2,7 @@ package io.eventuate.local.test.util.assertion;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.local.test.util.EventInfo;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,22 +29,22 @@ public class EventAssertOperationBuilder implements BinlogAssertOperationBuilder
       @Override
       public void apply(PublishedEvent event) {
         if (id != null) {
-          Assert.assertEquals(id, event.getId());
+          Assertions.assertEquals(id, event.getId());
         }
 
         if (entityId != null) {
-          Assert.assertEquals(entityId, event.getEntityId());
+          Assertions.assertEquals(entityId, event.getEntityId());
         }
 
         if (data != null) {
-          Assert.assertEquals(data, event.getEventData());
+          Assertions.assertEquals(data, event.getEventData());
         }
       }
 
       @Override
       public void applyOnlyOnce(PublishedEvent event) {
         for (String id : excludedIds) {
-          Assert.assertNotEquals(id, event.getId());
+          Assertions.assertNotEquals(id, event.getId());
         }
       }
     };

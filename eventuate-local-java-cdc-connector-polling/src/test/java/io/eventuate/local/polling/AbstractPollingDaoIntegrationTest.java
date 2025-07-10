@@ -14,8 +14,8 @@ import io.eventuate.local.test.util.TestHelper;
 import io.eventuate.local.test.util.TestHelperConfiguration;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -77,7 +77,7 @@ public class AbstractPollingDaoIntegrationTest {
 
   protected PollingDao pollingDao;
 
-  @Before
+  @BeforeEach
   public void init() {
     processedEvents = new AtomicInteger(0);
     pollingDao = createPollingDao();
@@ -117,7 +117,7 @@ public class AbstractPollingDaoIntegrationTest {
 
   private void assertEventIsPublished(String id) {
     Map<String, Object> event = jdbcTemplate.queryForMap(String.format("select * from %s where event_id = ?", eventuateSchema.qualifyTable("events")), id);
-    Assert.assertEquals(1, ((Number)event.get("published")).intValue());
+    Assertions.assertEquals(1, ((Number)event.get("published")).intValue());
   }
 
   protected BinlogEntryHandler prepareBinlogEntryHandler(CompletableFuture<?> resultWhenEventConsumed) {

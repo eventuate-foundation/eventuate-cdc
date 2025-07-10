@@ -9,20 +9,17 @@ import io.micrometer.core.instrument.logging.LoggingMeterRegistry;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = TopicPartitionSenderTest.Config.class)
 public class TopicPartitionSenderTest {
 
@@ -40,7 +37,7 @@ public class TopicPartitionSenderTest {
   private String topic;
   private String key;
 
-  @Before
+  @BeforeEach
   public void init() {
     topic = testHelper.generateId();
     key = testHelper.generateId();
@@ -87,8 +84,8 @@ public class TopicPartitionSenderTest {
   private void assertAllMessagesReceived(List<EventuateKafkaMultiMessage> messages) {
     for (int i = 0; i < nEvents; i++) {
       EventuateKafkaMultiMessage message = messages.get(i);
-      Assert.assertEquals(key, message.getKey());
-      Assert.assertEquals(String.valueOf(i), message.getValue());
+      Assertions.assertEquals(key, message.getKey());
+      Assertions.assertEquals(String.valueOf(i), message.getValue());
     }
   }
 }

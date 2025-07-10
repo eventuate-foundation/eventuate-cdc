@@ -10,8 +10,8 @@ import io.eventuate.messaging.kafka.basic.consumer.KafkaConsumerFactory;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
@@ -48,7 +48,7 @@ public abstract class CdcKafkaPublisherEventsTest {
   @Autowired
   protected IdGenerator idGenerator;
 
-  @Before
+  @BeforeEach
   public void init() {
     cdcDataPublisher = createCdcKafkaPublisher();
     cdcDataPublisher.start();

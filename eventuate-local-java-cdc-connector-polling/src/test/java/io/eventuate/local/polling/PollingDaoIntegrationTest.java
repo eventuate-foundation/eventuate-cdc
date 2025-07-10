@@ -4,22 +4,19 @@ import io.eventuate.common.jdbc.OutboxTableSuffix;
 import io.eventuate.local.common.BinlogEntryHandler;
 import io.eventuate.local.polling.spec.PollingSpec;
 import io.eventuate.local.testutil.DefaultAndPollingProfilesResolver;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles(resolver = DefaultAndPollingProfilesResolver.class)
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = AbstractPollingDaoIntegrationTest.Config.class)
 @EnableAutoConfiguration
 public class PollingDaoIntegrationTest extends AbstractPollingDaoIntegrationTest {

@@ -2,20 +2,17 @@ package io.eventuate.local.mysql.binlog;
 
 import io.eventuate.local.test.util.TestHelper;
 import io.eventuate.util.test.async.Eventually;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /*
 * Test checks that mysql reader is restarted in case if reading or writing binlog offset completed exceptionally.
 * i.e. if OffsetStore.save or OffsetStore.getLastBinlogFileOffset throws exception.
 */
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {MySqlBinlogCdcIntegrationTestConfiguration.class,
         OffsetStoreMockConfiguration.class})
 public class MySqlBinaryLogClientRestartOnOffsetHandlingExceptionTest {
@@ -29,7 +26,7 @@ public class MySqlBinaryLogClientRestartOnOffsetHandlingExceptionTest {
   @Autowired
   protected OffsetStoreMock offsetStoreMock;
 
-  @Before
+  @BeforeEach
   public void init() {
     offsetStoreMock.throwExceptionOnSave = false;
     offsetStoreMock.throwExceptionOnLoad = false;
@@ -57,9 +54,8 @@ public class MySqlBinaryLogClientRestartOnOffsetHandlingExceptionTest {
 
     testHelper.runInSeparateThread(mySqlBinaryLogClient::start);
 
-    Eventually.eventually(() -> {
-      Mockito.verify(restartCallback).run();
-    });
+    Eventually.eventually(() ->
+      Mockito.verify(restartCallback).run());
 
     mySqlBinaryLogClient.stop();
   }

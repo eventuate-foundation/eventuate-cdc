@@ -10,9 +10,8 @@ import io.eventuate.local.test.util.SourceTableNameSupplier;
 import io.eventuate.local.test.util.TestHelper;
 import io.eventuate.messaging.kafka.producer.EventuateKafkaProducer;
 import io.eventuate.util.test.async.Eventually;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,7 +19,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +28,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {PerformanceTest.Config.class})
 public class PerformanceTest {
 
@@ -177,13 +174,12 @@ public class PerformanceTest {
   }
 
   private void generateEvents(List<EntityTypeAndId> entityTypesAndIds) {
-    entityTypesAndIds.forEach(entityTypeAndId -> {
+    entityTypesAndIds.forEach(entityTypeAndId ->
       testHelper.saveEvent(entityTypeAndId.getType(),
               generateId(),
               generateId(),
               entityTypeAndId.getId(),
-              new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA));
-    });
+              new EventuateSchema(EventuateSchema.DEFAULT_SCHEMA)));
   }
 
   private void testPerformance(Runnable eventCreator) {
@@ -204,7 +200,7 @@ public class PerformanceTest {
       System.out.println("--------------");
       System.out.println("--------------");
 
-      Assert.assertEquals(nEvents, cdcDataPublisher.getTotallyProcessedEventCount());
+      Assertions.assertEquals(nEvents, cdcDataPublisher.getTotallyProcessedEventCount());
       System.out.println(String.format("%s event processing took %s ms, average send time is %s ms",
               nEvents,
               (cdcDataPublisher.getTimeOfLastProcessedEvent() - mySqlBinaryLogClient.getEventProcessingStartTime()) / 1000000d,

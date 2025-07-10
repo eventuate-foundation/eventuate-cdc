@@ -3,8 +3,7 @@ package io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog;
 import io.eventuate.local.unified.cdc.pipeline.dblog.common.CommonDbLogPipelineReaderPropertyValidationTest;
 import io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.factory.MySqlBinlogCdcPipelineReaderFactory;
 import io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.properties.MySqlBinlogCdcPipelineReaderProperties;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MySqlBinlogPipelineReaderPropertyValidationTest extends CommonDbLogPipelineReaderPropertyValidationTest {
 
