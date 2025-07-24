@@ -67,7 +67,7 @@ public class MySqlBinlogEntryExtractor extends AbstractMySqlBinlogExtractor {
         }
 
         if (!(value instanceof byte[]))
-          throw new IllegalArgumentException(String.format("Unexpected type %s of column %s, should be byte[]",
+          throw new IllegalArgumentException("Unexpected type %s of column %s, should be byte[]".formatted(
                   value.getClass(), name));
 
         return (byte[]) value;

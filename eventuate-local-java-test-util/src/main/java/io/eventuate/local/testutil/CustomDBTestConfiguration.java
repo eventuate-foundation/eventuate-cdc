@@ -2,6 +2,7 @@ package io.eventuate.local.testutil;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -27,6 +28,7 @@ public class CustomDBTestConfiguration {
   private String rootUserPassword;
 
   @Bean
+  @DependsOnDatabaseInitialization
   public CustomDBCreator customDBCreator() {
     return new CustomDBCreator(dataFile, dataSourceURL, driverClassName, rootUserName, rootUserPassword);
   }

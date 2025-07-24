@@ -1,7 +1,7 @@
 package io.eventuate.local.unified.cdc.pipeline.common.properties;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.springframework.util.Assert;
 
 import java.util.concurrent.TimeUnit;

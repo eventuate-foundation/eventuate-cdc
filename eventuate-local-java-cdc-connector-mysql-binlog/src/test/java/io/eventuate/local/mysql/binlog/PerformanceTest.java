@@ -201,7 +201,7 @@ public class PerformanceTest {
       System.out.println("--------------");
 
       Assertions.assertEquals(nEvents, cdcDataPublisher.getTotallyProcessedEventCount());
-      System.out.println(String.format("%s event processing took %s ms, average send time is %s ms",
+      System.out.println("%s event processing took %s ms, average send time is %s ms".formatted(
               nEvents,
               (cdcDataPublisher.getTimeOfLastProcessedEvent() - mySqlBinaryLogClient.getEventProcessingStartTime()) / 1000000d,
               cdcDataPublisher.getSendTimeAccumulator() / (double) nEvents / 1000000d));

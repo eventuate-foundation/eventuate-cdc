@@ -148,8 +148,7 @@ public class DuplicatePublishingDetector implements PublishingFilter {
                       .map(value -> JSonMapper.fromJson(value, PublishedEvent.class).getBinlogFileOffset());
 
             })
-            .filter(Optional::isPresent)
-            .map(Optional::get)
+            .flatMap(Optional::stream)
             .max((blfo1, blfo2) -> blfo1.isSameOrAfter(blfo2) ? 1 : -1);
   }
 

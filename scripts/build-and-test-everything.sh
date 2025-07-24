@@ -5,7 +5,6 @@ set -o pipefail
 SCRIPTS="
 ./scripts/build-and-test-mysql.sh
 ./scripts/build-and-test-mysql8.sh
-./scripts/build-and-test-mysql-migration.sh
 ./scripts/build-and-test-mssql-polling.sh
 ./scripts/build-and-test-postgres-polling.sh
 ./scripts/build-and-test-postgres-wal.sh

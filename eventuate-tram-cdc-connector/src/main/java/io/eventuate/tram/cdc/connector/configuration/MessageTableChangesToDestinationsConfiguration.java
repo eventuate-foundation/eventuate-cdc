@@ -9,6 +9,7 @@ import io.eventuate.tram.cdc.connector.EventuateTramChannelProperties;
 import io.eventuate.tram.cdc.connector.JdbcOffsetStore;
 import io.eventuate.tram.cdc.connector.configuration.condition.ActiveMQOrRabbitMQOrRedisCondition;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -44,6 +45,7 @@ public class MessageTableChangesToDestinationsConfiguration {
 
   @Bean
   @Conditional(ActiveMQOrRabbitMQOrRedisCondition.class)
+  @DependsOnDatabaseInitialization
   public OffsetStoreFactory postgresWalJdbcOffsetStoreFactory() {
 
     return (roperties, dataSource, eventuateSchema, clientName) ->

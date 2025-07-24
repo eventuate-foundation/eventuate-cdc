@@ -23,7 +23,7 @@ dependencies {
     implementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-common:$eventuateMessagingKafkaVersion"
 
 
-    api 'mysql:mysql-connector-java:8.0.21'
+    api 'com.mysql:mysql-connector-j:8.0.33'
     api ('org.postgresql:postgresql:42.1.4') {
         exclude group: "org.slf4j", module: "slf4j-simple"
     }

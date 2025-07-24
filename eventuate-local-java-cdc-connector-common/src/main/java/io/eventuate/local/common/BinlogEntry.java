@@ -16,7 +16,7 @@ public interface BinlogEntry {
     if (columnValue instanceof Number) return ((Number) getColumn(name)).intValue() != 0; //Integer - mysql, Short - mssql
     if (columnValue instanceof String) return Integer.parseInt((String)getColumn(name)) != 0; // String - postgres
 
-    throw new IllegalArgumentException(String.format("Unexpected type %s of column %s, should be int or stringified int",
+    throw new IllegalArgumentException("Unexpected type %s of column %s, should be int or stringified int".formatted(
             columnValue.getClass(), name));
   }
 
@@ -27,10 +27,10 @@ public interface BinlogEntry {
       return null;
     }
 
-    if (columnValue instanceof Long) return (Long)columnValue; //mysql
-    if (columnValue instanceof String) return Long.parseLong((String)columnValue); //postgres
+    if (columnValue instanceof Long long1) return long1; //mysql
+    if (columnValue instanceof String string) return Long.parseLong(string); //postgres
 
-    throw new IllegalArgumentException(String.format("Unexpected type %s of column %s, should be bigint or stringified bigint",
+    throw new IllegalArgumentException("Unexpected type %s of column %s, should be bigint or stringified bigint".formatted(
             columnValue.getClass(), name));
   }
 
@@ -41,9 +41,9 @@ public interface BinlogEntry {
       return null;
     }
 
-    if (columnValue instanceof String) return (String) columnValue;
+    if (columnValue instanceof String string) return string;
 
-    throw new IllegalArgumentException(String.format("Unexpected type %s of column %s, should be String",
+    throw new IllegalArgumentException("Unexpected type %s of column %s, should be String".formatted(
             columnValue.getClass(), name));
   }
 }

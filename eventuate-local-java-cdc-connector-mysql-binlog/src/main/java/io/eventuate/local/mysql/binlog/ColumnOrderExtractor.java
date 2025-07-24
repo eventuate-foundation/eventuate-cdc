@@ -39,7 +39,7 @@ public class ColumnOrderExtractor {
                   columnResultSet.getInt("ORDINAL_POSITION"));
         }
 
-        logger.info(String.format("Table %s has these columns %s", schemaAndTable, order));
+        logger.info("Table %s has these columns %s".formatted(schemaAndTable, order));
 
         return order;
       }

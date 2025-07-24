@@ -53,7 +53,7 @@ public class PropertyReader {
     if (!unexpectedProperties.isEmpty()) {
       String unexpectedPropertiesString = unexpectedProperties.stream().collect(Collectors.joining(", ", "[", "]"));
 
-      throw new RuntimeException(String.format("Unknown properties: %s for class %s", unexpectedPropertiesString, propertyClass.getName()));
+      throw new RuntimeException("Unknown properties: %s for class %s".formatted(unexpectedPropertiesString, propertyClass.getName()));
     }
   }
 }

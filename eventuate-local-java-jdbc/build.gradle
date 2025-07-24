@@ -3,7 +3,7 @@ apply plugin: 'java-library'
 dependencies {
     api "org.springframework.boot:spring-boot-starter"
     api "org.springframework.boot:spring-boot-starter-jdbc"
-    api 'mysql:mysql-connector-java:8.0.21'
+    api 'com.mysql:mysql-connector-j:8.0.33'
     api ('org.postgresql:postgresql:42.1.4') {
         exclude group: "org.slf4j", module: "slf4j-simple"
     }

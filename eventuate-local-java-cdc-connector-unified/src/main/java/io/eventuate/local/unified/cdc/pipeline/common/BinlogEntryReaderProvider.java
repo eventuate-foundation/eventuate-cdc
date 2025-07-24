@@ -26,7 +26,7 @@ public class BinlogEntryReaderProvider {
   public BinlogEntryReaderLeadership getRequired(String name) {
     BinlogEntryReaderLeadership x = get(name);
     if (x == null)
-      throw new NullPointerException(String.format("Reader %s not found", name));
+      throw new NullPointerException("Reader %s not found".formatted(name));
     return x;
   }
 

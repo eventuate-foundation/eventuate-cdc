@@ -116,7 +116,7 @@ public class AbstractPollingDaoIntegrationTest {
   }
 
   private void assertEventIsPublished(String id) {
-    Map<String, Object> event = jdbcTemplate.queryForMap(String.format("select * from %s where event_id = ?", eventuateSchema.qualifyTable("events")), id);
+    Map<String, Object> event = jdbcTemplate.queryForMap("select * from %s where event_id = ?".formatted(eventuateSchema.qualifyTable("events")), id);
     Assertions.assertEquals(1, ((Number)event.get("published")).intValue());
   }
 
@@ -131,7 +131,7 @@ public class AbstractPollingDaoIntegrationTest {
   }
 
   private void markAllEventsAsPublished() {
-    jdbcTemplate.execute(String.format("update %s set published = 1", eventuateSchema.qualifyTable("events")));
+    jdbcTemplate.execute("update %s set published = 1".formatted(eventuateSchema.qualifyTable("events")));
   }
 
 

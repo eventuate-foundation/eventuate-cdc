@@ -27,6 +27,7 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -79,6 +80,7 @@ public class PollingIntegrationTestConfiguration {
   }
 
   @Bean
+  @DependsOnDatabaseInitialization
   @Profile("EventuatePolling")
   public BinlogEntryReader pollingDao(@Autowired(required = false) MeterRegistry meterRegistry,
                                @Value("${spring.datasource.url}") String dataSourceURL,

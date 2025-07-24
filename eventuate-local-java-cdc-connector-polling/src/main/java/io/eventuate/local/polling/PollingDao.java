@@ -170,7 +170,7 @@ public class PollingDao extends BinlogEntryReader {
 
     SqlFragment sqlFragment = pollingSpec.addToWhere(handler.getDestinationColumn());
 
-    String findEventsQuery = eventuateSqlDialect.addLimitToSql(String.format("SELECT * FROM %s%s WHERE %s = 0 %s ORDER BY %s ASC",
+    String findEventsQuery = eventuateSqlDialect.addLimitToSql("SELECT * FROM %s%s WHERE %s = 0 %s ORDER BY %s ASC".formatted(
             handler.getQualifiedTable(), messageTableSuffix.suffixAsString, PUBLISHED_FIELD, sqlFragment.sql, pk), ":limit");
 
     logger.debug("Polling with query {}", findEventsQuery);
@@ -219,7 +219,7 @@ public class PollingDao extends BinlogEntryReader {
 
     publishingTimer.record(publishingEndTime - publishingStartTime, TimeUnit.MILLISECONDS);
 
-    String markEventsAsReadQuery = String.format("UPDATE %s%s SET %s = 1 WHERE %s in (:ids)",
+    String markEventsAsReadQuery = "UPDATE %s%s SET %s = 1 WHERE %s in (:ids)".formatted(
             handler.getQualifiedTable(), messageTableSuffix, PUBLISHED_FIELD, pk);
 
     markAsProcessedTimer.record(() -> DaoUtils.handleConnectionLost(maxAttemptsForPolling,

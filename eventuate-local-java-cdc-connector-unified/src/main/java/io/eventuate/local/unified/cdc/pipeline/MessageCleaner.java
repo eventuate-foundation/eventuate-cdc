@@ -62,7 +62,7 @@ public class MessageCleaner {
   private void cleanMessages() {
     String table = eventuateSchema.qualifyTable("message");
 
-    String sql = String.format("delete from %s where %s - creation_time > ?",
+    String sql = "delete from %s where %s - creation_time > ?".formatted(
             table, eventuateSqlDialect.getCurrentTimeInMillisecondsExpression());
 
     jdbcTemplate.update(sql, messageCleaningProperties.getMessagesMaxAgeInSeconds() * 1000);
@@ -71,7 +71,7 @@ public class MessageCleaner {
   private void cleanReceivedMessages() {
     String table = eventuateSchema.qualifyTable("received_messages");
 
-    String sql = String.format("delete from %s where %s - creation_time > ?",
+    String sql = "delete from %s where %s - creation_time > ?".formatted(
             table, eventuateSqlDialect.getCurrentTimeInMillisecondsExpression());
 
     jdbcTemplate.update(sql, messageCleaningProperties.getReceivedMessagesMaxAgeInSeconds() * 1000);

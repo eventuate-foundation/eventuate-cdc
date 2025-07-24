@@ -21,7 +21,7 @@ public class BinlogEntryHandler<EVENT extends BinLogEvent> {
   }
 
   public String getQualifiedTable() {
-    return String.format("%s.%s", schemaAndTable.getSchema(), schemaAndTable.getTableName());
+    return "%s.%s".formatted(schemaAndTable.getSchema(), schemaAndTable.getTableName());
   }
 
   public SchemaAndTable getSchemaAndTable() {

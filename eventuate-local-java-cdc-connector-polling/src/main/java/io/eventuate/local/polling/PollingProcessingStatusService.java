@@ -40,7 +40,7 @@ public class PollingProcessingStatusService implements CdcProcessingStatusServic
     return tables
             .stream()
             .allMatch(table ->
-                    jdbcTemplate.queryForObject(eventuateSqlDialect.addLimitToSql(String.format("select count(*) from %s where %s = 0",
+                    jdbcTemplate.queryForObject(eventuateSqlDialect.addLimitToSql("select count(*) from %s where %s = 0".formatted(
                             table, publishedField), "1"), Long.class) == 0);
   }
 }

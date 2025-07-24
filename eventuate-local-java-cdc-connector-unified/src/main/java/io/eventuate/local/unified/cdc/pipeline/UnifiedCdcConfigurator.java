@@ -17,8 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -117,10 +117,10 @@ public class UnifiedCdcConfigurator {
               Optional<MySqlBinaryLogClient.MigrationInfo> migrationInfo = client.getMigrationInfo();
 
               String message = migrationInfo
-                      .map(info -> String.format("MySqlBinaryLogClient '%s' received '%s' from the debezium storage, migration should be performed",
+                      .map(info -> "MySqlBinaryLogClient '%s' received '%s' from the debezium storage, migration should be performed".formatted(
                               client.getReaderName(), info.getBinlogFileOffset()))
-                      .orElse(String.format("MySqlBinaryLogClient '%s' did not receive offset from the debezium storage, migration should not be performed",
-                              client.getReaderName()));
+                      .orElse("MySqlBinaryLogClient '%s' did not receive offset from the debezium storage, migration should not be performed".formatted(
+                      client.getReaderName()));
 
               logger.info(message);
             });
@@ -193,7 +193,7 @@ public class UnifiedCdcConfigurator {
             .filter(factory ->  factory.supports(type))
             .findAny()
             .orElseThrow(() ->
-                    new RuntimeException(String.format("pipeline factory not found for type %s",
+                    new RuntimeException("pipeline factory not found for type %s".formatted(
                             type)));
   }
 
@@ -203,7 +203,7 @@ public class UnifiedCdcConfigurator {
             .filter(factory ->  factory.supports(type))
             .findAny()
             .orElseThrow(() ->
-                    new RuntimeException(String.format("reader factory not found for type %s",
+                    new RuntimeException("reader factory not found for type %s".formatted(
                             type)));
   }
 }

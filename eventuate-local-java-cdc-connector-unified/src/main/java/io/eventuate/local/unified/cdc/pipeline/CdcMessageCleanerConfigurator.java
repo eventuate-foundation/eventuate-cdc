@@ -110,7 +110,7 @@ public class CdcMessageCleanerConfigurator {
                                                              CdcPipelineProperties pipelineProperties,
                                                              Map<String, CdcPipelineReaderProperties> cdcPipelineReaderProperties) {
     if (pipelineProperties == null) {
-      throw new RuntimeException(String.format("Cannot start cleaner pipeline %s is not found.",
+      throw new RuntimeException("Cannot start cleaner pipeline %s is not found.".formatted(
               messageCleanerProperties.getPipeline()));
     }
 

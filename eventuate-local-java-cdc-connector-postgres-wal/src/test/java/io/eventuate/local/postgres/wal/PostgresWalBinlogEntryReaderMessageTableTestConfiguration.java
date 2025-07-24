@@ -9,6 +9,7 @@ import io.eventuate.local.test.util.TestHelperConfiguration;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -32,6 +33,7 @@ public class PostgresWalBinlogEntryReaderMessageTableTestConfiguration {
   }
 
   @Bean
+  @DependsOnDatabaseInitialization
   public PostgresWalClient postgresWalClient(MeterRegistry meterRegistry,
                                              @Value("${spring.datasource.url}") String dbUrl,
                                              @Value("${spring.datasource.username}") String dbUserName,

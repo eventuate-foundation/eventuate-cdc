@@ -87,11 +87,11 @@ public abstract class AbstractMessageTableMigrationTest {
   }
 
   private String loadColumnReorderingSql() {
-    return loadResource(String.format("/reorder_message_columns.%s.sql", getDatabase()));
+    return loadResource("/reorder_message_columns.%s.sql".formatted(getDatabase()));
   }
 
   private String loadTableRecreationSql() {
-    return loadResource(String.format("/recreate_message_table.%s.sql", getDatabase()));
+    return loadResource("/recreate_message_table.%s.sql".formatted(getDatabase()));
   }
 
   private String getDatabase() {

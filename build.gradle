@@ -14,10 +14,6 @@ buildscript {
     }
 }
 
-plugins {
-    id "com.github.hierynomus.license" version "0.12.1"
-}
-
 apply plugin: 'docker-compose'
 apply plugin: DockerServicesPlugin
 apply plugin: "io.eventuate.plugins.gradle.publish.EventuatePublish"
@@ -27,13 +23,8 @@ allprojects {
     group = "io.eventuate.cdc"
 }
 
-projects {
-    license {
-        header rootProject.file('src/license/HEADER')
-    }
-}
-
-def testLibraries = ["eventuate-local-java-test-util", "eventuate-cdc-testcontainers"]
+// def testLibraries = ["eventuate-local-java-test-util", "eventuate-cdc-testcontainers"]
+def testLibraries = []
 
 subprojects {
 

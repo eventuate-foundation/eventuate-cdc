@@ -78,7 +78,7 @@ public class PipelineConfigPropertiesProvider {
                 .filter(factory -> factory.supports(type))
                 .findAny()
                 .orElseThrow(() ->
-                        new RuntimeException(String.format("reader factory not found for type %s",
+                        new RuntimeException("reader factory not found for type %s".formatted(
                                 type)));
     }
 

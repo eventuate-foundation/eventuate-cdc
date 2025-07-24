@@ -26,31 +26,30 @@ public class BinlogEntryReaderHealthCheck extends AbstractHealthCheck {
               BinlogEntryReader binlogEntryReader = binlogEntryReaderLeadership.getBinlogEntryReader();
 
               binlogEntryReader.getProcessingError().ifPresent(error -> {
-                builder.addError(String.format(
-                        "%s got error during processing: %s", binlogEntryReader.getReaderName(), error));
+                builder.addError("%s got error during processing: %s".formatted(binlogEntryReader.getReaderName(), error));
               });
 
-              if (binlogEntryReader instanceof MySqlBinaryLogClient) {
-                checkMySqlBinlogReaderHealth((MySqlBinaryLogClient) binlogEntryReader, builder);
+              if (binlogEntryReader instanceof MySqlBinaryLogClient client) {
+                checkMySqlBinlogReaderHealth(client, builder);
               }
 
               if (binlogEntryReaderLeadership.isLeader()) {
                 checkBinlogEntryReaderHealth(binlogEntryReader, builder);
-                if (binlogEntryReader instanceof DbLogClient) {
-                  checkDbLogReaderHealth((DbLogClient) binlogEntryReader, builder);
+                if (binlogEntryReader instanceof DbLogClient client) {
+                  checkDbLogReaderHealth(client, builder);
                 }
               } else
-                builder.addDetail(String.format("%s is not the leader", binlogEntryReader.getReaderName()));
+                builder.addDetail("%s is not the leader".formatted(binlogEntryReader.getReaderName()));
             });
 
   }
 
   private void checkDbLogReaderHealth(DbLogClient dbLogClient, HealthBuilder builder) {
     if (dbLogClient.isConnected()) {
-      builder.addDetail(String.format("Reader with id %s is connected",
+      builder.addDetail("Reader with id %s is connected".formatted(
               dbLogClient.getReaderName()));
     } else {
-      builder.addError(String.format("Reader with id %s disconnected",
+      builder.addError("Reader with id %s disconnected".formatted(
               dbLogClient.getReaderName()));
     }
 
@@ -62,18 +61,18 @@ public class BinlogEntryReaderHealthCheck extends AbstractHealthCheck {
             age > maxEventIntervalToAssumeReaderHealthy;
 
     if (eventNotReceivedInTime) {
-      builder.addError(String.format("Reader with id %s has not received message for %s milliseconds",
+      builder.addError("Reader with id %s has not received message for %s milliseconds".formatted(
               binlogEntryReader.getReaderName(),
               age));
     } else
-      builder.addDetail(String.format("Reader with id %s received message %s milliseconds ago",
+      builder.addDetail("Reader with id %s received message %s milliseconds ago".formatted(
               binlogEntryReader.getReaderName(),
               age));
   }
 
   private void checkMySqlBinlogReaderHealth(MySqlBinaryLogClient mySqlBinaryLogClient, HealthBuilder builder) {
     mySqlBinaryLogClient.getPublishingException().ifPresent(e ->
-      builder.addError(String.format("Reader with id %s failed to publish event, exception: %s",
+      builder.addError("Reader with id %s failed to publish event, exception: %s".formatted(
               mySqlBinaryLogClient.getReaderName(),
               e.getMessage())));
   }

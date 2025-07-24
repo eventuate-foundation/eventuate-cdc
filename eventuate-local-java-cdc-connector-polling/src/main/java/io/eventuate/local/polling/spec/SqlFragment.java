@@ -18,6 +18,6 @@ public class SqlFragment {
     }
 
     public static SqlFragment make(String sqlFormat, String column, String placeholderName, Object value) {
-        return new SqlFragment(String.format(sqlFormat , column, ":" + placeholderName), placeholderName, value);
+        return new SqlFragment(sqlFormat.formatted(column, ":" + placeholderName), placeholderName, value);
     }
 }

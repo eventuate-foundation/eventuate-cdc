@@ -120,8 +120,8 @@ public class MultipleOutboxPollingDaoIntegrationTest extends AbstractPollingDaoI
         String idColumn = idGenerator.databaseIdRequired() ? MESSAGE_AUTO_GENERATED_ID_COLUMN : MESSAGE_APPLICATION_GENERATED_ID_COLUMN;
 
         int actual = outboxPartitioningSpec.outboxTableSuffixes().stream().map(suffix -> {
-            String query = String.format("select count(*) as c from %s%s where %s = ? and published = 1",
-                    eventuateSchema.qualifyTable("message"),  suffix.suffixAsString, idColumn);
+            String query = "select count(*) as c from %s%s where %s = ? and published = 1".formatted(
+                    eventuateSchema.qualifyTable("message"), suffix.suffixAsString, idColumn);
             Map<String, Object> count = jdbcTemplate.queryForMap(query, actualId);
             return ((Number) count.get("c")).intValue();
         }).reduce(0, Integer::sum);
@@ -131,7 +131,7 @@ public class MultipleOutboxPollingDaoIntegrationTest extends AbstractPollingDaoI
             case 1:
                 return true;
             default:
-                fail(String.format("should not be greater than 1: %s%s", id, actual));
+                fail("should not be greater than 1: %s%s".formatted(id, actual));
                 break;
         }
         return false;

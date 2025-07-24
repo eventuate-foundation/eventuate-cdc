@@ -21,6 +21,7 @@ import io.eventuate.messaging.kafka.spring.consumer.KafkaConsumerFactoryConfigur
 import io.eventuate.messaging.kafka.spring.producer.EventuateKafkaProducerSpringConfigurationPropertiesConfiguration;
 import io.eventuate.tram.cdc.connector.configuration.condition.KafkaCondition;
 import io.micrometer.core.instrument.MeterRegistry;
+import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -75,6 +76,7 @@ public class KafkaMessageTableChangesToDestinationsConfiguration {
   }
 
   @Bean
+  @DependsOnDatabaseInitialization
   public OffsetStoreFactory postgresWalKafkaOffsetStoreFactory(EventuateKafkaConfigurationProperties eventuateKafkaConfigurationProperties,
                                                                EventuateKafkaProducer eventuateKafkaProducer,
                                                                EventuateKafkaConsumerConfigurationProperties eventuateKafkaConsumerConfigurationProperties) {

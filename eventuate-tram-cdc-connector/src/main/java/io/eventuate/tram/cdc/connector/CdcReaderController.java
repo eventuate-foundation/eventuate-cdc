@@ -4,7 +4,10 @@ import io.eventuate.local.common.CdcProcessingStatus;
 import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
 
@@ -16,7 +19,7 @@ public class CdcReaderController {
     this.binlogEntryReaderProvider = binlogEntryReaderProvider;
   }
 
-  @RequestMapping(value = "/readers/{reader}/finished", method = RequestMethod.GET)
+  @GetMapping("/readers/{reader}/finished")
   public ResponseEntity isCdcReaderFinished(@PathVariable("reader") String reader) {
 
     return getStatus(reader)
@@ -24,13 +27,13 @@ public class CdcReaderController {
             .orElse(ResponseEntity.notFound().build());
   }
 
-  @RequestMapping(value = "/readers/{reader}/status", method = RequestMethod.GET)
+  @GetMapping("/readers/{reader}/status")
   public ResponseEntity<CdcProcessingStatus> getCdcReaderStatus(@PathVariable("reader") String reader) {
 
     return getStatus(reader).map(s -> new ResponseEntity<>(s, HttpStatus.OK)).orElse(ResponseEntity.notFound().build());
   }
 
-  @RequestMapping(value = "/cdc-event-processing-status", method = RequestMethod.GET)
+  @GetMapping("/cdc-event-processing-status")
   public ResponseEntity<CdcProcessingStatus> getCdcReaderStatusCompatibilityMethod(@RequestParam("readerName") String readerName) {
     return getCdcReaderStatus(readerName);
   }

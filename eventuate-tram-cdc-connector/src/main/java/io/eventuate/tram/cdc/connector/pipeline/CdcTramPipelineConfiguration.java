@@ -13,14 +13,14 @@ import io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.configuration.M
 import io.eventuate.local.unified.cdc.pipeline.dblog.postgreswal.configuration.PostgresWalCdcPipelineReaderConfiguration;
 import io.eventuate.local.unified.cdc.pipeline.polling.configuration.PollingCdcPipelineReaderConfiguration;
 import io.eventuate.tram.cdc.connector.configuration.MessageTableChangesToDestinationsConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import java.util.Collection;
 
-@Configuration
+@AutoConfiguration
 @Import({MessageTableChangesToDestinationsConfiguration.class,
 
         CdcDataPublisherConfiguration.class,

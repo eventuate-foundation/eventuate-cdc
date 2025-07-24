@@ -83,7 +83,7 @@ public class EventuateCdcContainer extends EventuateGenericContainer<EventuateCd
         withEnv("EVENTUATE_CDC_READER_READERX_DATASOURCEURL", database.getJdbcUrl());
         withEnv("EVENTUATE_CDC_READER_READERX_DATASOURCEUSERNAME", database.getAdminCredentials().userName);
         withEnv("EVENTUATE_CDC_READER_READERX_DATASOURCEPASSWORD", database.getAdminCredentials().password);
-        withEnv("EVENTUATE_CDC_READER_READERX_LEADERSHIPLOCKPATH", () -> String.format("/eventuate/cdc/leader/%s", database.getContainerId()));
+        withEnv("EVENTUATE_CDC_READER_READERX_LEADERSHIPLOCKPATH", () -> "/eventuate/cdc/leader/%s".formatted(database.getContainerId()));
         withEnv("EVENTUATE_CDC_READER_READERX_DATASOURCEDRIVERCLASSNAME", database.getDriverClassName());
         withEnv("EVENTUATE_CDC_READER_READERX_OUTBOXID", Integer.toString(pipelineIdx));
 
@@ -128,8 +128,8 @@ public class EventuateCdcContainer extends EventuateGenericContainer<EventuateCd
 
     @NotNull
     private String replaceName(String name) {
-        return name.replace("_READERX_", String.format("_READER%s_", pipelineIdx))
-            .replace("_PIPELINEX_", String.format("_PIPELINE%s_", pipelineIdx));
+        return name.replace("_READERX_", "_READER%s_".formatted(pipelineIdx))
+            .replace("_PIPELINEX_", "_PIPELINE%s_".formatted(pipelineIdx));
     }
 
     @Override

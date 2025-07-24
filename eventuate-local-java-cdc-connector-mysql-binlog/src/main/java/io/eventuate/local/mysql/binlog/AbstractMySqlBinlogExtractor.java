@@ -52,7 +52,7 @@ public abstract class AbstractMySqlBinlogExtractor {
       }
     }
 
-    throw new RuntimeException(String.format("For table %s Column with name [%s] not found in %s",
+    throw new RuntimeException("For table %s Column with name [%s] not found in %s".formatted(
             schemaAndTable, columnName, columnOrders));
   }
 

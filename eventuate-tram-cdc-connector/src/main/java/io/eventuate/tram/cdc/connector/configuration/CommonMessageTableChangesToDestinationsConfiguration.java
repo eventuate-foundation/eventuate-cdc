@@ -41,7 +41,7 @@ public class CommonMessageTableChangesToDestinationsConfiguration {
       if ("eventuate-tram".equals(pipelineType) || "default".equals(pipelineType)) return "message";
       if ("eventuate-local".equals(pipelineType)) return "events";
 
-      throw new RuntimeException(String.format("Unknown pipeline type '%s'", pipelineType));
+      throw new RuntimeException("Unknown pipeline type '%s'".formatted(pipelineType));
     };
   }
 
@@ -52,7 +52,7 @@ public class CommonMessageTableChangesToDestinationsConfiguration {
       if ("eventuate-tram".equals(pipelineType)) return "message";
       if ("eventuate-local".equals(pipelineType) || "default".equals(pipelineType)) return "events";
 
-      throw new RuntimeException(String.format("Unknown pipeline type '%s'", pipelineType));
+      throw new RuntimeException("Unknown pipeline type '%s'".formatted(pipelineType));
     };
   }
 

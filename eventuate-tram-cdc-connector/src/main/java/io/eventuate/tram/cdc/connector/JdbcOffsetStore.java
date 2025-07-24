@@ -25,12 +25,12 @@ public class JdbcOffsetStore implements OffsetStore {
   private void init() {
     tableName = eventuateSchema.qualifyTable("offset_store");
 
-    String selectAllByClientNameQuery = String.format("select * from %s where client_name = ?", tableName);
+    String selectAllByClientNameQuery = "select * from %s where client_name = ?".formatted(tableName);
 
     if (jdbcTemplate.queryForList(selectAllByClientNameQuery, clientName).isEmpty()) {
 
       String insertNullOffsetForClientNameQuery =
-              String.format("insert into %s (client_name, serialized_offset) VALUES (?, NULL)",
+              "insert into %s (client_name, serialized_offset) VALUES (?, NULL)".formatted(
                       tableName);
 
       jdbcTemplate.update(insertNullOffsetForClientNameQuery, clientName);
@@ -39,7 +39,7 @@ public class JdbcOffsetStore implements OffsetStore {
 
   @Override
   public Optional<BinlogFileOffset> getLastBinlogFileOffset() {
-    String selectOffsetByClientNameQuery = String.format("select serialized_offset from %s where client_name = ?", tableName);
+    String selectOffsetByClientNameQuery = "select serialized_offset from %s where client_name = ?".formatted(tableName);
 
     String offset = jdbcTemplate.queryForObject(selectOffsetByClientNameQuery, String.class, clientName);
     return Optional.ofNullable(offset).map(o -> JSonMapper.fromJson(o, BinlogFileOffset.class));
@@ -47,7 +47,7 @@ public class JdbcOffsetStore implements OffsetStore {
 
   @Override
   public void save(BinlogFileOffset binlogFileOffset) {
-    String updateOffsetByClientNameQuery = String.format("update %s set serialized_offset = ?", tableName);
+    String updateOffsetByClientNameQuery = "update %s set serialized_offset = ?".formatted(tableName);
     jdbcTemplate.update(updateOffsetByClientNameQuery, JSonMapper.toJson(binlogFileOffset));
   }
 }

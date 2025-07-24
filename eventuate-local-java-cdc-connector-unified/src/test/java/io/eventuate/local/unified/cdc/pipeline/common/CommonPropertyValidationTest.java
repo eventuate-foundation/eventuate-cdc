@@ -54,14 +54,14 @@ public class CommonPropertyValidationTest {
     private List<Entry> entries = new ArrayList<>();
 
     public void addString(String key, String value) {
-      entries.add(new Entry(key, String.format("\"%s\"", value)));
+      entries.add(new Entry(key, "\"%s\"".formatted(value)));
     }
 
     @Override
     public String toString() {
       StringJoiner stringJoiner = new StringJoiner(", ");
       entries.forEach(e -> stringJoiner.add(e.toString()));
-      return String.format("{%s}", stringJoiner.toString());
+      return "{%s}".formatted(stringJoiner.toString());
     }
 
     private static class Entry {
@@ -75,7 +75,7 @@ public class CommonPropertyValidationTest {
 
       @Override
       public String toString() {
-        return String.format("\"%s\" : %s", key, value);
+        return "\"%s\" : %s".formatted(key, value);
       }
     }
   }

@@ -297,7 +297,7 @@ public class MySqlBinaryLogClient extends DbLogClient {
 
     logger.info("mysql binlog client received offset from the offset store: {}", binlogFileOffset);
 
-    if (!binlogFileOffset.isPresent()) {
+    if (binlogFileOffset.isEmpty()) {
       logger.info("mysql binlog client received empty offset from the offset store, retrieving debezium offset");
       binlogFileOffset = debeziumBinlogOffsetKafkaStore.flatMap(OffsetKafkaStore::getLastBinlogFileOffset);
       logger.info("mysql binlog client received offset from the debezium offset store: {}", binlogFileOffset);

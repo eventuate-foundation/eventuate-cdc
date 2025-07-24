@@ -34,11 +34,11 @@ public class CdcMonitoringDao {
             monitoringRetryAttempts,
             monitoringRetryIntervalInMilliseconds,
             () -> {
-              int rows = jdbcTemplate.update(String.format("update %s set last_time = ? where reader_id = ?",
+              int rows = jdbcTemplate.update("update %s set last_time = ? where reader_id = ?".formatted(
                       eventuateSchema.qualifyTable("cdc_monitoring")), System.currentTimeMillis(), readerName);
 
               if (rows == 0) {
-                jdbcTemplate.update(String.format("insert into %s (reader_id, last_time) values (?, ?)",
+                jdbcTemplate.update("insert into %s (reader_id, last_time) values (?, ?)".formatted(
                         eventuateSchema.qualifyTable("cdc_monitoring")), readerName, System.currentTimeMillis());
               }
 
