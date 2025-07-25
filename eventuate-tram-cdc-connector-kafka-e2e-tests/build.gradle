@@ -24,12 +24,17 @@ dockerCompose {
     environment.put "EVENTUATE_MESSAGING_KAFKA_IMAGE_VERSION", eventuateMessagingKafkaImageVersion
 
     removeOrphans = true
+    retainContainersOnStartupFailure = true
     dockerComposeStopTimeout = Duration.ofSeconds(1)
 
     tramcdc {
         projectName = null
         upAdditionalArgs = ['--no-deps']
         useComposeFiles = ["../${databaseDockerFile}", "../${databaseDockerCdcFile}"]
+
+        removeOrphans = true
+        retainContainersOnStartupFailure = true
+
         if (mode != "unified") {
             startedServices = ["kafka", "zookeeper", database, "eventuate-cdc-service"]
         }

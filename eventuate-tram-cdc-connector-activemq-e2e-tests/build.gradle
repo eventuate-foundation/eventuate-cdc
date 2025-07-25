@@ -24,6 +24,10 @@ dockerCompose {
     tramcdc {
         projectName = null
         upAdditionalArgs = ['--no-deps']
+
+        removeOrphans = true
+        retainContainersOnStartupFailure = true
+
         useComposeFiles = ["../${databaseDockerFile}", "../${databaseDockerCdcFile}"]
         startedServices = ["zookeeper", "activemq", database, "eventuate-cdc-service"]
     }
