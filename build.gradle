@@ -18,6 +18,7 @@ apply plugin: 'docker-compose'
 apply plugin: DockerServicesPlugin
 apply plugin: "io.eventuate.plugins.gradle.publish.EventuatePublish"
 apply plugin: "io.eventuate.plugins.gradle.publish.EventuatePublishDockerImages"
+apply plugin: "io.eventuate.plugins.gradle.publish.PublishMultiArchContainerImages"
 
 allprojects {
     group = "io.eventuate.cdc"
