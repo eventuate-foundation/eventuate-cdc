@@ -23,14 +23,13 @@ allprojects {
     group = "io.eventuate.cdc"
 }
 
-// def testLibraries = ["eventuate-local-java-test-util", "eventuate-cdc-testcontainers"]
-def testLibraries = []
+def testLibraries = ["eventuate-local-java-test-util", "eventuate-cdc-testcontainers"]
 
 subprojects {
 
     java {
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(testLibraries.contains(project.name) ? 8 : 17))
+            languageVersion.set(JavaLanguageVersion.of(17))
         }
     }
 
