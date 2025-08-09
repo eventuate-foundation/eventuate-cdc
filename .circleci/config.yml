@@ -160,21 +160,21 @@ workflows:
       - build-multi-arch-images:
           context:
             - publish
-          # requires:
-          #   - cdc-unified
-          #   - build-and-test-mysql8
-          #   - build-and-test-postgres-wal
-          #   - build-and-test-mssql-polling
-          #   - build-and-test-postgres-polling
-          #   - eventuate-local-cdc-mysql8-binlog
-          #   - eventuate-local-cdc-postgres-polling
-          #   - eventuate-local-cdc-postgres-wal
-          #   - tram-cdc-mysql8-binlog-intel
-          #   - tram-cdc-mysql8-binlog-arm
-          #   - tram-cdc-postgres-polling
-          #   - tram-cdc-postgres-wal
-          #   - tram-cdc-mssql-polling
-          #   - database-id-jsonschema
+          requires:
+            - cdc-unified
+            - build-and-test-mysql8
+            - build-and-test-postgres-wal
+            - build-and-test-mssql-polling
+            - build-and-test-postgres-polling
+            - eventuate-local-cdc-mysql8-binlog
+            - eventuate-local-cdc-postgres-polling
+            - eventuate-local-cdc-postgres-wal
+            - tram-cdc-mysql8-binlog-intel
+            - tram-cdc-mysql8-binlog-arm
+            - tram-cdc-postgres-polling
+            - tram-cdc-postgres-wal
+            - tram-cdc-mssql-polling
+            - database-id-jsonschema
       - build-and-test/build-and-test:
           name: test-cdc-multi-arch-intel
           script:  ./scripts/build-and-test-all-tram-cdc-mysql8-multi-arch.sh
