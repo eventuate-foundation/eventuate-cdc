@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 @Configuration
 @Import(CommonRedisConfiguration.class)
@@ -25,7 +25,7 @@ public class RedisMessageTableChangesToDestinationsConfiguration {
   }
 
   @Bean
-  public DataProducerFactory redisDataProducerFactory(RedisTemplate<String, String> redisTemplate,
+  public DataProducerFactory redisDataProducerFactory(StringRedisTemplate redisTemplate,
                                                       RedisConfigurationProperties redisConfigurationProperties) {
     return () -> new EventuateRedisDataProducerWrapper(new EventuateRedisProducer(redisTemplate, redisConfigurationProperties.getPartitions()));
   }
