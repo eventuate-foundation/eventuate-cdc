@@ -26,10 +26,6 @@ if [[ "${DATABASE}" == "postgres"  || "${DATABASE}" == "mysql" ]] ; then
 
     echo platform = $(uname -m)
 
-    if [[ "aarch64" == "$(uname -m)" || "arm64" == "$(uname -m)" ]] ; then
-        echo Arm platform: Skipping ActiveMQ and RabbitMQ
-        exit 0
-    fi
 
     if [ -z "$SPRING_PROFILES_ACTIVE" ] ; then
       export SPRING_PROFILES_ACTIVE=ActiveMQ
@@ -37,12 +33,22 @@ if [[ "${DATABASE}" == "postgres"  || "${DATABASE}" == "mysql" ]] ; then
       export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE},ActiveMQ
     fi
 
-    ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-activemq-e2e-tests:cleanTest :eventuate-tram-cdc-connector-activemq-e2e-tests:test
+    if [[ "aarch64" == "$(uname -m)" || "arm64" == "$(uname -m)" ]] ; then
+        echo Arm platform: Skipping ActiveMQ
+    else
+       ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-activemq-e2e-tests:cleanTest :eventuate-tram-cdc-connector-activemq-e2e-tests:test
+    fi
+
     ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-activemq-e2e-tests:tramcdcComposeDown
 
     export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE/ActiveMQ/RabbitMQ}
 
-    ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-rabbitmq-e2e-tests:cleanTest :eventuate-tram-cdc-connector-rabbitmq-e2e-tests:test
+    if [[ "aarch64" == "$(uname -m)" || "arm64" == "$(uname -m)" ]] ; then
+        echo Arm platform: Skipping RabbitMQ
+    else
+        ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-rabbitmq-e2e-tests:cleanTest :eventuate-tram-cdc-connector-rabbitmq-e2e-tests:test
+    fi
+
     ./gradlew $GRADLE_OPTIONS :eventuate-tram-cdc-connector-rabbitmq-e2e-tests:tramcdcComposeDown
 
     export SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE/RabbitMQ/Redis}

@@ -36,7 +36,7 @@ services:
       - USE_JSON_PAYLOAD_AND_HEADERS=${USE_JSON_PAYLOAD_AND_HEADERS}
 
   activemq:
-    image: eventuateio/eventuate-activemq:$EVENTUATE_ACTIVE_MQ_VERSION
+    image: apache/activemq-classic:5.18.3
     ports:
       - 8161:8161
       - 61616:61616
