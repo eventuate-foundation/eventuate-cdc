@@ -20,6 +20,7 @@ import java.util.function.Supplier;
 
 public class EventuateCdcContainer extends EventuateGenericContainer<EventuateCdcContainer> implements PropertyProvidingContainer {
 
+    private int readerIdx;
     private int pipelineIdx;
 
     public EventuateCdcContainer() {
@@ -74,46 +75,63 @@ public class EventuateCdcContainer extends EventuateGenericContainer<EventuateCd
         withEnv("EVENTUATELOCAL_KAFKA_BOOTSTRAP_SERVERS", kafka.getBootstrapServersForContainer());
         return this;
     }
-    public EventuateCdcContainer withTramPipeline(EventuateDatabaseContainer<?> database) {
 
+    public EventuateCdcContainer withTramPipeline(EventuateDatabaseContainer<?> database) {
+        withReaderForDatabase(database);
+        addPipelineConfig("eventuate-tram", database.getEventuateDatabaseSchema());
+        return this;
+    }
+
+    public EventuateCdcContainer withLocalPipeline(EventuateDatabaseContainer<?> database) {
+        withReaderForDatabase(database);
+        addPipelineConfig("eventuate-local", database.getEventuateDatabaseSchema());
+        return this;
+    }
+
+    public EventuateCdcContainer withTramAndLocalPipeline(EventuateDatabaseContainer<?> database) {
+        withReaderForDatabase(database);
+        addPipelineConfig("eventuate-tram", database.getEventuateDatabaseSchema());
+        addPipelineConfig("eventuate-local", database.getEventuateDatabaseSchema());
+        return this;
+    }
+
+    private void withReaderForDatabase(EventuateDatabaseContainer<?> database) {
         dependsOn(database);
 
-        newPipeline();
+        readerIdx++;
 
         withEnv("EVENTUATE_CDC_READER_READERX_DATASOURCEURL", database.getJdbcUrl());
         withEnv("EVENTUATE_CDC_READER_READERX_DATASOURCEUSERNAME", database.getAdminCredentials().userName);
         withEnv("EVENTUATE_CDC_READER_READERX_DATASOURCEPASSWORD", database.getAdminCredentials().password);
         withEnv("EVENTUATE_CDC_READER_READERX_LEADERSHIPLOCKPATH", () -> "/eventuate/cdc/leader/%s".formatted(database.getContainerId()));
         withEnv("EVENTUATE_CDC_READER_READERX_DATASOURCEDRIVERCLASSNAME", database.getDriverClassName());
-        withEnv("EVENTUATE_CDC_READER_READERX_OUTBOXID", Integer.toString(pipelineIdx));
+        withEnv("EVENTUATE_CDC_READER_READERX_OUTBOXID", Integer.toString(readerIdx));
 
         String cdcReaderType = database.getCdcReaderType();
 
-      if ("polling".equals(cdcReaderType)) {
-          withEnv("EVENTUATE_CDC_READER_READERX_POLLINGINTERVALINMILLISECONDS", "1000");
-      } else {
-          withEnv("EVENTUATE_CDC_READER_READERX_MONITORINGSCHEMA", database.getMonitoringSchema());
-          withEnv("EVENTUATE_CDC_READER_READERX_OFFSETSTORAGETOPICNAME", "db.history.common");
-      }
+        if ("polling".equals(cdcReaderType)) {
+            withEnv("EVENTUATE_CDC_READER_READERX_POLLINGINTERVALINMILLISECONDS", "1000");
+        } else {
+            withEnv("EVENTUATE_CDC_READER_READERX_MONITORINGSCHEMA", database.getMonitoringSchema());
+            withEnv("EVENTUATE_CDC_READER_READERX_OFFSETSTORAGETOPICNAME", "db.history.common");
+        }
 
-      withEnv("EVENTUATE_CDC_READER_READERX_TYPE", cdcReaderType);
+        withEnv("EVENTUATE_CDC_READER_READERX_TYPE", cdcReaderType);
 
         if (cdcReaderType.equals("mysql-binlog")) {
             withEnv("EVENTUATE_CDC_READER_READERX_CDCDBUSERNAME", database.getAdminCredentials().userName);
             withEnv("EVENTUATE_CDC_READER_READERX_CDCDBPASSWORD", database.getAdminCredentials().password);
             withEnv("EVENTUATE_CDC_READER_READERX_READOLDDEBEZIUMDBOFFSETSTORAGETOPIC", "false");
-            withEnv("EVENTUATE_CDC_READER_READERX_MYSQLBINLOGCLIENTUNIQUEID", Integer.toString(pipelineIdx));
+            withEnv("EVENTUATE_CDC_READER_READERX_MYSQLBINLOGCLIENTUNIQUEID", Integer.toString(readerIdx));
             withEnv("EVENTUATE_CDC_READER_READERX_OFFSETSTOREKEY", database::getContainerId);
         }
-
-        withEnv("EVENTUATE_CDC_PIPELINE_PIPELINEX_TYPE", "eventuate-tram");
-        withEnv("EVENTUATE_CDC_PIPELINE_PIPELINEX_READER", "reader" + pipelineIdx);
-        withEnv("EVENTUATE_CDC_PIPELINE_PIPELINEX_EVENTUATEDATABASESCHEMA", database.getEventuateDatabaseSchema());
-        return this;
     }
 
-    private void newPipeline() {
+    private void addPipelineConfig(String type, String schema) {
         pipelineIdx++;
+        withEnv("EVENTUATE_CDC_PIPELINE_PIPELINEX_TYPE", type);
+        withEnv("EVENTUATE_CDC_PIPELINE_PIPELINEX_READER", "reader" + readerIdx);
+        withEnv("EVENTUATE_CDC_PIPELINE_PIPELINEX_EVENTUATEDATABASESCHEMA", schema);
     }
 
     @Override
@@ -128,7 +146,7 @@ public class EventuateCdcContainer extends EventuateGenericContainer<EventuateCd
 
     @NotNull
     private String replaceName(String name) {
-        return name.replace("_READERX_", "_READER%s_".formatted(pipelineIdx))
+        return name.replace("_READERX_", "_READER%s_".formatted(readerIdx))
             .replace("_PIPELINEX_", "_PIPELINE%s_".formatted(pipelineIdx));
     }
 

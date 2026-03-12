@@ -22,6 +22,9 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class EventuateCdcContainerTest {
 
@@ -40,6 +43,95 @@ public class EventuateCdcContainerTest {
                     .withReuse(false)
             ;
 
+    private EventuateDatabaseContainer<?> createTestDatabase(String alias) {
+        return DatabaseContainerFactory.makeVanillaDatabaseContainer()
+                .withNetwork(eventuateKafkaCluster.network)
+                .withNetworkAliases(alias)
+                .withReuse(false);
+    }
+
+    @Test
+    public void shouldConfigureTramPipelineEnvVars() {
+        EventuateDatabaseContainer<?> db = createTestDatabase("test-db");
+
+        EventuateCdcContainer cdc = EventuateCdcContainer.makeFromDockerfile()
+                .withTramPipeline(db);
+
+        Map<String, String> envMap = cdc.getEnvMap();
+        assertThat(envMap)
+                .containsEntry("EVENTUATE_CDC_PIPELINE_PIPELINE1_TYPE", "eventuate-tram")
+                .containsEntry("EVENTUATE_CDC_PIPELINE_PIPELINE1_READER", "reader1");
+    }
+
+    @Test
+    public void shouldConfigureLocalPipelineEnvVars() {
+        EventuateDatabaseContainer<?> db = createTestDatabase("test-db");
+
+        EventuateCdcContainer cdc = EventuateCdcContainer.makeFromDockerfile()
+                .withLocalPipeline(db);
+
+        Map<String, String> envMap = cdc.getEnvMap();
+        assertThat(envMap)
+                .containsEntry("EVENTUATE_CDC_PIPELINE_PIPELINE1_TYPE", "eventuate-local")
+                .containsEntry("EVENTUATE_CDC_PIPELINE_PIPELINE1_READER", "reader1");
+    }
+
+    @Test
+    public void shouldConfigureTramAndLocalPipelineEnvVars() {
+        EventuateDatabaseContainer<?> db = createTestDatabase("test-db");
+
+        EventuateCdcContainer cdc = EventuateCdcContainer.makeFromDockerfile()
+                .withTramAndLocalPipeline(db);
+
+        Map<String, String> envMap = cdc.getEnvMap();
+
+        // Tram pipeline
+        assertThat(envMap)
+                .containsEntry("EVENTUATE_CDC_PIPELINE_PIPELINE1_TYPE", "eventuate-tram")
+                .containsEntry("EVENTUATE_CDC_PIPELINE_PIPELINE1_READER", "reader1");
+
+        // Local pipeline sharing same reader
+        assertThat(envMap)
+                .containsEntry("EVENTUATE_CDC_PIPELINE_PIPELINE2_TYPE", "eventuate-local")
+                .containsEntry("EVENTUATE_CDC_PIPELINE_PIPELINE2_READER", "reader1");
+
+        // No second reader
+        assertThat(envMap).doesNotContainKey("EVENTUATE_CDC_READER_READER2_DATASOURCEURL");
+    }
+
+    @Test
+    public void shouldConfigureMultiplePipelinesWithCorrectIndices() {
+        EventuateDatabaseContainer<?> db1 = createTestDatabase("db1");
+        EventuateDatabaseContainer<?> db2 = createTestDatabase("db2");
+        EventuateDatabaseContainer<?> db3 = createTestDatabase("db3");
+
+        EventuateCdcContainer cdc = EventuateCdcContainer.makeFromDockerfile()
+                .withTramPipeline(db1)
+                .withTramAndLocalPipeline(db2)
+                .withTramPipeline(db3);
+
+        Map<String, String> envMap = cdc.getEnvMap();
+
+        // db1: reader1, pipeline1
+        assertThat(envMap)
+                .containsEntry("EVENTUATE_CDC_PIPELINE_PIPELINE1_TYPE", "eventuate-tram")
+                .containsEntry("EVENTUATE_CDC_PIPELINE_PIPELINE1_READER", "reader1");
+
+        // db2: reader2, pipeline2 (tram) + pipeline3 (local)
+        assertThat(envMap)
+                .containsEntry("EVENTUATE_CDC_PIPELINE_PIPELINE2_TYPE", "eventuate-tram")
+                .containsEntry("EVENTUATE_CDC_PIPELINE_PIPELINE2_READER", "reader2")
+                .containsEntry("EVENTUATE_CDC_PIPELINE_PIPELINE3_TYPE", "eventuate-local")
+                .containsEntry("EVENTUATE_CDC_PIPELINE_PIPELINE3_READER", "reader2");
+
+        // db3: reader3, pipeline4
+        assertThat(envMap)
+                .containsEntry("EVENTUATE_CDC_PIPELINE_PIPELINE4_TYPE", "eventuate-tram")
+                .containsEntry("EVENTUATE_CDC_PIPELINE_PIPELINE4_READER", "reader3");
+
+        // No reader4
+        assertThat(envMap).doesNotContainKey("EVENTUATE_CDC_READER_READER4_DATASOURCEURL");
+    }
 
     @Test
     public void shouldStart() {
@@ -54,15 +146,23 @@ public class EventuateCdcContainerTest {
 
     @Test
     public void shouldStartWithKafkaCoordination() {
+        startCdcWithKafkaCoordination(cdc -> cdc.withTramPipeline(database));
+    }
+
+    @Test
+    public void shouldStartWithKafkaCoordinationAndTramAndLocalPipeline() {
+        startCdcWithKafkaCoordination(cdc -> cdc.withTramAndLocalPipeline(database));
+    }
+
+    private void startCdcWithKafkaCoordination(Function<EventuateCdcContainer, EventuateCdcContainer> pipelineConfigurer) {
         database.start();
         startAndApplyMigrations();
-        EventuateCdcContainer cdc = EventuateCdcContainer.makeFromDockerfile()
-                .withKafka(eventuateKafkaCluster.network, eventuateKafkaCluster.kafka)
-                .withKafkaLeadership()
-                .withTramPipeline(database)
+        EventuateCdcContainer cdc = pipelineConfigurer.apply(
+                EventuateCdcContainer.makeFromDockerfile()
+                        .withKafka(eventuateKafkaCluster.network, eventuateKafkaCluster.kafka)
+                        .withKafkaLeadership())
                 .dependsOn(zookeeper, kafka, database)
-                .withLogConsumer(new Slf4jLogConsumer(logger).withPrefix("cdc:"))
-            ;
+                .withLogConsumer(new Slf4jLogConsumer(logger).withPrefix("cdc:"));
         Startables.deepStart(cdc).join();
         cdc.stop();
     }
