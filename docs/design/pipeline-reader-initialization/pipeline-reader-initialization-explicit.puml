@@ -1,0 +1,112 @@
+@startuml
+title Explicit Configuration Path
+
+participant "Spring Boot" as Spring
+participant "EventuateCdcServiceMain" as Main
+participant "CdcTramPipelineConfiguration" as Config
+participant "UnifiedCdcConfigurator" as Configurator
+participant "PipelineConfigPropertiesProvider" as PropsProvider
+participant "RawUnifiedCdcProperties" as RawProps
+participant "CdcPipelineReaderFactory" as ReaderFactory
+participant "BinlogEntryReaderLeadership" as Leadership
+participant "BinlogEntryReaderProvider" as ReaderProvider
+participant "CdcPipelineFactory" as PipelineFactory
+participant "BinlogEntryReader" as Reader
+participant "CdcPipeline" as Pipeline
+participant "CdcDataPublisher" as Publisher
+participant "CdcMessageCleanerConfigurator" as CleanerConfig
+participant "LeaderSelectorFactory" as LeaderFactory
+participant "EventuateLeaderSelector" as LeaderSelector
+
+Main -> Spring: SpringApplication.run()
+activate Spring
+
+Spring -> Config: Auto-configure via spring.factories
+activate Config
+Config -> Configurator: create bean
+Config -> PropsProvider: create bean
+Config -> CleanerConfig: create bean
+deactivate Config
+
+Spring -> Configurator: @PostConstruct initialize()
+activate Configurator
+
+Configurator -> PropsProvider: pipelineReaderProperties()
+activate PropsProvider
+PropsProvider -> RawProps: isReaderPropertiesDeclared()
+RawProps --> PropsProvider: true
+PropsProvider --> Configurator: Map<String, CdcPipelineReaderProperties>
+deactivate PropsProvider
+
+loop for each reader configuration
+    Configurator -> Configurator: findCdcPipelineReaderFactory(type)
+    Configurator -> ReaderFactory: create(properties)
+    activate ReaderFactory
+    ReaderFactory --> Configurator: BinlogEntryReader
+    deactivate ReaderFactory
+    Configurator -> Leadership: new(leaderLockPath, leaderSelectorFactory, reader)
+    Configurator -> ReaderProvider: add(name, binlogEntryReaderLeadership)
+end
+
+Configurator -> Configurator: start()
+activate Configurator
+
+Configurator -> PropsProvider: pipelineProperties()
+activate PropsProvider
+PropsProvider -> RawProps: isPipelinePropertiesDeclared()
+RawProps --> PropsProvider: true
+PropsProvider --> Configurator: Map<String, CdcPipelineProperties>
+deactivate PropsProvider
+
+loop for each pipeline configuration
+    Configurator -> PipelineFactory: create(cdcPipelineProperties)
+    activate PipelineFactory
+    PipelineFactory -> ReaderProvider: getRequired(readerName)
+    activate ReaderProvider
+    ReaderProvider --> PipelineFactory: BinlogEntryReaderLeadership
+    deactivate ReaderProvider
+    PipelineFactory -> Reader: addBinlogEntryHandler(schema, table, converter, publisher)
+    PipelineFactory --> Configurator: CdcPipeline
+    deactivate PipelineFactory
+    Configurator -> Pipeline: start()
+    activate Pipeline
+    Pipeline -> Publisher: start()
+    activate Publisher
+    Publisher -> Publisher: producer = dataProducerFactory.create()
+    deactivate Publisher
+    deactivate Pipeline
+end
+
+Configurator -> ReaderProvider: start()
+activate ReaderProvider
+
+loop for each registered reader
+    ReaderProvider -> Leadership: start()
+    activate Leadership
+    Leadership -> LeaderFactory: create(lockId, id, selectedCb, removedCb)
+    activate LeaderFactory
+    LeaderFactory --> Leadership: EventuateLeaderSelector
+    deactivate LeaderFactory
+    Leadership -> LeaderSelector: start()
+    activate LeaderSelector
+    note right: Leadership election begins
+
+    LeaderSelector -> Leadership: leaderSelectedCallback()
+    Leadership -> Reader: start() [in new Thread]
+    activate Reader
+    deactivate Reader
+    deactivate LeaderSelector
+    deactivate Leadership
+end
+
+deactivate ReaderProvider
+deactivate Configurator
+
+Configurator -> CleanerConfig: startMessageCleaners()
+activate CleanerConfig
+deactivate CleanerConfig
+
+deactivate Configurator
+deactivate Spring
+
+@enduml
