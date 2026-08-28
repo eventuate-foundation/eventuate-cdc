@@ -6,7 +6,7 @@ dependencies {
 
     testImplementation "io.eventuate.messaging.rabbitmq:eventuate-messaging-rabbitmq-spring-consumer:$eventuateMessagingRabbitMQVersion"
     testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
-    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
 }
 
 test {

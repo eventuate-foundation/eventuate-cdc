@@ -12,7 +12,7 @@ dependencies {
 
     testImplementation "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
     testImplementation "io.eventuate.common:eventuate-common-spring-id:$eventuateCommonVersion"
-    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
 }
 
 test {

@@ -7,7 +7,7 @@ dependencies {
     // Extra
     implementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-common:$eventuateMessagingKafkaVersion"
 
-    api ('org.postgresql:postgresql:42.1.4') {
+    api ("org.postgresql:postgresql:$postgresqlVersion") {
         exclude group: "org.slf4j", module: "slf4j-simple"
     }
 
@@ -15,7 +15,7 @@ dependencies {
     testImplementation project(":eventuate-local-java-cdc-connector-test-util")
     testImplementation project(":eventuate-local-java-cdc-connector-db-log-test-common")
     testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
-    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
 }
 
 test {

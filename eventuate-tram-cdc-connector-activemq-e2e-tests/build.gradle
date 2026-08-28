@@ -6,7 +6,7 @@ dependencies {
 
     testImplementation "io.eventuate.messaging.activemq:eventuate-messaging-activemq-spring-consumer:$eventuateMessagingActiveMQVersion"
     testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
-    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
 }
 
 test {

@@ -3,14 +3,15 @@ apply plugin: 'java-library'
 dependencies {
     api project (":eventuate-cdc-data-producer-wrappers")
 
-    api "org.springframework.boot:spring-boot-starter-actuator"
-    api "org.springframework.boot:spring-boot-starter"
+    api "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
+    api "org.springframework.boot:spring-boot-starter-micrometer-metrics:$springBootVersion"
+    api "org.springframework.boot:spring-boot-starter:$springBootVersion"
     api 'org.apache.curator:curator-recipes:2.11.0'
     api "io.dropwizard.metrics:metrics-core:$dropwizardMetricsVersion"
-    api "org.springframework.boot:spring-boot-starter-jdbc"
-    api 'io.micrometer:micrometer-core:1.1.1'
-    api 'io.micrometer:micrometer-registry-jmx:1.1.1'
-    api 'io.micrometer:micrometer-registry-prometheus:1.1.1'
+    api "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion"
+    api "io.micrometer:micrometer-core:$micrometerVersion"
+    api "io.micrometer:micrometer-registry-jmx:$micrometerVersion"
+    api "io.micrometer:micrometer-registry-prometheus:$micrometerVersion"
     api "io.eventuate.common:eventuate-common-coordination-leadership:$eventuateCommonVersion"
     api "io.eventuate.common:eventuate-common-json-mapper:$eventuateCommonVersion"
     api "io.eventuate.common:eventuate-common-eventuate-local:$eventuateCommonVersion"
@@ -23,13 +24,13 @@ dependencies {
     implementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-common:$eventuateMessagingKafkaVersion"
 
 
-    api 'com.mysql:mysql-connector-j:8.0.33'
-    api ('org.postgresql:postgresql:42.1.4') {
+    api "com.mysql:mysql-connector-j:$mysqlConnectorVersion"
+    api ("org.postgresql:postgresql:$postgresqlVersion") {
         exclude group: "org.slf4j", module: "slf4j-simple"
     }
-    api 'com.microsoft.sqlserver:mssql-jdbc:7.2.1.jre8'
-    api 'org.apache.kafka:kafka-clients:2.3.0'
-    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    api "com.microsoft.sqlserver:mssql-jdbc:$mssqlJdbcVersion"
+    api "org.apache.kafka:kafka-clients:$kafkaClientVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
     testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
 }
 

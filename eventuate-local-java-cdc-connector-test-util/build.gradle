@@ -3,7 +3,7 @@ apply plugin: 'java-library'
 dependencies {
     // Extra
     implementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-common:$eventuateMessagingKafkaVersion"
-    implementation "org.junit.jupiter:junit-jupiter:5.13.3"
+    implementation "org.junit.jupiter:junit-jupiter:$junitVersion"
 
     api project(":eventuate-local-java-cdc-connector-common")
     api project(":eventuate-tram-cdc-connector")

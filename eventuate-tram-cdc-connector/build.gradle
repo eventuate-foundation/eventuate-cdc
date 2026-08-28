@@ -11,13 +11,13 @@ dependencies {
     implementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-common:$eventuateMessagingKafkaVersion"
 
     api project(":eventuate-local-java-cdc-connector-unified:")
-    api "org.springframework.boot:spring-boot-starter-web"
+    api "org.springframework.boot:spring-boot-starter-webmvc:$springBootVersion"
 
     implementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-leadership:$eventuateMessagingKafkaVersion"
 
-    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
     testImplementation "org.assertj:assertj-core:$assertjVersion"
-    testImplementation 'com.mysql:mysql-connector-j:8.0.33'
+    testImplementation "com.mysql:mysql-connector-j:$mysqlConnectorVersion"
 
     testImplementation project(":eventuate-local-java-test-util")
     testImplementation project(":eventuate-local-java-cdc-connector-test-util")

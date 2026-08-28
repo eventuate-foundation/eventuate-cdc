@@ -3,8 +3,8 @@ apply plugin: 'java-library'
 dependencies {
     api "org.springframework.boot:spring-boot-starter"
     api "org.springframework.boot:spring-boot-starter-jdbc"
-    api 'com.mysql:mysql-connector-j:8.0.33'
-    api ('org.postgresql:postgresql:42.1.4') {
+    api "com.mysql:mysql-connector-j:$mysqlConnectorVersion"
+    api ("org.postgresql:postgresql:$postgresqlVersion") {
         exclude group: "org.slf4j", module: "slf4j-simple"
     }
     api group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: '7.2.1.jre8'

@@ -7,7 +7,7 @@ dependencies {
     testImplementation "io.eventuate.messaging.redis:eventuate-messaging-redis-spring-consumer:$eventuateMessagingRedisVersion"
     testImplementation "io.eventuate.messaging.redis:eventuate-messaging-redis-spring-common:$eventuateMessagingRedisVersion"
     testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
-    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
 }
 
 test {

@@ -1,6 +1,6 @@
 package io.eventuate.local.unified.cdc.pipeline.common.health;
 
-import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.health.contributor.Health;
 
 import java.util.LinkedList;
 import java.util.List;

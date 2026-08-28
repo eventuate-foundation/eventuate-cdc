@@ -2,7 +2,7 @@ package io.eventuate.local.unified.cdc.pipeline.common.health;
 
 import io.eventuate.local.common.CdcDataPublisher;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.health.contributor.Health;
 
 import java.util.Collections;
 import java.util.List;

@@ -49,6 +49,6 @@ services:
       - 5672:5672
 
   redis:
-    image: redis:5.0.3
+    image: redis:7.4
     ports:
       - 6379:6379

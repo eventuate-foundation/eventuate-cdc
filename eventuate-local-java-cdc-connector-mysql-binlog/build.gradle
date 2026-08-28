@@ -13,7 +13,7 @@ dependencies {
     testImplementation project(":eventuate-local-java-cdc-connector-test-util")
     testImplementation project(":eventuate-local-java-cdc-connector-db-log-test-common")
     testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
-    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
 }
 
 test {

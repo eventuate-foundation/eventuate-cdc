@@ -8,9 +8,9 @@ buildscript {
         eventuateMavenRepoUrl.split(',').each { repoUrl -> maven { url repoUrl } }
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
         classpath "com.avast.gradle:gradle-docker-compose-plugin:$dockerComposePluginVersion"
         classpath "io.eventuate.plugins.gradle:eventuate-plugins-gradle-publish:$eventuatePluginsGradleVersion"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
     }
 }
 
@@ -41,30 +41,25 @@ subprojects {
     }
     if (!project.name.endsWith("-bom")) {
         dependencies {
-            if (!testLibraries.contains(project.name)) {
-                implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")) {
-                    exclude group: 'ch.qos.logback'
+            constraints {
+                implementation("org.apache.kafka:kafka-clients") {
+                    version {
+                        strictly(kafkaClientVersion)
+                    }
                 }
-
-                constraints {
-                    implementation("org.apache.kafka:kafka-clients") {
-                        version {
-                            strictly(kafkaClientVersion)
-                        }
+                implementation("org.apache.kafka:connect-api") {
+                    version {
+                        strictly("0.10.0.1")
                     }
-                    implementation("org.apache.kafka:connect-api") {
-                        version {
-                            strictly("0.10.0.1")
-                        }
-                    }
-                    implementation("org.redisson:redisson") {
-                        version {
-                            strictly("3.16.8")
-                        }
+                }
+                implementation("org.redisson:redisson") {
+                    version {
+                        strictly("3.16.8")
                     }
                 }
             }
 
+            testImplementation(platform("org.junit:junit-bom:$junitVersion"))
             testImplementation("org.junit.jupiter:junit-jupiter")
             testRuntimeOnly("org.junit.platform:junit-platform-launcher")
         }

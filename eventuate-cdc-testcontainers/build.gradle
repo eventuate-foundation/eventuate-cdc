@@ -1,14 +1,16 @@
 dependencies {
     implementation "io.eventuate.common:eventuate-common-testcontainers:$eventuateCommonVersion"
     implementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-testcontainers:$eventuateMessagingKafkaVersion"
-    implementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    implementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
 
-    api "org.testcontainers:kafka:$testContainersVersion"
+    api "org.testcontainers:testcontainers-kafka:$testContainersVersion"
     implementation "org.assertj:assertj-core:$assertjVersion"
 
     testImplementation "io.eventuate.common:eventuate-common-flyway:$eventuateCommonVersion"
-    testImplementation "org.flywaydb:flyway-core:$flywayVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-flyway:$springBootVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-flyway-test:$springBootVersion"
     testRuntimeOnly "org.flywaydb:flyway-mysql:$flywayVersion"
+    testRuntimeOnly "org.flywaydb:flyway-database-postgresql:$flywayVersion"
     testRuntimeOnly "org.flywaydb:flyway-sqlserver:$flywayVersion"
 
 

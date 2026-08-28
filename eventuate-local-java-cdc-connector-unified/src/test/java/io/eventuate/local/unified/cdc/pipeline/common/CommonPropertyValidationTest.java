@@ -1,6 +1,7 @@
 package io.eventuate.local.unified.cdc.pipeline.common;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.ValidatableProperties;
 import org.junit.jupiter.api.Assertions;
 
@@ -11,7 +12,7 @@ import java.util.StringJoiner;
 
 public class CommonPropertyValidationTest {
 
-  protected ObjectMapper objectMapper = new ObjectMapper();
+  protected ObjectMapper objectMapper = JsonMapper.builder().build();
 
   protected  <PROPERTIES extends ValidatableProperties> void assertExceptionMessage(String properties,
                                                                                     Class<PROPERTIES> propertyClass,

@@ -2,14 +2,16 @@
 apply plugin: 'org.springframework.boot'
 
 dependencies {
-    implementation "org.springframework.boot:spring-boot-starter-actuator"
-    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
+    implementation "org.springframework.boot:spring-boot-starter-micrometer-metrics:$springBootVersion"
+    implementation "org.springframework.boot:spring-boot-starter-webmvc:$springBootVersion"
+    implementation "org.springframework.boot:spring-boot-starter-data-redis:$springBootVersion"
     implementation project(":eventuate-cdc-connector-autoconfigure")
 
-    implementation 'io.micrometer:micrometer-registry-jmx:0.12.0.RELEASE'
-    implementation 'io.micrometer:micrometer-registry-prometheus:0.12.0.RELEASE'
+    implementation "io.micrometer:micrometer-registry-jmx:$micrometerVersion"
+    implementation "io.micrometer:micrometer-registry-prometheus:$micrometerVersion"
 
-    implementation ('org.postgresql:postgresql:42.1.4') {
+    implementation ("org.postgresql:postgresql:$postgresqlVersion") {
         exclude group: "org.slf4j", module: "slf4j-simple"
     }
 }

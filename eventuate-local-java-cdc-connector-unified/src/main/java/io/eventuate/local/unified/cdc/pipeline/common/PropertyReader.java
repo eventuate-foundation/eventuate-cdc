@@ -1,32 +1,27 @@
 package io.eventuate.local.unified.cdc.pipeline.common;
 
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import org.springframework.beans.BeanUtils;
 
 import java.beans.FeatureDescriptor;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class PropertyReader {
-  private ObjectMapper objectMapper = new ObjectMapper();
-
-  {
-    objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
-  }
+  private ObjectMapper objectMapper = JsonMapper
+          .builder()
+          .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+          .build();
 
   public PropertyReader() {
   }
 
   public List<Map<String, Object>> convertPropertiesToListOfMaps(String properties) {
-    try {
-      return objectMapper.readValue(properties, List.class);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return objectMapper.readValue(properties, List.class);
   }
 
   public <PROPERTIES> PROPERTIES convertMapToPropertyClass(Map<String, Object> properties,
