@@ -41,20 +41,29 @@ subprojects {
     }
     if (!project.name.endsWith("-bom")) {
         dependencies {
-            constraints {
-                implementation("org.apache.kafka:kafka-clients") {
-                    version {
-                        strictly(kafkaClientVersion)
-                    }
+            // These strict constraints override the newer kafka-clients and redisson versions
+            // managed by the Spring Boot BOM, so that the CDC service runs the versions that
+            // eventuate-messaging-kafka and eventuate-messaging-redis were built against.
+            // kafkaClientVersion and redissonVersion MUST match the properties of the same name
+            // in those repos' gradle.properties - see the comment there.
+            //
+            // They must NOT be applied to the test libraries: Gradle publishes them as
+            // `strictly` constraints in the module metadata, which then conflicts with - and
+            // fails the dependency resolution of - consumers such as eventuate-tram-core.
+            if (!testLibraries.contains(project.name)) {
+                implementation(platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")) {
+                    exclude group: 'ch.qos.logback'
                 }
-                implementation("org.apache.kafka:connect-api") {
-                    version {
-                        strictly("0.10.0.1")
+                constraints {
+                    implementation("org.apache.kafka:kafka-clients") {
+                        version {
+                            strictly(kafkaClientVersion)
+                        }
                     }
-                }
-                implementation("org.redisson:redisson") {
-                    version {
-                        strictly("3.16.8")
+                    implementation("org.redisson:redisson") {
+                        version {
+                            strictly(redissonVersion)
+                        }
                     }
                 }
             }
