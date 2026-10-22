@@ -1,7 +1,7 @@
 package io.eventuate.local.common;
 
-import io.eventuate.coordination.leadership.EventuateLeaderSelector;
-import io.eventuate.coordination.leadership.LeaderSelectorFactory;
+import io.eventuate.common.coordination.leadership.EventuateLeaderSelector;
+import io.eventuate.common.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;

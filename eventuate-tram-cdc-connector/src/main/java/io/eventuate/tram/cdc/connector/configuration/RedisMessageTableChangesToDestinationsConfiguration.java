@@ -2,7 +2,7 @@ package io.eventuate.tram.cdc.connector.configuration;
 
 import io.eventuate.cdc.producer.wrappers.DataProducerFactory;
 import io.eventuate.cdc.producer.wrappers.EventuateRedisDataProducerWrapper;
-import io.eventuate.coordination.leadership.LeaderSelectorFactory;
+import io.eventuate.common.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.local.common.PublishingFilter;
 import io.eventuate.messaging.redis.spring.common.CommonRedisConfiguration;
 import io.eventuate.messaging.redis.spring.common.RedisConfigurationProperties;

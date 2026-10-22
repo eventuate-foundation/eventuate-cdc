@@ -1,8 +1,7 @@
 package io.eventuate.local.polling;
-
+import io.eventuate.common.database.testcontainers.EventuateMySqlContainer;
 import io.eventuate.common.id.Int128;
-import io.eventuate.common.jdbc.OutboxPartitioningSpec;
-import io.eventuate.common.testcontainers.EventuateMySqlContainer;
+import io.eventuate.common.database.jdbc.OutboxPartitioningSpec;
 import io.eventuate.common.testcontainers.PropertyProvidingContainer;
 import io.eventuate.local.common.BinlogEntryHandler;
 import io.eventuate.local.testutil.DefaultAndPollingProfilesResolver;
@@ -24,8 +23,8 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static io.eventuate.common.jdbc.EventuateJdbcOperationsUtils.MESSAGE_APPLICATION_GENERATED_ID_COLUMN;
-import static io.eventuate.common.jdbc.EventuateJdbcOperationsUtils.MESSAGE_AUTO_GENERATED_ID_COLUMN;
+import static io.eventuate.common.database.jdbc.EventuateJdbcOperationsUtils.MESSAGE_APPLICATION_GENERATED_ID_COLUMN;
+import static io.eventuate.common.database.jdbc.EventuateJdbcOperationsUtils.MESSAGE_AUTO_GENERATED_ID_COLUMN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 

@@ -1,8 +1,8 @@
 package io.eventuate.local.common;
 
-import io.eventuate.coordination.leadership.EventuateLeaderSelector;
-import io.eventuate.coordination.leadership.LeaderSelectorFactory;
-import io.eventuate.coordination.leadership.LeadershipController;
+import io.eventuate.common.coordination.leadership.EventuateLeaderSelector;
+import io.eventuate.common.coordination.leadership.LeaderSelectorFactory;
+import io.eventuate.common.coordination.leadership.LeadershipController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

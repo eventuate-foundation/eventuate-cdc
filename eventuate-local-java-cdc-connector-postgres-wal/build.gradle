@@ -2,7 +2,7 @@ apply plugin: 'java-library'
 
 dependencies {
     api project(":eventuate-local-java-cdc-connector-db-log-common")
-    api "io.eventuate.common:eventuate-common-coordination-leadership-zookeeper:$eventuateCommonVersion"
+    api "io.eventuate.common.zookeeper:eventuate-common-coordination-leadership-zookeeper:$eventuateCommonZookeeperVersion"
 
     // Extra
     implementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-common:$eventuateMessagingKafkaVersion"

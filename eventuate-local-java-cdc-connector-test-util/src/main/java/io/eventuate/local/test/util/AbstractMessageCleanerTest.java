@@ -1,8 +1,8 @@
 package io.eventuate.local.test.util;
 
-import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
-import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
+import io.eventuate.common.database.jdbc.EventuateSchema;
+import io.eventuate.common.database.jdbc.sqldialect.SqlDialectSelector;
+import io.eventuate.common.database.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.unified.cdc.pipeline.MessageCleaner;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.MessageCleanerProperties;
 import io.eventuate.util.test.async.Eventually;

@@ -1,9 +1,9 @@
 package io.eventuate.tram.connector.rabbitmq;
 
 import com.google.common.collect.ImmutableSet;
-import io.eventuate.common.spring.id.IdGeneratorConfiguration;
-import io.eventuate.common.spring.jdbc.EventuateCommonJdbcOperationsConfiguration;
-import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
+import io.eventuate.common.id.spring.IdGeneratorConfiguration;
+import io.eventuate.common.database.spring.jdbc.EventuateCommonJdbcOperationsConfiguration;
+import io.eventuate.common.database.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.messaging.rabbitmq.spring.consumer.MessageConsumerRabbitMQConfiguration;
 import io.eventuate.messaging.rabbitmq.spring.consumer.MessageConsumerRabbitMQImpl;
 import io.eventuate.tram.connector.AbstractTramCdcTest;

@@ -1,7 +1,7 @@
 package io.eventuate.cdc.testcontainers;
 
+import io.eventuate.common.database.testcontainers.EventuateDatabaseContainer;
 import io.eventuate.common.testcontainers.ContainerUtil;
-import io.eventuate.common.testcontainers.EventuateDatabaseContainer;
 import io.eventuate.common.testcontainers.EventuateGenericContainer;
 import io.eventuate.common.testcontainers.PropertyProvidingContainer;
 import io.eventuate.messaging.kafka.testcontainers.EventuateKafkaCluster;

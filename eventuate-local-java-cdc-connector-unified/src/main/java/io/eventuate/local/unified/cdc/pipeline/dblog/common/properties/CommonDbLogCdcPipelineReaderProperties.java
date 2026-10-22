@@ -1,6 +1,6 @@
 package io.eventuate.local.unified.cdc.pipeline.dblog.common.properties;
 
-import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.database.jdbc.EventuateSchema;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineReaderProperties;
 
 public abstract class CommonDbLogCdcPipelineReaderProperties extends CdcPipelineReaderProperties {

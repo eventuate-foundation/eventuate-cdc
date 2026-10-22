@@ -1,7 +1,7 @@
 package io.eventuate.local.unified.cdc.pipeline.polling.configuration;
 
-import io.eventuate.common.jdbc.OutboxPartitioningSpec;
-import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
+import io.eventuate.common.database.jdbc.OutboxPartitioningSpec;
+import io.eventuate.common.database.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.local.common.ConnectionPoolConfigurationProperties;
 import io.eventuate.local.unified.cdc.pipeline.common.configuration.CommonCdcDefaultPipelineReaderConfiguration;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.CdcPipelineReaderFactory;

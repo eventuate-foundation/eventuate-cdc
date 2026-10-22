@@ -2,7 +2,7 @@ package io.eventuate.local.common;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.id.IdGenerator;
-import io.eventuate.common.jdbc.EventuateJdbcOperationsUtils;
+import io.eventuate.common.database.jdbc.EventuateJdbcOperationsUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Optional;

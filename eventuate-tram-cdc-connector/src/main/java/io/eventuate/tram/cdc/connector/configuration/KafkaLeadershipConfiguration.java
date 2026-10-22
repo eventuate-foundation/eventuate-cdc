@@ -1,7 +1,7 @@
 package io.eventuate.tram.cdc.connector.configuration;
 
 
-import io.eventuate.coordination.leadership.LeaderSelectorFactory;
+import io.eventuate.common.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.coordination.leadership.zookeeper.KafkaLeaderSelector;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.basic.consumer.KafkaConsumerFactory;

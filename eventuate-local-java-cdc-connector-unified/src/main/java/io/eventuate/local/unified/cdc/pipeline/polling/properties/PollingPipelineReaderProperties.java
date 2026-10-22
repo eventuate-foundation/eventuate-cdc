@@ -1,7 +1,7 @@
 package io.eventuate.local.unified.cdc.pipeline.polling.properties;
 
 
-import io.eventuate.common.jdbc.OutboxPartitioningSpec;
+import io.eventuate.common.database.jdbc.OutboxPartitioningSpec;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineReaderProperties;
 
 import java.util.Arrays;

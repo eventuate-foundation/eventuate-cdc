@@ -1,7 +1,7 @@
 package io.eventuate.local.mysql.binlog;
 
-import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.common.jdbc.SchemaAndTable;
+import io.eventuate.common.database.jdbc.EventuateSchema;
+import io.eventuate.common.database.jdbc.SchemaAndTable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

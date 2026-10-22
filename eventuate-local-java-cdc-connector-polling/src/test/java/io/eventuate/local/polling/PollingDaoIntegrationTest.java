@@ -1,6 +1,6 @@
 package io.eventuate.local.polling;
 
-import io.eventuate.common.jdbc.OutboxTableSuffix;
+import io.eventuate.common.database.jdbc.OutboxTableSuffix;
 import io.eventuate.local.common.BinlogEntryHandler;
 import io.eventuate.local.polling.spec.PollingSpec;
 import io.eventuate.local.testutil.DefaultAndPollingProfilesResolver;

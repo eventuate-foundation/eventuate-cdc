@@ -1,7 +1,7 @@
 package io.eventuate.local.postgres.wal;
 
-import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.common.jdbc.SchemaAndTable;
+import io.eventuate.common.database.jdbc.EventuateSchema;
+import io.eventuate.common.database.jdbc.SchemaAndTable;
 import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.local.common.BinlogEntry;
 import io.eventuate.local.common.BinlogEntryHandler;

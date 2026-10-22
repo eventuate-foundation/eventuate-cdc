@@ -1,7 +1,7 @@
 package io.eventuate.local.unified.cdc.pipeline;
 
-import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.common.jdbc.sqldialect.EventuateSqlDialect;
+import io.eventuate.common.database.jdbc.EventuateSchema;
+import io.eventuate.common.database.jdbc.sqldialect.EventuateSqlDialect;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.MessageCleanerProperties;
 import org.springframework.jdbc.core.JdbcTemplate;
 

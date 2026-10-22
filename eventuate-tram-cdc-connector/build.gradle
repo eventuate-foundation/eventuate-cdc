@@ -21,10 +21,11 @@ dependencies {
 
     testImplementation project(":eventuate-local-java-test-util")
     testImplementation project(":eventuate-local-java-cdc-connector-test-util")
-    testImplementation "io.eventuate.common:eventuate-common-testcontainers:$eventuateCommonVersion"
+    testImplementation "io.eventuate.common.testcontainers:eventuate-common-testcontainers:$eventuateCommonTestcontainersVersion"
     testImplementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-testcontainers:$eventuateMessagingKafkaVersion"
 
     testImplementation "org.testcontainers:testcontainers:$testContainersVersion"
+    testImplementation "io.eventuate.common.database:eventuate-common-database-testcontainers:$eventuateCommonDatabaseVersion"
 }
 
 test {

@@ -1,8 +1,8 @@
 package io.eventuate.local.unified.cdc.pipeline;
 
-import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.common.jdbc.sqldialect.EventuateSqlDialect;
-import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
+import io.eventuate.common.database.jdbc.EventuateSchema;
+import io.eventuate.common.database.jdbc.sqldialect.EventuateSqlDialect;
+import io.eventuate.common.database.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.local.common.ConnectionPoolConfigurationProperties;
 import io.eventuate.local.unified.cdc.pipeline.common.PropertyReader;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.DataSourceFactory;

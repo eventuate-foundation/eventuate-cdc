@@ -3,7 +3,7 @@ apply plugin: 'java-library'
 dependencies {
     api project (":eventuate-local-java-cdc-connector-common")
 
-    api "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
+    api "io.eventuate.common.database:eventuate-common-spring-jdbc:$eventuateCommonDatabaseVersion"
     api "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
     api "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
 }

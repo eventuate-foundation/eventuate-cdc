@@ -2,7 +2,7 @@ package io.eventuate.local.unified.cdc.pipeline.common.configuration;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.id.DatabaseIdGenerator;
-import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
+import io.eventuate.common.database.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.common.*;
 import io.eventuate.local.unified.cdc.pipeline.common.BinlogEntryReaderProvider;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.CdcPipelineFactory;

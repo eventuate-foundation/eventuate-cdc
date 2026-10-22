@@ -1,10 +1,10 @@
 package io.eventuate.local.connector;
 
 import io.eventuate.cdc.e2e.common.AbstractEventuateCdcTest;
-import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.common.spring.id.IdGeneratorConfiguration;
-import io.eventuate.common.spring.jdbc.EventuateCommonJdbcOperationsConfiguration;
-import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
+import io.eventuate.common.database.jdbc.EventuateSchema;
+import io.eventuate.common.id.spring.IdGeneratorConfiguration;
+import io.eventuate.common.database.spring.jdbc.EventuateCommonJdbcOperationsConfiguration;
+import io.eventuate.common.database.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumer;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.basic.consumer.KafkaConsumerFactory;

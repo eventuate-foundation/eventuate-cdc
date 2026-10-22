@@ -1,6 +1,6 @@
 package io.eventuate.local.test.util;
 
-import io.eventuate.common.spring.jdbc.EventuateCommonJdbcOperationsConfiguration;
+import io.eventuate.common.database.spring.jdbc.EventuateCommonJdbcOperationsConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;

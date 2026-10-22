@@ -2,8 +2,8 @@ apply plugin: 'java-library'
 
 dependencies {
     api project(":eventuate-local-java-cdc-connector-common")
-    api "io.eventuate.common:eventuate-common-coordination-leadership-zookeeper:$eventuateCommonVersion"
-    api "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
+    api "io.eventuate.common.zookeeper:eventuate-common-coordination-leadership-zookeeper:$eventuateCommonZookeeperVersion"
+    api "io.eventuate.common.database:eventuate-common-spring-jdbc:$eventuateCommonDatabaseVersion"
 
     testImplementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-spring-common:$eventuateMessagingKafkaVersion"
     // Extra
@@ -13,9 +13,10 @@ dependencies {
     testImplementation project(":eventuate-local-java-cdc-connector-test-util")
     testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
     testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
-    testImplementation "io.eventuate.common:eventuate-common-testcontainers:$eventuateCommonVersion"
+    testImplementation "io.eventuate.common.testcontainers:eventuate-common-testcontainers:$eventuateCommonTestcontainersVersion"
     testImplementation "org.testcontainers:testcontainers:$testContainersVersion"
     testImplementation "org.assertj:assertj-core:$assertjVersion"
+    testImplementation "io.eventuate.common.database:eventuate-common-database-testcontainers:$eventuateCommonDatabaseVersion"
 
 }
 

@@ -1,12 +1,12 @@
 package io.eventuate.local.polling;
 
 import io.eventuate.common.id.IdGenerator;
-import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.common.jdbc.OutboxPartitioningSpec;
-import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
-import io.eventuate.common.spring.id.IdGeneratorConfiguration;
-import io.eventuate.common.spring.jdbc.EventuateSchemaConfiguration;
-import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
+import io.eventuate.common.database.jdbc.EventuateSchema;
+import io.eventuate.common.database.jdbc.OutboxPartitioningSpec;
+import io.eventuate.common.database.jdbc.sqldialect.SqlDialectSelector;
+import io.eventuate.common.id.spring.IdGeneratorConfiguration;
+import io.eventuate.common.database.spring.jdbc.EventuateSchemaConfiguration;
+import io.eventuate.common.database.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.local.common.BinlogEntryHandler;
 import io.eventuate.local.common.BinlogEntryToPublishedEventConverter;
 import io.eventuate.local.common.EventuateConfigurationProperties;

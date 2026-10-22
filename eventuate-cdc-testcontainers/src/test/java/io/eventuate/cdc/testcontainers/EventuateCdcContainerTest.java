@@ -1,9 +1,9 @@
 package io.eventuate.cdc.testcontainers;
 
-import io.eventuate.common.testcontainers.DatabaseContainerFactory;
-import io.eventuate.common.testcontainers.EventuateDatabaseContainer;
-import io.eventuate.common.testcontainers.EventuateZookeeperContainer;
+import io.eventuate.common.database.testcontainers.DatabaseContainerFactory;
+import io.eventuate.common.database.testcontainers.EventuateDatabaseContainer;
 import io.eventuate.common.testcontainers.PropertyProvidingContainer;
+import io.eventuate.common.zookeeper.testcontainers.EventuateZookeeperContainer;
 import io.eventuate.messaging.kafka.testcontainers.EventuateKafkaCluster;
 import io.eventuate.messaging.kafka.testcontainers.EventuateKafkaContainer;
 import org.flywaydb.core.Flyway;

@@ -1,9 +1,9 @@
 package io.eventuate.cdc.e2e.common;
 
 import io.eventuate.common.id.IdGenerator;
-import io.eventuate.common.jdbc.EventuateCommonJdbcOperations;
-import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
+import io.eventuate.common.database.jdbc.EventuateCommonJdbcOperations;
+import io.eventuate.common.database.jdbc.EventuateSchema;
+import io.eventuate.common.database.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.util.test.async.Eventually;
 import org.junit.jupiter.api.Assertions;

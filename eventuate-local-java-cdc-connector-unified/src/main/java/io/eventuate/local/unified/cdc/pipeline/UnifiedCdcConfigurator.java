@@ -1,6 +1,6 @@
 package io.eventuate.local.unified.cdc.pipeline;
 
-import io.eventuate.coordination.leadership.LeaderSelectorFactory;
+import io.eventuate.common.coordination.leadership.LeaderSelectorFactory;
 import io.eventuate.local.common.BinlogEntryReader;
 import io.eventuate.local.common.BinlogEntryReaderLeadership;
 import io.eventuate.local.mysql.binlog.MySqlBinaryLogClient;

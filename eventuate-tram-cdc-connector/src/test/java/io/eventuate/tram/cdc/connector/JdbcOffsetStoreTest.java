@@ -1,7 +1,7 @@
 package io.eventuate.tram.cdc.connector;
 
 import io.eventuate.common.eventuate.local.BinlogFileOffset;
-import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.database.jdbc.EventuateSchema;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

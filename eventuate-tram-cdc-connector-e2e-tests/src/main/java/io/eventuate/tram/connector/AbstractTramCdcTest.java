@@ -2,7 +2,7 @@ package io.eventuate.tram.connector;
 
 import io.eventuate.cdc.e2e.common.AbstractEventuateCdcTest;
 import io.eventuate.common.id.IdGenerator;
-import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.database.jdbc.EventuateSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collections;

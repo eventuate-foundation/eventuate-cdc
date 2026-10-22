@@ -1,6 +1,6 @@
 package io.eventuate.local.unified.cdc.pipeline.dblog.mysqlbinlog.factory;
 
-import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.database.jdbc.EventuateSchema;
 import io.eventuate.local.common.ConnectionPoolConfigurationProperties;
 import io.eventuate.local.db.log.common.OffsetStore;
 import io.eventuate.local.mysql.binlog.DebeziumBinlogOffsetKafkaStore;

@@ -1,7 +1,7 @@
 package io.eventuate.tram.cdc.connector;
 
 import io.eventuate.common.id.IdGenerator;
-import io.eventuate.common.jdbc.EventuateJdbcOperationsUtils;
+import io.eventuate.common.database.jdbc.EventuateJdbcOperationsUtils;
 import io.eventuate.common.json.mapper.JSonMapper;
 import io.eventuate.local.common.BinlogEntry;
 import io.eventuate.local.common.BinlogEntryToEventConverter;

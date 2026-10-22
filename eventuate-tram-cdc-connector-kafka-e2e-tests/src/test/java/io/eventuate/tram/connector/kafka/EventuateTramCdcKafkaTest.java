@@ -1,9 +1,9 @@
 package io.eventuate.tram.connector.kafka;
 
 import com.google.common.collect.ImmutableSet;
-import io.eventuate.common.spring.id.IdGeneratorConfiguration;
-import io.eventuate.common.spring.jdbc.EventuateCommonJdbcOperationsConfiguration;
-import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
+import io.eventuate.common.id.spring.IdGeneratorConfiguration;
+import io.eventuate.common.database.spring.jdbc.EventuateCommonJdbcOperationsConfiguration;
+import io.eventuate.common.database.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.messaging.kafka.basic.consumer.EventuateKafkaConsumerConfigurationProperties;
 import io.eventuate.messaging.kafka.basic.consumer.KafkaConsumerFactory;
 import io.eventuate.messaging.kafka.common.EventuateKafkaConfigurationProperties;

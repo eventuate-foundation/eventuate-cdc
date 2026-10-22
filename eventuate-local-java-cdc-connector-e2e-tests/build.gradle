@@ -10,8 +10,8 @@ dependencies {
     // Extra
     implementation "io.eventuate.messaging.kafka:eventuate-messaging-kafka-common:$eventuateMessagingKafkaVersion"
 
-    testImplementation "io.eventuate.common:eventuate-common-spring-jdbc:$eventuateCommonVersion"
-    testImplementation "io.eventuate.common:eventuate-common-spring-id:$eventuateCommonVersion"
+    testImplementation "io.eventuate.common.database:eventuate-common-spring-jdbc:$eventuateCommonDatabaseVersion"
+    testImplementation "io.eventuate.common.id:eventuate-common-spring-id:$eventuateCommonIdVersion"
     testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test:$springBootVersion"
 }
 
@@ -21,7 +21,8 @@ test {
 }
 
 dockerCompose {
-    environment.put "EVENTUATE_COMMON_VERSION", eventuateCommonImageVersion
+    environment.put "EVENTUATE_COMMON_DATABASE_VERSION", eventuateCommonDatabaseImageVersion
+    environment.put "EVENTUATE_COMMON_ZOOKEEPER_VERSION", eventuateCommonZookeeperImageVersion
     environment.put "EVENTUATE_RABBIT_MQ_VERSION", eventuateRabbitMQImageVersion
     environment.put "EVENTUATE_MESSAGING_KAFKA_IMAGE_VERSION", eventuateMessagingKafkaImageVersion
 

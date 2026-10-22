@@ -1,6 +1,6 @@
 package io.eventuate.local.polling;
 
-import io.eventuate.common.jdbc.sqldialect.EventuateSqlDialect;
+import io.eventuate.common.database.jdbc.sqldialect.EventuateSqlDialect;
 import io.eventuate.local.common.CdcProcessingStatus;
 import io.eventuate.local.common.CdcProcessingStatusService;
 import org.springframework.jdbc.core.JdbcTemplate;

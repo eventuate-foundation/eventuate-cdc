@@ -1,9 +1,9 @@
 package io.eventuate.tram.connector.redis;
 
 import com.google.common.collect.ImmutableSet;
-import io.eventuate.common.spring.id.IdGeneratorConfiguration;
-import io.eventuate.common.spring.jdbc.EventuateCommonJdbcOperationsConfiguration;
-import io.eventuate.common.spring.jdbc.sqldialect.SqlDialectConfiguration;
+import io.eventuate.common.id.spring.IdGeneratorConfiguration;
+import io.eventuate.common.database.spring.jdbc.EventuateCommonJdbcOperationsConfiguration;
+import io.eventuate.common.database.spring.jdbc.sqldialect.SqlDialectConfiguration;
 import io.eventuate.messaging.partitionmanagement.CoordinatorFactory;
 import io.eventuate.messaging.partitionmanagement.CoordinatorFactoryImpl;
 import io.eventuate.messaging.redis.spring.common.CommonRedisConfiguration;

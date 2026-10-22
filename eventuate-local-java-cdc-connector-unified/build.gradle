@@ -4,8 +4,8 @@ dependencies {
     api project(":eventuate-local-java-cdc-connector-mysql-binlog")
     api project(":eventuate-local-java-cdc-connector-polling")
     api project(":eventuate-local-java-cdc-connector-postgres-wal")
-    api "io.eventuate.common:eventuate-common-eventuate-local:$eventuateCommonVersion"
-    api "io.eventuate.common:eventuate-common-coordination-leadership-zookeeper:$eventuateCommonVersion"
+    api "io.eventuate.common.eventuate.local:eventuate-common-eventuate-local:$eventuateCommonEventuateLocalVersion"
+    api "io.eventuate.common.zookeeper:eventuate-common-coordination-leadership-zookeeper:$eventuateCommonZookeeperVersion"
 
     api "com.zaxxer:HikariCP:$hikariCpVersion"
     testImplementation "com.h2database:h2:$h2Version"

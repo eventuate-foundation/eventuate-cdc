@@ -2,7 +2,7 @@ package io.eventuate.local.test.util;
 
 import io.eventuate.common.eventuate.local.PublishedEvent;
 import io.eventuate.common.id.IdGenerator;
-import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.database.jdbc.EventuateSchema;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.common.EventuateConfigurationProperties;
 import io.eventuate.local.common.PublishingStrategy;

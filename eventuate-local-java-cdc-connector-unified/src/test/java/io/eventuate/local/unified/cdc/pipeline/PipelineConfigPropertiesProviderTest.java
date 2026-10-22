@@ -1,6 +1,6 @@
 package io.eventuate.local.unified.cdc.pipeline;
 
-import io.eventuate.common.jdbc.sqldialect.SqlDialectSelector;
+import io.eventuate.common.database.jdbc.sqldialect.SqlDialectSelector;
 import io.eventuate.local.common.ConnectionPoolConfigurationProperties;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.CdcPipelineReaderFactory;
 import io.eventuate.local.unified.cdc.pipeline.common.properties.CdcPipelineProperties;

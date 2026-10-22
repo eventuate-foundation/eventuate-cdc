@@ -1,6 +1,6 @@
 package io.eventuate.local.unified.cdc.pipeline.polling;
 
-import io.eventuate.common.jdbc.OutboxTableSuffix;
+import io.eventuate.common.database.jdbc.OutboxTableSuffix;
 import io.eventuate.local.unified.cdc.pipeline.common.PropertyReader;
 import io.eventuate.local.unified.cdc.pipeline.polling.properties.PollingPipelineReaderProperties;
 import org.junit.jupiter.api.Test;

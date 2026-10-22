@@ -1,7 +1,7 @@
 package io.eventuate.tram.cdc.connector.configuration;
 
-import io.eventuate.coordination.leadership.LeaderSelectorFactory;
-import io.eventuate.coordination.leadership.zookeeper.ZkLeaderSelector;
+import io.eventuate.common.coordination.leadership.LeaderSelectorFactory;
+import io.eventuate.common.zookeeper.ZkLeaderSelector;
 import io.eventuate.local.common.EventuateLocalZookeperConfigurationProperties;
 import io.eventuate.local.unified.cdc.pipeline.common.health.ZookeeperHealthCheck;
 import io.eventuate.tram.cdc.connector.configuration.condition.ZookeeperLeadership;

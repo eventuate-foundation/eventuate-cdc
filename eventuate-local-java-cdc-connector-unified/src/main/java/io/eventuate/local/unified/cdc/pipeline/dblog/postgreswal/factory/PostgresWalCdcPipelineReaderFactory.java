@@ -1,6 +1,6 @@
 package io.eventuate.local.unified.cdc.pipeline.dblog.postgreswal.factory;
 
-import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.database.jdbc.EventuateSchema;
 import io.eventuate.local.common.ConnectionPoolConfigurationProperties;
 import io.eventuate.local.postgres.wal.PostgresWalClient;
 import io.eventuate.local.unified.cdc.pipeline.common.factory.CommonCdcPipelineReaderFactory;

@@ -1,12 +1,11 @@
 package io.eventuate.tram.cdc.connector;
-
+import io.eventuate.common.database.testcontainers.EventuateMySqlContainer;
 import io.eventuate.common.id.IdGenerator;
-import io.eventuate.common.jdbc.EventuateSchema;
-import io.eventuate.common.jdbc.OutboxPartitioningSpec;
-import io.eventuate.common.spring.id.IdGeneratorConfiguration;
-import io.eventuate.common.testcontainers.EventuateMySqlContainer;
-import io.eventuate.common.testcontainers.EventuateZookeeperContainer;
+import io.eventuate.common.database.jdbc.EventuateSchema;
+import io.eventuate.common.database.jdbc.OutboxPartitioningSpec;
+import io.eventuate.common.id.spring.IdGeneratorConfiguration;
 import io.eventuate.common.testcontainers.PropertyProvidingContainer;
+import io.eventuate.common.zookeeper.testcontainers.EventuateZookeeperContainer;
 import io.eventuate.local.common.CdcDataPublisher;
 import io.eventuate.local.test.util.TestHelper;
 import io.eventuate.local.test.util.TestHelperConfiguration;

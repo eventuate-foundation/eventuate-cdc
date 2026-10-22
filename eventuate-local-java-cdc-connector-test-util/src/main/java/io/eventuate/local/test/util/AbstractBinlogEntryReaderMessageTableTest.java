@@ -2,7 +2,7 @@ package io.eventuate.local.test.util;
 
 import com.google.common.collect.ImmutableMap;
 import io.eventuate.common.id.IdGenerator;
-import io.eventuate.common.jdbc.EventuateSchema;
+import io.eventuate.common.database.jdbc.EventuateSchema;
 import io.eventuate.local.common.BinlogEntryReader;
 import io.eventuate.local.test.util.assertion.BinlogAssertion;
 import io.eventuate.tram.cdc.connector.MessageWithDestination;
