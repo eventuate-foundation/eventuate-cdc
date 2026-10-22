@@ -6,7 +6,7 @@ dependencies {
     api "org.testcontainers:testcontainers-kafka:$testContainersVersion"
     implementation "org.assertj:assertj-core:$assertjVersion"
 
-    implementation "io.eventuate.common.database:eventuate-common-database-testcontainers:$eventuateCommonDatabaseVersion"
+    api "io.eventuate.common.database:eventuate-common-database-testcontainers:$eventuateCommonDatabaseVersion"
 
     testImplementation "io.eventuate.common.database:eventuate-common-flyway:$eventuateCommonDatabaseVersion"
     testImplementation "org.springframework.boot:spring-boot-starter-flyway:$springBootVersion"
